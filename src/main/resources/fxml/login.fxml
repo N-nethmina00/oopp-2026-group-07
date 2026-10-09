@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.*?>
+
+<!-- NOTE: fx:controller package eka oyaage project ekata change karanna -->
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.ums.controller.LoginController"
+      stylesheets="@../css/login.css"
+      prefWidth="1000" prefHeight="600" styleClass="root-pane">
+
+    <!-- ========== LEFT BRAND PANEL ========== -->
+    <StackPane styleClass="left-panel" HBox.hgrow="NEVER" prefWidth="400" minWidth="320" maxWidth="460">
+        <VBox alignment="CENTER" spacing="6">
+            <Region styleClass="logo-icon-white" prefWidth="130" prefHeight="115"
+                    minWidth="130" minHeight="115" maxWidth="130" maxHeight="115"/>
+            <Label text="UNIVERSITY" styleClass="brand-title-bold">
+                <VBox.margin><Insets top="22"/></VBox.margin>
+            </Label>
+            <Label text="MANAGEMENT" styleClass="brand-title"/>
+            <Label text="SYSTEM" styleClass="brand-title"/>
+
+            <HBox alignment="CENTER" spacing="14">
+                <VBox.margin><Insets top="26"/></VBox.margin>
+                <Region styleClass="tag-line" prefWidth="50" minWidth="50" maxWidth="50"/>
+                <Label text="LEARN  •  MANAGE  •  GROW" styleClass="brand-tagline"/>
+                <Region styleClass="tag-line" prefWidth="50" minWidth="50" maxWidth="50"/>
+            </HBox>
+        </VBox>
+    </StackPane>
+
+    <!-- ========== RIGHT LOGIN PANEL ========== -->
+    <StackPane styleClass="right-panel" HBox.hgrow="ALWAYS" prefWidth="600" minWidth="480">
+        <VBox maxWidth="430" alignment="TOP_LEFT" spacing="8">
+
+            <!-- Header (centered) -->
+            <VBox alignment="CENTER" spacing="6">
+                <Region styleClass="logo-icon-blue" prefWidth="60" prefHeight="54"
+                        minWidth="60" minHeight="54" maxWidth="60" maxHeight="54"/>
+                <Label text="WELCOME BACK" styleClass="welcome-title">
+                    <VBox.margin><Insets top="10"/></VBox.margin>
+                </Label>
+                <Label text="Sign in to continue to University Management System" styleClass="welcome-subtitle"/>
+            </VBox>
+
+            <!-- Username (left aligned) -->
+            <Label text="USERNAME" styleClass="field-label" maxWidth="Infinity" alignment="CENTER_LEFT">
+                <VBox.margin><Insets top="24"/></VBox.margin>
+            </Label>
+            <HBox fx:id="boxUsername" alignment="CENTER_LEFT" spacing="12" styleClass="input-box">
+                <Region styleClass="icon-user" prefWidth="18" prefHeight="18"
+                        minWidth="18" minHeight="18" maxWidth="18" maxHeight="18"/>
+                <TextField fx:id="txtUsername" promptText="Enter your username"
+                           styleClass="input-field" HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <!-- Password (left aligned) -->
+            <Label text="PASSWORD" styleClass="field-label" maxWidth="Infinity" alignment="CENTER_LEFT">
+                <VBox.margin><Insets top="8"/></VBox.margin>
+            </Label>
+            <HBox fx:id="boxPassword" alignment="CENTER_LEFT" spacing="12" styleClass="input-box">
+                <Region styleClass="icon-lock" prefWidth="18" prefHeight="18"
+                        minWidth="18" minHeight="18" maxWidth="18" maxHeight="18"/>
+                <PasswordField fx:id="txtPassword" promptText="Enter your password"
+                               styleClass="input-field" HBox.hgrow="ALWAYS"
+                               onAction="#handleLogin"/>
+            </HBox>
+
+            <!-- Error message -->
+            <Label fx:id="lblError" styleClass="error-label" maxWidth="Infinity"
+                   alignment="CENTER_LEFT" managed="false" visible="false"/>
+
+            <!-- Login button -->
+            <Button fx:id="btnLogin" text="LOGIN" onAction="#handleLogin"
+                    styleClass="login-button" maxWidth="Infinity" defaultButton="true">
+                <VBox.margin><Insets top="12"/></VBox.margin>
+            </Button>
+
+            <!-- Clear + Forgot password -->
+            <HBox alignment="CENTER_LEFT">
+                <VBox.margin><Insets top="4"/></VBox.margin>
+                <Button fx:id="btnClear" onAction="#handleClear" styleClass="clear-button" text="Clear">
+                    <graphic>
+                        <Region styleClass="icon-trash" prefWidth="16" prefHeight="16"
+                                minWidth="16" minHeight="16" maxWidth="16" maxHeight="16"/>
+                    </graphic>
+                </Button>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnForgot" text="Forgot Password?" onAction="#handleForgotPassword"
+                        styleClass="link-button"/>
+            </HBox>
+
+            <!-- About -->
+            <HBox alignment="CENTER" spacing="14">
+                <VBox.margin><Insets top="14"/></VBox.margin>
+                <Region styleClass="divider-line" HBox.hgrow="ALWAYS"/>
+                <Button text="About University Management System" onAction="#handleAbout"
+                        styleClass="about-button"/>
+                <Region styleClass="divider-line" HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </VBox>
+    </StackPane>
+</HBox>

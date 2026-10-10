@@ -1,0 +1,188 @@
+/* ===== login.css ===== */
+
+.root {
+    -fx-font-family: "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+.root-pane {
+    -fx-background-color: white;
+}
+
+/* ---------- LEFT PANEL ---------- */
+.left-panel {
+    -fx-background-color: linear-gradient(to bottom right, #5560d6 0%, #3f48c0 55%, #3a43b8 100%);
+}
+
+.brand-title-bold {
+    -fx-text-fill: white;
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+}
+
+.brand-title {
+    -fx-text-fill: white;
+    -fx-font-size: 40px;
+    -fx-font-weight: normal;
+}
+
+.brand-tagline {
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-font-size: 12px;
+
+}
+
+.tag-line {
+    -fx-background-color: rgba(255,255,255,0.5);
+    -fx-min-height: 1px;
+    -fx-max-height: 1px;
+    -fx-pref-height: 1px;
+}
+
+/* ---------- LOGO ICONS (shape-based) ---------- */
+.logo-icon-white,
+.logo-icon-blue {
+    -fx-shape: "M50 0 L96 26 L96 33 L4 33 L4 26 Z M14 40 H27 V72 H14 Z M35 40 H48 V72 H35 Z M52 40 H65 V72 H52 Z M73 40 H86 V72 H73 Z M6 77 H94 V83 H6 Z M0 88 H100 V95 H0 Z";
+    -fx-scale-shape: true;
+}
+.logo-icon-white { -fx-background-color: white; }
+.logo-icon-blue  { -fx-background-color: #3f48c0; }
+
+/* ---------- RIGHT PANEL ---------- */
+.right-panel {
+    -fx-background-color: white;
+    -fx-padding: 30;
+}
+
+.welcome-title {
+    -fx-text-fill: #141b4d;
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+}
+
+.welcome-subtitle {
+    -fx-text-fill: #6b74a8;
+    -fx-font-size: 14px;
+}
+
+.field-label {
+    -fx-alignment: center-left;
+    -fx-text-alignment: left;
+    -fx-text-fill: #3f48c0;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* ---------- INPUTS ---------- */
+.input-box {
+    -fx-background-color: white;
+    -fx-border-color: #c9cdf0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-border-width: 1.2;
+    -fx-padding: 0 14 0 16;
+    -fx-pref-height: 50;
+    -fx-min-height: 50;
+}
+
+.input-box:hover,
+.input-box.input-box-focused {
+    -fx-border-color: #5560d6;
+    -fx-effect: dropshadow(gaussian, rgba(85,96,214,0.25), 8, 0, 0, 0);
+}
+
+.input-field {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-text-fill: #141b4d;
+    -fx-prompt-text-fill: #a3a9d6;
+    -fx-font-size: 14px;
+    -fx-padding: 0;
+}
+
+.input-field:focused {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-effect: none;
+}
+
+.icon-user, .icon-lock, .icon-trash {
+    -fx-background-color: #3f48c0;
+    -fx-scale-shape: true;
+}
+
+.icon-user {
+    -fx-shape: "M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z";
+}
+
+.icon-lock {
+    -fx-shape: "M6 10V7a6 6 0 1 1 12 0v3h2v12H4V10h2zm2 0h8V7a4 4 0 0 0-8 0v3z";
+}
+
+.icon-trash {
+    -fx-shape: "M9 3h6l1 2h5v2H3V5h5l1-2zM5 9h14l-1 13H6L5 9z";
+}
+
+/* ---------- LOGIN BUTTON ---------- */
+.login-button {
+    -fx-background-color: linear-gradient(to right, #5560d6, #4651cc);
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-pref-height: 50;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(85,96,214,0.40), 14, 0, 0, 5);
+}
+
+.login-button:hover {
+    -fx-background-color: linear-gradient(to right, #4651cc, #3a43b8);
+}
+
+.login-button:pressed {
+    -fx-background-color: #343ca8;
+    -fx-translate-y: 1;
+}
+
+/* ---------- SECONDARY BUTTONS ---------- */
+.clear-button, .link-button, .about-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 4 2 4 2;
+}
+
+.clear-button {
+    -fx-text-fill: #3f48c0;
+    -fx-font-size: 14px;
+    -fx-graphic-text-gap: 8;
+}
+
+.link-button {
+    -fx-text-fill: #6b74a8;
+    -fx-font-size: 14px;
+}
+
+.link-button:hover, .about-button:hover {
+    -fx-text-fill: #3f48c0;
+    -fx-underline: true;
+}
+
+.about-button {
+    -fx-text-fill: #6b74a8;
+    -fx-font-size: 13px;
+}
+
+.divider-line {
+    -fx-background-color: #c9cdf0;
+    -fx-min-height: 1px;
+    -fx-max-height: 1px;
+    -fx-pref-height: 1px;
+}
+
+/* ---------- ERROR ---------- */
+.error-label {
+    -fx-alignment: center-left;
+    -fx-wrap-text: true;
+    -fx-text-fill: #d93a4a;
+    -fx-font-size: 13px;
+    -fx-padding: 4 0 0 0;
+}

@@ -1,4 +1,4 @@
-package com.fot.ams.controller;
+package controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;

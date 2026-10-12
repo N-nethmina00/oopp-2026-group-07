@@ -1,4 +1,3 @@
-
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
@@ -164,8 +163,7 @@
                 </HBox>
 
                 <TableView fx:id="activityTable"
-                           VBox.vgrow="ALWAYS"
-                           columnResizePolicy="CONSTRAINED_RESIZE_POLICY">
+                           VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="activityColumn"
                                      text="Activity" prefWidth="280"/>

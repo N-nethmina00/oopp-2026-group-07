@@ -12,11 +12,11 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        URL fxml = Main.class.getResource("/fxml/AdminDashboard.fxml");
+        URL fxml = Main.class.getResource("/fxml/admin-dashboard.fxml");
 
         if (fxml == null) {
             throw new IllegalStateException(
-                    "AdminDashboard.fxml not found. Check src/main/resources/fxml/"
+                    "admin-dashboard.fxml not found. Check src/main/resources/fxml/"
             );
         }
 
@@ -35,7 +35,4 @@ public class Main extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
 }

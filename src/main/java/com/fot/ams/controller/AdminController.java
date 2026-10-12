@@ -1,3 +1,4 @@
+
 package com.fot.ams.controller;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -45,37 +46,59 @@ public class AdminController {
 
     @FXML
     public void initialize() {
-        // These are demo values, not database records.
+
+        // These are sample values, not database records.
         usersCount.setText("120");
         coursesCount.setText("18");
         departmentsCount.setText("6");
         medicalsCount.setText("4");
 
         activityColumn.setCellValueFactory(
-                cell -> new SimpleStringProperty(cell.getValue().getActivity()));
+                cell -> new SimpleStringProperty(
+                        cell.getValue().getActivity()));
 
         userColumn.setCellValueFactory(
-                cell -> new SimpleStringProperty(cell.getValue().getUser()));
+                cell -> new SimpleStringProperty(
+                        cell.getValue().getUser()));
 
         dateColumn.setCellValueFactory(
-                cell -> new SimpleStringProperty(cell.getValue().getDateTime()));
+                cell -> new SimpleStringProperty(
+                        cell.getValue().getDateTime()));
 
         statusColumn.setCellValueFactory(
-                cell -> new SimpleStringProperty(cell.getValue().getStatus()));
+                cell -> new SimpleStringProperty(
+                        cell.getValue().getStatus()));
 
         loadDemoActivities();
     }
 
     private void loadDemoActivities() {
+
         activities.setAll(
-                new Activity("New user registered", "Admin",
-                        "2026-10-12 09:30", "Completed"),
-                new Activity("Course details updated", "Admin",
-                        "2026-10-11 14:15", "Completed"),
-                new Activity("Medical approval submitted", "Student",
-                        "2026-10-11 11:00", "Pending"),
-                new Activity("Department information updated", "Admin",
-                        "2026-10-10 16:45", "Completed")
+                new Activity(
+                        "New user registered",
+                        "Admin",
+                        "2026-10-12 09:30",
+                        "Completed"
+                ),
+                new Activity(
+                        "Course details updated",
+                        "Admin",
+                        "2026-10-11 14:15",
+                        "Completed"
+                ),
+                new Activity(
+                        "Medical approval submitted",
+                        "Student",
+                        "2026-10-11 11:00",
+                        "Pending"
+                ),
+                new Activity(
+                        "Department information updated",
+                        "Admin",
+                        "2026-10-10 16:45",
+                        "Completed"
+                )
         );
 
         activityTable.setItems(activities);
@@ -83,16 +106,20 @@ public class AdminController {
 
     @FXML
     private void handleNavigation(ActionEvent event) {
+
         Button clickedButton = (Button) event.getSource();
         String page = clickedButton.getText();
 
         if ("Logout".equals(page)) {
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Logout");
             alert.setHeaderText("Logout is not configured yet");
             alert.setContentText(
-                    "Login screen එක connect කළාට පස්සේ logout feature එක add කරමු."
+                    "The logout feature will be implemented "
+                            + "after connecting the login screen."
             );
+
             alert.showAndWait();
             return;
         }
@@ -100,11 +127,13 @@ public class AdminController {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Navigation");
         alert.setHeaderText(page);
+
         alert.setContentText(
                 page.equals("Dashboard")
                         ? "You are already on the Admin Dashboard."
-                        : page + " page එක තවම implement කරලා නැහැ."
+                        : "The " + page + " page has not been implemented yet."
         );
+
         alert.showAndWait();
     }
 

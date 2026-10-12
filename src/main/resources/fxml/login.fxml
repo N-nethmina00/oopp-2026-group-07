@@ -7,9 +7,9 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
 
-<!-- NOTE: fx:controller package eka oyaage project ekata change karanna -->
+<!-- NOTE: fx:com.fot.ams.controller package eka oyaage project ekata change karanna -->
 <HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.ums.controller.LoginController"
+      fx:controller="controller.LoginController"
       stylesheets="@../css/login.css"
       prefWidth="1000" prefHeight="600" styleClass="root-pane">
 

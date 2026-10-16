@@ -1,62 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
+<BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.fot.ams.controller.TechnicalOfficerController"
-            prefWidth="1000" prefHeight="650"
-            style="-fx-background-color: #F7F8FA;">
+            stylesheets="@../css/technical-officer.css"
+            prefWidth="1200" prefHeight="750">
 
     <top>
-        <Label text="University Management System"
-               maxWidth="Infinity"
-               style="-fx-background-color: #20252B;
-                      -fx-text-fill: white;
-                      -fx-font-size: 22px;
-                      -fx-padding: 20px;"/>
+        <HBox styleClass="header">
+            <Label text="University Management System"
+                   styleClass="header-title"/>
+        </HBox>
     </top>
 
     <left>
-        <VBox spacing="12" prefWidth="220"
-              style="-fx-background-color: #E8EDF2;">
-            <padding>
-                <Insets top="20" right="15" bottom="20" left="15"/>
-            </padding>
+        <VBox styleClass="sidebar">
+            <Label text="UMS" styleClass="logo"/>
 
-            <Label text="TECHNICAL OFFICER"
-                   style="-fx-font-weight: bold;"/>
-
-            <Button text="Dashboard" maxWidth="Infinity"/>
-            <Button text="Attendance" maxWidth="Infinity"/>
-            <Button text="Medical Records" maxWidth="Infinity"/>
-            <Button text="Notices" maxWidth="Infinity"/>
-            <Button text="Timetable" maxWidth="Infinity"/>
-            <Button text="My Profile" maxWidth="Infinity"/>
-            <Button text="Logout" maxWidth="Infinity"/>
+            <Button text="Dashboard" maxWidth="Infinity"
+                    styleClass="nav-button, active"/>
+            <Button text="Students" maxWidth="Infinity"
+                    styleClass="nav-button"/>
+            <Button text="Attendance" maxWidth="Infinity"
+                    styleClass="nav-button"/>
+            <Button text="Sessions" maxWidth="Infinity"
+                    styleClass="nav-button"/>
+            <Button text="Course Materials" maxWidth="Infinity"
+                    styleClass="nav-button"/>
+            <Button text="Timetable" maxWidth="Infinity"
+                    styleClass="nav-button"/>
+            <Button text="Medical Records" maxWidth="Infinity"
+                    styleClass="nav-button"/>
+            <Button text="Notices" maxWidth="Infinity"
+                    styleClass="nav-button"/>
+            <Button text="Profile" maxWidth="Infinity"
+                    styleClass="nav-button"/>
+            <Button text="Logout" maxWidth="Infinity"
+                    styleClass="nav-button"/>
         </VBox>
     </left>
 
     <center>
-        <VBox spacing="15">
-            <padding>
-                <Insets top="30" right="30" bottom="30" left="30"/>
-            </padding>
+        <ScrollPane fitToWidth="true">
+            <content>
+                <VBox styleClass="content">
+                    <Label text="Technical Officer Dashboard"
+                           styleClass="page-title"/>
 
-            <Label text="Technical Officer Dashboard"
-                   style="-fx-font-size: 26px;
-                          -fx-font-weight: bold;"/>
+                    <FlowPane styleClass="cards">
 
-            <Label text="Welcome to your dashboard."
-                   style="-fx-font-size: 16px;"/>
+                        <VBox styleClass="card">
+                            <Label text="Students"
+                                   styleClass="card-title"/>
+                            <Label fx:id="studentCountLabel" text="420"
+                                   styleClass="card-value"/>
+                            <Label text="Department"
+                                   styleClass="card-description"/>
+                        </VBox>
 
-            <Label text="Manage undergraduate attendance and medical records."
-                   wrapText="true"/>
-        </VBox>
+                        <VBox styleClass="card">
+                            <Label text="Sessions"
+                                   styleClass="card-title"/>
+                            <Label fx:id="sessionCountLabel" text="36"
+                                   styleClass="card-value"/>
+                            <Label text="This week"
+                                   styleClass="card-description"/>
+                        </VBox>
+
+                        <VBox styleClass="card">
+                            <Label text="Attendance"
+                                   styleClass="card-title"/>
+                            <Label fx:id="attendanceCountLabel" text="12"
+                                   styleClass="card-value"/>
+                            <Label text="Pending"
+                                   styleClass="card-description"/>
+                        </VBox>
+
+                        <VBox styleClass="card">
+                            <Label text="Materials"
+                                   styleClass="card-title"/>
+                            <Label fx:id="materialCountLabel" text="24"
+                                   styleClass="card-value"/>
+                            <Label text="Uploaded"
+                                   styleClass="card-description"/>
+                        </VBox>
+
+                    </FlowPane>
+
+                    <Label text="Quick Actions"
+                           styleClass="section-title"/>
+
+                    <FlowPane styleClass="quick-actions">
+                        <Button text="Record Attendance"
+                                styleClass="action-button"/>
+                        <Button text="Manage Session"
+                                styleClass="action-button"/>
+                        <Button text="View Medical"
+                                styleClass="action-button"/>
+                    </FlowPane>
+                </VBox>
+            </content>
+        </ScrollPane>
     </center>
 
 </BorderPane>

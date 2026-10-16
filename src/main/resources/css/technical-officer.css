@@ -1,0 +1,110 @@
+.root {
+    -fx-font-family: "Arial";
+    -fx-background-color: white;
+    -fx-text-fill: #252A30;
+}
+
+.header {
+    -fx-background-color: #20252B;
+    -fx-padding: 25px 30px;
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.sidebar {
+    -fx-background-color: #EAEFF3;
+    -fx-padding: 25px 15px;
+    -fx-spacing: 10px;
+    -fx-pref-width: 200px;
+}
+
+.logo {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 10px 15px 10px;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 4px;
+    -fx-text-fill: #252A30;
+    -fx-alignment: center-left;
+    -fx-padding: 12px 15px;
+    -fx-cursor: hand;
+}
+
+.nav-button:hover {
+    -fx-background-color: #DDE6EF;
+}
+
+.nav-button.active {
+    -fx-background-color: #D3E3F3;
+    -fx-font-weight: bold;
+}
+
+.content {
+    -fx-padding: 35px;
+    -fx-spacing: 25px;
+}
+
+.page-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.cards {
+    -fx-hgap: 18px;
+    -fx-vgap: 18px;
+}
+
+.card {
+    -fx-background-color: white;
+    -fx-border-color: #CCD2D9;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 22px;
+    -fx-spacing: 18px;
+    -fx-pref-width: 195px;
+}
+
+.card-title {
+    -fx-text-fill: #555555;
+}
+
+.card-value {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.card-description {
+    -fx-text-fill: #808080;
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 25px 0 15px 0;
+}
+
+.quick-actions {
+    -fx-hgap: 18px;
+    -fx-vgap: 15px;
+}
+
+.action-button {
+    -fx-background-color: #E8ECF1;
+    -fx-border-color: #BCC4CE;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 42px;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #D3E3F3;
+}

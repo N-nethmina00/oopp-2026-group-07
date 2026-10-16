@@ -6,33 +6,22 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.net.URL;
-
 public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        URL fxml = Main.class.getResource("/fxml/admin-dashboard.fxml");
+        FXMLLoader loader = new FXMLLoader(
+                Main.class.getResource("/fxml/admin-dashboard.fxml")
+        );
 
-        if (fxml == null) {
-            throw new IllegalStateException(
-                    "admin-dashboard.fxml not found. Check src/main/resources/fxml/"
-            );
-        }
+        Parent root = loader.load();
 
-        Parent root = FXMLLoader.load(fxml);
-        Scene scene = new Scene(root, 1280, 800);
-
-        URL css = Main.class.getResource("/css/admin-dashboard.css");
-        if (css != null) {
-            scene.getStylesheets().add(css.toExternalForm());
-        }
-
-        stage.setTitle("Academic Management System - Admin");
-        stage.setScene(scene);
-        stage.setMinWidth(1000);
-        stage.setMinHeight(650);
+        stage.setTitle("Academic Management System");
+        stage.setScene(new Scene(root, 1200, 750));
         stage.show();
     }
 
+    public static void main(String[] args) {
+        launch(args);
+    }
 }

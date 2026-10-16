@@ -35,7 +35,7 @@
     -fx-background-color: rgba(255,255,255,0.5);
     -fx-min-height: 1px;
     -fx-max-height: 1px;
-    -fx-pref-height: 1px;
+    -fx-pref-height: 2px;
 }
 
 /* ---------- LOGO ICONS (shape-based) ---------- */

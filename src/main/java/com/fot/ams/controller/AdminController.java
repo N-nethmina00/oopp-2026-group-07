@@ -1,176 +1,123 @@
 
 package com.fot.ams.controller;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.ButtonType;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+
+import java.util.Optional;
 
 public class AdminController {
 
     @FXML
-    private Label usersCount;
+    private BorderPane rootPane;
 
     @FXML
-    private Label coursesCount;
+    private VBox sidebar;
 
     @FXML
-    private Label departmentsCount;
+    private Button dashboardButton;
 
     @FXML
-    private Label medicalsCount;
+    private Button usersButton;
 
     @FXML
-    private TableView<Activity> activityTable;
+    private Button coursesButton;
 
     @FXML
-    private TableColumn<Activity, String> activityColumn;
+    private Button noticesButton;
 
     @FXML
-    private TableColumn<Activity, String> userColumn;
+    private Button timetableButton;
 
     @FXML
-    private TableColumn<Activity, String> dateColumn;
+    private Button logoutButton;
 
     @FXML
-    private TableColumn<Activity, String> statusColumn;
-
-    private final ObservableList<Activity> activities =
-            FXCollections.observableArrayList();
-
-    @FXML
-    public void initialize() {
-
-        // These are sample values, not database records.
-        usersCount.setText("120");
-        coursesCount.setText("18");
-        departmentsCount.setText("6");
-        medicalsCount.setText("4");
-
-        activityColumn.setCellValueFactory(
-                cell -> new SimpleStringProperty(
-                        cell.getValue().getActivity()));
-
-        userColumn.setCellValueFactory(
-                cell -> new SimpleStringProperty(
-                        cell.getValue().getUser()));
-
-        dateColumn.setCellValueFactory(
-                cell -> new SimpleStringProperty(
-                        cell.getValue().getDateTime()));
-
-        statusColumn.setCellValueFactory(
-                cell -> new SimpleStringProperty(
-                        cell.getValue().getStatus()));
-
-        loadDemoActivities();
-    }
-
-    private void loadDemoActivities() {
-
-        activities.setAll(
-                new Activity(
-                        "New user registered",
-                        "Admin",
-                        "2026-10-12 09:30",
-                        "Completed"
-                ),
-                new Activity(
-                        "Course details updated",
-                        "Admin",
-                        "2026-10-11 14:15",
-                        "Completed"
-                ),
-                new Activity(
-                        "Medical approval submitted",
-                        "Student",
-                        "2026-10-11 11:00",
-                        "Pending"
-                ),
-                new Activity(
-                        "Department information updated",
-                        "Admin",
-                        "2026-10-10 16:45",
-                        "Completed"
-                )
-        );
-
-        activityTable.setItems(activities);
+    private void initialize() {
+        setActiveButton(dashboardButton);
     }
 
     @FXML
-    private void handleNavigation(ActionEvent event) {
-
-        Button clickedButton = (Button) event.getSource();
-        String page = clickedButton.getText();
-
-        if ("Logout".equals(page)) {
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Logout");
-            alert.setHeaderText("Logout is not configured yet");
-            alert.setContentText(
-                    "The logout feature will be implemented "
-                            + "after connecting the login screen."
-            );
-
-            alert.showAndWait();
+    private void handleSidebarClick(javafx.event.ActionEvent event) {
+        if (!(event.getSource() instanceof Button clickedButton)) {
             return;
         }
 
+        if (clickedButton == logoutButton) {
+            handleLogout();
+            return;
+        }
+
+        setActiveButton(clickedButton);
+
+        if (clickedButton == dashboardButton) {
+            return;
+        }
+
+        String sectionName = clickedButton.getText();
+
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Navigation");
-        alert.setHeaderText(page);
-
+        alert.setTitle("Admin Dashboard");
+        alert.setHeaderText(sectionName);
         alert.setContentText(
-                page.equals("Dashboard")
-                        ? "You are already on the Admin Dashboard."
-                        : "The " + page + " page has not been implemented yet."
+                sectionName + " section selected."
         );
-
         alert.showAndWait();
     }
 
-    @FXML
-    private void refreshDashboard() {
-        loadDemoActivities();
+    private void setActiveButton(Button activeButton) {
+        if (sidebar == null) {
+            return;
+        }
+
+        for (Node node : sidebar.getChildren()) {
+            if (node instanceof Button button && button != logoutButton) {
+                button.setStyle(
+                        "-fx-background-color: transparent;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-background-radius: 8;" +
+                                "-fx-font-weight: normal;" +
+                                "-fx-alignment: CENTER_LEFT;" +
+                                "-fx-padding: 0 12 0 12;"
+                );
+            }
+        }
+
+        if (activeButton != null) {
+            activeButton.setStyle(
+                    "-fx-background-color: white;" +
+                            "-fx-text-fill: #0078b9;" +
+                            "-fx-background-radius: 8;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-alignment: CENTER_LEFT;" +
+                            "-fx-padding: 0 12 0 12;"
+            );
+        }
     }
 
-    public static class Activity {
+    private void handleLogout() {
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Log Out");
+        confirmation.setHeaderText("Confirm Logout");
+        confirmation.setContentText(
+                "Are you sure you want to log out?"
+        );
 
-        private final String activity;
-        private final String user;
-        private final String dateTime;
-        private final String status;
+        Optional<ButtonType> result = confirmation.showAndWait();
 
-        public Activity(String activity, String user,
-                        String dateTime, String status) {
-            this.activity = activity;
-            this.user = user;
-            this.dateTime = dateTime;
-            this.status = status;
-        }
-
-        public String getActivity() {
-            return activity;
-        }
-
-        public String getUser() {
-            return user;
-        }
-
-        public String getDateTime() {
-            return dateTime;
-        }
-
-        public String getStatus() {
-            return status;
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            Alert message = new Alert(Alert.AlertType.INFORMATION);
+            message.setTitle("Log Out");
+            message.setHeaderText(null);
+            message.setContentText(
+                    "Logout confirmed. Connect your login screen here."
+            );
+            message.showAndWait();
         }
     }
 }

@@ -14,7 +14,7 @@
 <BorderPane minHeight="400.0" minWidth="600.0" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F3F6FA;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
 
    <top>
-      <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="10.0" style="-fx-background-color: #0078b9;                      -fx-background-radius: 0 0 18 18;">
+      <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="10.0" style="-fx-background-color: #4c56cd; -fx-background-radius: 0 0 18 18;">
          <padding>
             <Insets bottom="10" left="20" right="20" top="10" />
          </padding>
@@ -57,7 +57,7 @@
             <Insets bottom="15" left="12" right="12" top="18" />
          </padding>
 
-         <VBox spacing="10" style="-fx-background-color: #0078b9;                          -fx-background-radius: 18;" VBox.vgrow="ALWAYS">
+         <VBox spacing="10" style="-fx-background-color: #4c56cd; -fx-background-radius: 18;" VBox.vgrow="ALWAYS">
             <padding>
                <Insets bottom="15" left="10" right="10" top="18" />
             </padding>

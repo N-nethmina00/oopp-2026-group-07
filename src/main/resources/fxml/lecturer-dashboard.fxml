@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.fot.ams.controller.LecturerController"
+            prefWidth="1100" prefHeight="700"
+            style="-fx-background-color: #f4f6fb;">
+
+    <left>
+        <VBox spacing="12" prefWidth="240"
+              style="-fx-background-color: #172554;">
+
+            <padding>
+                <Insets top="25" right="15" bottom="20" left="15"/>
+            </padding>
+
+            <Label text="UMS"
+                   style="-fx-text-fill: white; -fx-font-size: 23px; -fx-font-weight: bold;"/>
+
+            <Label text="LECTURER PANEL"
+                   style="-fx-text-fill: #cbd5e1; -fx-font-size: 12px;"/>
+
+            <Separator/>
+
+            <Button text="Dashboard" maxWidth="Infinity"
+                    onAction="#showDashboard"/>
+
+            <Button text="My Profile" maxWidth="Infinity"
+                    onAction="#showProfile"/>
+
+            <Button text="My Courses" maxWidth="Infinity"
+                    onAction="#showCourses"/>
+
+            <Button text="Course Materials" maxWidth="Infinity"
+                    onAction="#showMaterials"/>
+
+            <Button text="Student Marks" maxWidth="Infinity"
+                    onAction="#showMarks"/>
+
+            <Button text="Undergraduate Details" maxWidth="Infinity"
+                    onAction="#showStudents"/>
+
+            <Button text="Exam Eligibility" maxWidth="Infinity"
+                    onAction="#showEligibility"/>
+
+            <Button text="Attendance" maxWidth="Infinity"
+                    onAction="#showAttendance"/>
+
+            <Button text="Medical Records" maxWidth="Infinity"
+                    onAction="#showMedicals"/>
+
+            <Button text="Grades &amp; GPA" maxWidth="Infinity"
+                    onAction="#showGrades"/>
+
+            <Button text="Notices" maxWidth="Infinity"
+                    onAction="#showNotices"/>
+
+            <Button text="Logout" maxWidth="Infinity"
+                    onAction="#logout"/>
+
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20">
+            <padding>
+                <Insets top="35" right="35" bottom="35" left="35"/>
+            </padding>
+
+            <Label fx:id="pageTitle"
+                   text="Welcome,Lecturer"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+
+            <Label fx:id="pageDescription"
+                   text="Select a feature from the sidebar to continue."
+                   wrapText="true"
+                   style="-fx-font-size: 15px; -fx-text-fill: #475569;"/>
+
+            <VBox fx:id="contentArea" spacing="12"
+                  VBox.vgrow="ALWAYS"/>
+
+        </VBox>
+    </center>
+
+</BorderPane>

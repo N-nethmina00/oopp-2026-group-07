@@ -2,29 +2,22 @@ package com.fot.ams;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.net.URL;
 
 public class Main extends Application {
 
     @Override
-    public void start(Stage stage) throws IOException {
-        URL view = Main.class.getResource(
-                "/fxml/technical-officer-dashboard.fxml"
+    public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(
+                Main.class.getResource("/fxml/admin-dashboard.fxml")
         );
 
-        if (view == null) {
-            throw new IOException("Dashboard FXML file was not found.");
-        }
-
-        FXMLLoader loader = new FXMLLoader(view);
-        Scene scene = new Scene(loader.load(), 1000, 650);
+        Parent root = loader.load();
 
         stage.setTitle("Academic Management System");
-        stage.setScene(scene);
+        stage.setScene(new Scene(root, 1200, 750));
         stage.show();
     }
 

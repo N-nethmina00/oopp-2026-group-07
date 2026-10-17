@@ -1,0 +1,87 @@
+.attendance-page {
+    -fx-background-color: #F7F8FA;
+    -fx-padding: 30;
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+}
+
+.attendance-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #20252B;
+}
+
+.attendance-subtitle {
+    -fx-text-fill: #737D8A;
+    -fx-font-size: 13px;
+}
+
+.attendance-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #DEE3E9;
+    -fx-border-radius: 8;
+    -fx-padding: 22;
+}
+
+.attendance-section-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #283442;
+}
+
+.attendance-page .combo-box,
+.attendance-page .date-picker {
+    -fx-pref-height: 38;
+    -fx-background-color: white;
+    -fx-border-color: #CDD5DF;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.attendance-primary-button {
+    -fx-background-color: #2563EB;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 11 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.attendance-primary-button:hover {
+    -fx-background-color: #1D4ED8;
+}
+
+.attendance-secondary-button {
+    -fx-background-color: #EAF0F7;
+    -fx-text-fill: #334155;
+    -fx-padding: 11 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.attendance-secondary-button:hover {
+    -fx-background-color: #DCE6F2;
+}
+
+.attendance-page .table-view {
+    -fx-border-color: #DEE3E9;
+    -fx-background-color: white;
+}
+
+.attendance-page .table-view .column-header,
+.attendance-page .table-view .filler {
+    -fx-background-color: #EAF0F7;
+    -fx-pref-height: 42;
+}
+
+.attendance-page .table-view .column-header .label {
+    -fx-text-fill: #334155;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 10;
+}
+
+.attendance-page .table-row-cell {
+    -fx-cell-size: 40;
+}

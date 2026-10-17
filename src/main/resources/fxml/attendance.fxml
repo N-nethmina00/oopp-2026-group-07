@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      stylesheets="@../css/technical-officer-attendance.css"
+      styleClass="attendance-page"
+      spacing="20">
+
+    <Label text="Attendance Management"
+           styleClass="attendance-title"/>
+
+    <Label text="Record and review undergraduate attendance."
+           styleClass="attendance-subtitle"/>
+
+    <VBox spacing="18" styleClass="attendance-panel">
+
+        <Label text="Session Details"
+               styleClass="attendance-section-title"/>
+
+        <FlowPane hgap="20" vgap="15">
+
+            <VBox spacing="7">
+                <Label text="Course"/>
+                <ComboBox fx:id="courseComboBox"
+                          promptText="Select course"
+                          prefWidth="220"/>
+            </VBox>
+
+            <VBox spacing="7">
+                <Label text="Batch"/>
+                <ComboBox fx:id="batchComboBox"
+                          promptText="Select batch"
+                          prefWidth="180"/>
+            </VBox>
+
+            <VBox spacing="7">
+                <Label text="Date"/>
+                <DatePicker fx:id="sessionDatePicker"
+                            promptText="Select date"
+                            prefWidth="180"/>
+            </VBox>
+
+            <VBox spacing="7">
+                <Label text="Session Type"/>
+                <ComboBox fx:id="sessionTypeComboBox"
+                          promptText="Theory / Practical"
+                          prefWidth="180"/>
+            </VBox>
+
+            <VBox spacing="7">
+                <Label text="Session"/>
+                <ComboBox fx:id="sessionComboBox"
+                          promptText="Select session"
+                          prefWidth="220"/>
+            </VBox>
+
+        </FlowPane>
+
+        <Button text="Load Students"
+                styleClass="attendance-primary-button"/>
+
+    </VBox>
+
+    <VBox spacing="15"
+          styleClass="attendance-panel"
+          VBox.vgrow="ALWAYS">
+
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <Label text="Student Attendance"
+                   styleClass="attendance-section-title"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Label text="0 students"
+                   styleClass="attendance-subtitle"/>
+        </HBox>
+
+        <Label text="Attendance statuses: Present, Absent, Late, Excused"
+               styleClass="attendance-subtitle"
+               wrapText="true"/>
+
+        <TableView fx:id="attendanceTable"
+                   prefHeight="300"
+                   VBox.vgrow="ALWAYS">
+
+            <columns>
+                <TableColumn fx:id="regNoColumn"
+                             text="Registration No."
+                             prefWidth="180"/>
+
+                <TableColumn fx:id="studentNameColumn"
+                             text="Student Name"
+                             prefWidth="310"/>
+
+                <TableColumn fx:id="statusColumn"
+                             text="Attendance Status"
+                             prefWidth="220"/>
+            </columns>
+
+            <placeholder>
+                <Label text="Select a session to load students."/>
+            </placeholder>
+
+        </TableView>
+
+        <HBox alignment="CENTER_RIGHT" spacing="12">
+            <Button text="Mark All Present"
+                    styleClass="attendance-secondary-button"/>
+
+            <Button text="Save Attendance"
+                    styleClass="attendance-primary-button"/>
+        </HBox>
+
+    </VBox>
+
+    <Label text="UI preview — database and button actions will be connected later."
+           styleClass="attendance-subtitle"
+           wrapText="true"/>
+
+</VBox>

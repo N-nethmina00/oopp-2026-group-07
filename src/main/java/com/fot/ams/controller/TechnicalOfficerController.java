@@ -1,4 +1,59 @@
 package com.fot.ams.controller;
 
+import java.io.IOException;
+import java.net.URL;
+
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.layout.BorderPane;
+
 public class TechnicalOfficerController {
+
+    @FXML
+    private BorderPane dashboardRoot;
+
+    private Node dashboardContent;
+    private Node attendanceContent;
+
+    @FXML
+    private void initialize() {
+        dashboardContent = dashboardRoot.getCenter();
+    }
+
+    @FXML
+    private void showAttendance() {
+        try {
+            if (attendanceContent == null) {
+                URL resource = getClass().getResource(
+                        "/fxml/attendance.fxml"
+                );
+
+                if (resource == null) {
+                    throw new IOException(
+                            "Cannot find /fxml/attendance.fxml"
+                    );
+                }
+
+                attendanceContent = FXMLLoader.load(resource);
+            }
+
+            dashboardRoot.setCenter(attendanceContent);
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Page Loading Error");
+            alert.setHeaderText("Attendance page could not be opened.");
+            alert.setContentText(exception.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void showDashboard() {
+        dashboardRoot.setCenter(dashboardContent);
+    }
 }

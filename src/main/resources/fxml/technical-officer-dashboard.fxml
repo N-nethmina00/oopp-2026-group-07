@@ -5,9 +5,11 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
+            fx:id="dashboardRoot"
             fx:controller="com.fot.ams.controller.TechnicalOfficerController"
             stylesheets="@../css/technical-officer.css"
-            prefWidth="1200" prefHeight="750">
+            prefWidth="1200"
+            prefHeight="750">
 
     <top>
         <HBox styleClass="header">
@@ -18,28 +20,52 @@
 
     <left>
         <VBox styleClass="sidebar">
-            <Label text="UMS" styleClass="logo"/>
 
-            <Button text="Dashboard" maxWidth="Infinity"
-                    styleClass="nav-button, active"/>
-            <Button text="Students" maxWidth="Infinity"
+            <Label text="UMS"
+                   styleClass="logo"/>
+
+            <Button text="Dashboard"
+                    maxWidth="Infinity"
+                    styleClass="nav-button, active"
+                    onAction="#showDashboard"/>
+
+            <Button text="Students"
+                    maxWidth="Infinity"
                     styleClass="nav-button"/>
-            <Button text="Attendance" maxWidth="Infinity"
+
+            <Button text="Attendance"
+                    maxWidth="Infinity"
+                    styleClass="nav-button"
+                    onAction="#showAttendance"/>
+
+            <Button text="Sessions"
+                    maxWidth="Infinity"
                     styleClass="nav-button"/>
-            <Button text="Sessions" maxWidth="Infinity"
+
+            <Button text="Course Materials"
+                    maxWidth="Infinity"
                     styleClass="nav-button"/>
-            <Button text="Course Materials" maxWidth="Infinity"
+
+            <Button text="Timetable"
+                    maxWidth="Infinity"
                     styleClass="nav-button"/>
-            <Button text="Timetable" maxWidth="Infinity"
+
+            <Button text="Medical Records"
+                    maxWidth="Infinity"
                     styleClass="nav-button"/>
-            <Button text="Medical Records" maxWidth="Infinity"
+
+            <Button text="Notices"
+                    maxWidth="Infinity"
                     styleClass="nav-button"/>
-            <Button text="Notices" maxWidth="Infinity"
+
+            <Button text="Profile"
+                    maxWidth="Infinity"
                     styleClass="nav-button"/>
-            <Button text="Profile" maxWidth="Infinity"
+
+            <Button text="Logout"
+                    maxWidth="Infinity"
                     styleClass="nav-button"/>
-            <Button text="Logout" maxWidth="Infinity"
-                    styleClass="nav-button"/>
+
         </VBox>
     </left>
 
@@ -47,6 +73,7 @@
         <ScrollPane fitToWidth="true">
             <content>
                 <VBox styleClass="content">
+
                     <Label text="Technical Officer Dashboard"
                            styleClass="page-title"/>
 
@@ -55,8 +82,11 @@
                         <VBox styleClass="card">
                             <Label text="Students"
                                    styleClass="card-title"/>
-                            <Label fx:id="studentCountLabel" text="420"
+
+                            <Label fx:id="studentCountLabel"
+                                   text="420"
                                    styleClass="card-value"/>
+
                             <Label text="Department"
                                    styleClass="card-description"/>
                         </VBox>
@@ -64,8 +94,11 @@
                         <VBox styleClass="card">
                             <Label text="Sessions"
                                    styleClass="card-title"/>
-                            <Label fx:id="sessionCountLabel" text="36"
+
+                            <Label fx:id="sessionCountLabel"
+                                   text="36"
                                    styleClass="card-value"/>
+
                             <Label text="This week"
                                    styleClass="card-description"/>
                         </VBox>
@@ -73,8 +106,11 @@
                         <VBox styleClass="card">
                             <Label text="Attendance"
                                    styleClass="card-title"/>
-                            <Label fx:id="attendanceCountLabel" text="12"
+
+                            <Label fx:id="attendanceCountLabel"
+                                   text="12"
                                    styleClass="card-value"/>
+
                             <Label text="Pending"
                                    styleClass="card-description"/>
                         </VBox>
@@ -82,8 +118,11 @@
                         <VBox styleClass="card">
                             <Label text="Materials"
                                    styleClass="card-title"/>
-                            <Label fx:id="materialCountLabel" text="24"
+
+                            <Label fx:id="materialCountLabel"
+                                   text="24"
                                    styleClass="card-value"/>
+
                             <Label text="Uploaded"
                                    styleClass="card-description"/>
                         </VBox>
@@ -94,13 +133,19 @@
                            styleClass="section-title"/>
 
                     <FlowPane styleClass="quick-actions">
+
                         <Button text="Record Attendance"
-                                styleClass="action-button"/>
+                                styleClass="action-button"
+                                onAction="#showAttendance"/>
+
                         <Button text="Manage Session"
                                 styleClass="action-button"/>
+
                         <Button text="View Medical"
                                 styleClass="action-button"/>
+
                     </FlowPane>
+
                 </VBox>
             </content>
         </ScrollPane>

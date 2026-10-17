@@ -8,143 +8,201 @@
             fx:id="dashboardRoot"
             fx:controller="com.fot.ams.controller.TechnicalOfficerController"
             stylesheets="@../css/technical-officer.css"
+            styleClass="to-root"
             prefWidth="1200"
             prefHeight="750">
 
     <top>
-        <HBox styleClass="header">
-            <Label text="University Management System"
-                   styleClass="header-title"/>
+        <HBox alignment="CENTER_LEFT"
+              spacing="15"
+              styleClass="to-header">
+
+            <Label text="UMS"
+                   styleClass="to-logo"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <VBox alignment="CENTER_RIGHT" spacing="4">
+                <Label text="Welcome, Technical Officer"
+                       styleClass="to-welcome"/>
+
+                <Label text="Technical Officer"
+                       styleClass="to-role"/>
+            </VBox>
+
+            <StackPane styleClass="to-avatar">
+                <Label text="TO"
+                       styleClass="to-avatar-text"/>
+            </StackPane>
+
         </HBox>
     </top>
 
     <left>
-        <VBox styleClass="sidebar">
+        <VBox styleClass="to-sidebar-wrapper">
+            <VBox spacing="9"
+                  styleClass="to-sidebar"
+                  VBox.vgrow="ALWAYS">
 
-            <Label text="UMS"
-                   styleClass="logo"/>
+                <Button text="Dashboard"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"
+                        onAction="#showDashboard"/>
 
-            <Button text="Dashboard"
-                    maxWidth="Infinity"
-                    styleClass="nav-button, active"
-                    onAction="#showDashboard"/>
+                <Button text="Students"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"/>
 
-            <Button text="Students"
-                    maxWidth="Infinity"
-                    styleClass="nav-button"/>
+                <Button text="Attendance"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"
+                        onAction="#showAttendance"/>
 
-            <Button text="Attendance"
-                    maxWidth="Infinity"
-                    styleClass="nav-button"
-                    onAction="#showAttendance"/>
+                <Button text="Sessions"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"/>
 
-            <Button text="Sessions"
-                    maxWidth="Infinity"
-                    styleClass="nav-button"/>
+                <Button text="Course Materials"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"/>
 
-            <Button text="Course Materials"
-                    maxWidth="Infinity"
-                    styleClass="nav-button"/>
+                <Button text="Timetable"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"/>
 
-            <Button text="Timetable"
-                    maxWidth="Infinity"
-                    styleClass="nav-button"/>
+                <Button text="Medical Records"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"/>
 
-            <Button text="Medical Records"
-                    maxWidth="Infinity"
-                    styleClass="nav-button"/>
+                <Button text="Notices"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"/>
 
-            <Button text="Notices"
-                    maxWidth="Infinity"
-                    styleClass="nav-button"/>
+                <Button text="Profile"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"/>
 
-            <Button text="Profile"
-                    maxWidth="Infinity"
-                    styleClass="nav-button"/>
+                <Region VBox.vgrow="ALWAYS"/>
 
-            <Button text="Logout"
-                    maxWidth="Infinity"
-                    styleClass="nav-button"/>
+                <Button text="Log Out"
+                        maxWidth="Infinity"
+                        styleClass="to-logout-button"/>
 
+            </VBox>
         </VBox>
     </left>
 
     <center>
-        <ScrollPane fitToWidth="true">
+        <ScrollPane fitToWidth="true"
+                    styleClass="to-scroll">
             <content>
-                <VBox styleClass="content">
+                <VBox spacing="20"
+                      styleClass="to-content">
 
-                    <Label text="Technical Officer Dashboard"
-                           styleClass="page-title"/>
+                    <Label text="TECHNICAL OFFICER DASHBOARD"
+                           styleClass="to-page-title"/>
 
-                    <FlowPane styleClass="cards">
+                    <Label text="Manage undergraduate attendance and medical records."
+                           wrapText="true"
+                           styleClass="to-subtitle"/>
 
-                        <VBox styleClass="card">
+                    <HBox spacing="15">
+
+                        <VBox spacing="10"
+                              minWidth="0"
+                              prefWidth="1"
+                              styleClass="to-stat-card"
+                              HBox.hgrow="ALWAYS">
+
                             <Label text="Students"
-                                   styleClass="card-title"/>
+                                   styleClass="to-card-title"/>
 
                             <Label fx:id="studentCountLabel"
                                    text="420"
-                                   styleClass="card-value"/>
+                                   styleClass="to-card-value"/>
 
                             <Label text="Department"
-                                   styleClass="card-description"/>
+                                   styleClass="to-card-description"/>
                         </VBox>
 
-                        <VBox styleClass="card">
+                        <VBox spacing="10"
+                              minWidth="0"
+                              prefWidth="1"
+                              styleClass="to-stat-card"
+                              HBox.hgrow="ALWAYS">
+
                             <Label text="Sessions"
-                                   styleClass="card-title"/>
+                                   styleClass="to-card-title"/>
 
                             <Label fx:id="sessionCountLabel"
                                    text="36"
-                                   styleClass="card-value"/>
+                                   styleClass="to-card-value"/>
 
                             <Label text="This week"
-                                   styleClass="card-description"/>
+                                   styleClass="to-card-description"/>
                         </VBox>
 
-                        <VBox styleClass="card">
+                    </HBox>
+
+                    <HBox spacing="15">
+
+                        <VBox spacing="10"
+                              minWidth="0"
+                              prefWidth="1"
+                              styleClass="to-stat-card"
+                              HBox.hgrow="ALWAYS">
+
                             <Label text="Attendance"
-                                   styleClass="card-title"/>
+                                   styleClass="to-card-title"/>
 
                             <Label fx:id="attendanceCountLabel"
                                    text="12"
-                                   styleClass="card-value"/>
+                                   styleClass="to-card-value"/>
 
                             <Label text="Pending"
-                                   styleClass="card-description"/>
+                                   styleClass="to-card-description"/>
                         </VBox>
 
-                        <VBox styleClass="card">
+                        <VBox spacing="10"
+                              minWidth="0"
+                              prefWidth="1"
+                              styleClass="to-stat-card"
+                              HBox.hgrow="ALWAYS">
+
                             <Label text="Materials"
-                                   styleClass="card-title"/>
+                                   styleClass="to-card-title"/>
 
                             <Label fx:id="materialCountLabel"
                                    text="24"
-                                   styleClass="card-value"/>
+                                   styleClass="to-card-value"/>
 
                             <Label text="Uploaded"
-                                   styleClass="card-description"/>
+                                   styleClass="to-card-description"/>
                         </VBox>
 
-                    </FlowPane>
+                    </HBox>
 
-                    <Label text="Quick Actions"
-                           styleClass="section-title"/>
+                    <VBox spacing="18"
+                          styleClass="to-section-card">
 
-                    <FlowPane styleClass="quick-actions">
+                        <Label text="Quick Actions"
+                               styleClass="to-section-title"/>
 
-                        <Button text="Record Attendance"
-                                styleClass="action-button"
-                                onAction="#showAttendance"/>
+                        <FlowPane hgap="12" vgap="12">
 
-                        <Button text="Manage Session"
-                                styleClass="action-button"/>
+                            <Button text="Record Attendance"
+                                    styleClass="to-action-button"
+                                    onAction="#showAttendance"/>
 
-                        <Button text="View Medical"
-                                styleClass="action-button"/>
+                            <Button text="Manage Session"
+                                    styleClass="to-action-button"/>
 
-                    </FlowPane>
+                            <Button text="View Medical"
+                                    styleClass="to-action-button"/>
+
+                        </FlowPane>
+
+                    </VBox>
 
                 </VBox>
             </content>

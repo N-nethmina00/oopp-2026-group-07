@@ -5,10 +5,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -16,8 +14,7 @@
 
 <BorderPane minHeight="400.0" minWidth="600.0" prefHeight="600.0" prefWidth="900.0"
             style="-fx-background-color: #F3F6FA;"
-            xmlns="http://javafx.com/javafx/26"
-            xmlns:fx="http://javafx.com/fxml/1">
+            xmlns="http://javafx.com/javafx/26">
     <center>
 <VBox spacing="12" BorderPane.alignment="CENTER">
         <padding><Insets bottom="18" left="10" right="22" top="20"/></padding>

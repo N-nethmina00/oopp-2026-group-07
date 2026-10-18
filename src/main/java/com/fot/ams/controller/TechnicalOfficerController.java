@@ -16,6 +16,8 @@ public class TechnicalOfficerController {
 
     private Node dashboardContent;
     private Node attendanceContent;
+    private Node medicalContent;
+
 
     @FXML
     private void initialize() {
@@ -55,5 +57,34 @@ public class TechnicalOfficerController {
     @FXML
     private void showDashboard() {
         dashboardRoot.setCenter(dashboardContent);
+    }
+    @FXML
+    private void showMedical() {
+        try {
+            if (medicalContent == null) {
+                URL resource = getClass().getResource(
+                        "/fxml/medical.fxml"
+                );
+
+                if (resource == null) {
+                    throw new IOException(
+                            "Cannot find /fxml/medical.fxml"
+                    );
+                }
+
+                medicalContent = FXMLLoader.load(resource);
+            }
+
+            dashboardRoot.setCenter(medicalContent);
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Page Loading Error");
+            alert.setHeaderText("Medical page could not be opened.");
+            alert.setContentText(exception.getMessage());
+            alert.showAndWait();
+        }
     }
 }

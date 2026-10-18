@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Oct 05, 2026 at 11:38 AM
+-- Generation Time: Oct 18, 2026 at 07:25 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -28,8 +28,8 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `admin` (
-                         `admin_id` int(11) NOT NULL,
-                         `user_id` int(11) NOT NULL
+                         `admin_id` varchar(10) NOT NULL,
+                         `user_id` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -90,7 +90,7 @@ CREATE TABLE `course` (
                           `course_name` varchar(150) NOT NULL,
                           `credit` int(11) NOT NULL,
                           `type` enum('Theory','Practical') NOT NULL,
-                          `lecturer_id` int(11) NOT NULL,
+                          `lecturer_id` varchar(10) NOT NULL,
                           `dept_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -102,7 +102,7 @@ CREATE TABLE `course` (
 
 CREATE TABLE `course_material` (
                                    `material_id` int(11) NOT NULL,
-                                   `lecturer_id` int(11) NOT NULL,
+                                   `lecturer_id` varchar(10) NOT NULL,
                                    `course_id` int(11) NOT NULL,
                                    `material_title` varchar(150) NOT NULL,
                                    `material_type` varchar(50) NOT NULL,
@@ -143,8 +143,8 @@ CREATE TABLE `enrollment` (
 --
 
 CREATE TABLE `lecturer` (
-                            `lecturer_id` int(11) NOT NULL,
-                            `user_id` int(11) NOT NULL,
+                            `lecturer_id` varchar(10) NOT NULL,
+                            `user_id` varchar(10) NOT NULL,
                             `dept_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -174,7 +174,7 @@ CREATE TABLE `medical` (
                            `medical_id` int(11) NOT NULL,
                            `reg_no` varchar(20) NOT NULL,
                            `course_id` int(11) NOT NULL,
-                           `admin_id` int(11) DEFAULT NULL,
+                           `admin_id` varchar(10) DEFAULT NULL,
                            `medical_date` date NOT NULL,
                            `reason` text NOT NULL,
                            `approved_by` varchar(100) DEFAULT NULL,
@@ -189,7 +189,7 @@ CREATE TABLE `medical` (
 
 CREATE TABLE `notice` (
                           `notice_id` int(11) NOT NULL,
-                          `admin_id` int(11) NOT NULL,
+                          `admin_id` varchar(10) NOT NULL,
                           `title` varchar(150) NOT NULL,
                           `content` text NOT NULL,
                           `created_date` date NOT NULL,
@@ -232,8 +232,8 @@ CREATE TABLE `sessions` (
 --
 
 CREATE TABLE `technical_officer` (
-                                     `to_id` int(11) NOT NULL,
-                                     `user_id` int(11) NOT NULL,
+                                     `to_id` varchar(10) NOT NULL,
+                                     `user_id` varchar(10) NOT NULL,
                                      `dept_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -245,7 +245,7 @@ CREATE TABLE `technical_officer` (
 
 CREATE TABLE `timetable` (
                              `timetable_id` int(11) NOT NULL,
-                             `admin_id` int(11) NOT NULL,
+                             `admin_id` varchar(10) NOT NULL,
                              `course_id` int(11) NOT NULL,
                              `start_time` time NOT NULL,
                              `end_time` time NOT NULL,
@@ -263,7 +263,7 @@ CREATE TABLE `timetable` (
 
 CREATE TABLE `undergraduate` (
                                  `reg_no` varchar(20) NOT NULL,
-                                 `user_id` int(11) NOT NULL,
+                                 `user_id` varchar(10) NOT NULL,
                                  `batch_id` int(11) NOT NULL,
                                  `dept_id` int(11) NOT NULL,
                                  `is_repeat` tinyint(1) NOT NULL DEFAULT 0,
@@ -277,7 +277,7 @@ CREATE TABLE `undergraduate` (
 --
 
 CREATE TABLE `user` (
-                        `user_id` int(11) NOT NULL,
+                        `user_id` varchar(10) NOT NULL,
                         `user_name` varchar(50) NOT NULL,
                         `password` varchar(255) NOT NULL,
                         `first_name` varchar(50) NOT NULL,
@@ -437,12 +437,6 @@ ALTER TABLE `user`
 --
 
 --
--- AUTO_INCREMENT for table `admin`
---
-ALTER TABLE `admin`
-    MODIFY `admin_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `attendance`
 --
 ALTER TABLE `attendance`
@@ -485,12 +479,6 @@ ALTER TABLE `enrollment`
     MODIFY `enrollment_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `lecturer`
---
-ALTER TABLE `lecturer`
-    MODIFY `lecturer_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `mark`
 --
 ALTER TABLE `mark`
@@ -521,22 +509,10 @@ ALTER TABLE `sessions`
     MODIFY `session_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `technical_officer`
---
-ALTER TABLE `technical_officer`
-    MODIFY `to_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `timetable`
 --
 ALTER TABLE `timetable`
     MODIFY `timetable_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `user`
---
-ALTER TABLE `user`
-    MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables

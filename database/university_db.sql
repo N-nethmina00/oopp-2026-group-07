@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Oct 18, 2026 at 07:25 AM
+-- Generation Time: Oct 18, 2026 at 08:45 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,6 +32,13 @@ CREATE TABLE `admin` (
                          `user_id` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `admin`
+--
+
+INSERT INTO `admin` (`admin_id`, `user_id`) VALUES
+    ('A001', 'A001');
+
 -- --------------------------------------------------------
 
 --
@@ -45,6 +52,17 @@ CREATE TABLE `attendance` (
                               `status` enum('Present','Absent','Late','Excused') NOT NULL DEFAULT 'Absent'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `attendance`
+--
+
+INSERT INTO `attendance` (`attendance_id`, `enrollment_id`, `session_id`, `status`) VALUES
+                                                                                        (1, 1, 1, 'Present'),
+                                                                                        (2, 3, 1, 'Late'),
+                                                                                        (3, 5, 1, 'Absent'),
+                                                                                        (4, 2, 2, 'Present'),
+                                                                                        (5, 4, 3, 'Excused');
+
 -- --------------------------------------------------------
 
 --
@@ -56,6 +74,15 @@ CREATE TABLE `batch` (
                          `batch_name` varchar(50) NOT NULL,
                          `academic_year` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `batch`
+--
+
+INSERT INTO `batch` (`batch_id`, `batch_name`, `academic_year`) VALUES
+                                                                    (1, 'ICT Batch 2023', '2023/2024'),
+                                                                    (2, 'ICT Batch 2024', '2024/2025'),
+                                                                    (3, 'CS Batch 2024', '2024/2025');
 
 -- --------------------------------------------------------
 
@@ -78,6 +105,15 @@ CREATE TABLE `ca_evaluation` (
                                  `total_CA_marks` decimal(5,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `ca_evaluation`
+--
+
+INSERT INTO `ca_evaluation` (`evaluation_id`, `enrollment_id`, `total_quiz_marks`, `CA_status`, `eligibility`, `quiz1_marks`, `quiz2_marks`, `quiz_marks`, `assignment1_marks`, `assignment2_marks`, `mid_exam_marks`, `total_CA_marks`) VALUES
+                                                                                                                                                                                                                                             (1, 1, 17.00, 'Completed', 1, 8.00, 9.00, 17.00, 18.00, 17.00, 22.00, 74.00),
+                                                                                                                                                                                                                                             (2, 3, 15.00, 'Completed', 1, 7.00, 8.00, 15.00, 16.00, 18.00, 20.00, 69.00),
+                                                                                                                                                                                                                                             (3, 5, 12.00, 'In Progress', 1, 6.00, 6.00, 12.00, 15.00, 14.00, 18.00, 59.00);
+
 -- --------------------------------------------------------
 
 --
@@ -93,6 +129,17 @@ CREATE TABLE `course` (
                           `lecturer_id` varchar(10) NOT NULL,
                           `dept_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `course`
+--
+
+INSERT INTO `course` (`course_id`, `course_code`, `course_name`, `credit`, `type`, `lecturer_id`, `dept_id`) VALUES
+                                                                                                                 (1, 'ICT2132', 'Object Oriented Programming', 3, 'Theory', 'L001', 1),
+                                                                                                                 (2, 'ICT2133', 'Object Oriented Programming Practical', 1, 'Practical', 'L001', 1),
+                                                                                                                 (3, 'ICT2142', 'Database Management Systems', 3, 'Theory', 'L001', 1),
+                                                                                                                 (4, 'CSC2101', 'Data Structures and Algorithms', 3, 'Theory', 'L002', 2),
+                                                                                                                 (5, 'CSC2102', 'Software Engineering', 3, 'Theory', 'L002', 2);
 
 -- --------------------------------------------------------
 
@@ -111,6 +158,15 @@ CREATE TABLE `course_material` (
                                    `uploaded_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `course_material`
+--
+
+INSERT INTO `course_material` (`material_id`, `lecturer_id`, `course_id`, `material_title`, `material_type`, `file_name`, `file`, `uploaded_date`) VALUES
+                                                                                                                                                       (1, 'L001', 1, 'OOP Introduction Slides', 'PDF', 'oop_intro.pdf', 'materials/oop_intro.pdf', '2026-10-01'),
+                                                                                                                                                       (2, 'L001', 3, 'Database Basics', 'PDF', 'database_basics.pdf', 'materials/database_basics.pdf', '2026-10-02'),
+                                                                                                                                                       (3, 'L002', 4, 'Data Structures Notes', 'PDF', 'data_structures.pdf', 'materials/data_structures.pdf', '2026-10-03');
+
 -- --------------------------------------------------------
 
 --
@@ -121,6 +177,14 @@ CREATE TABLE `department` (
                               `dept_id` int(11) NOT NULL,
                               `dept_name` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `department`
+--
+
+INSERT INTO `department` (`dept_id`, `dept_name`) VALUES
+                                                      (2, 'Computer Science'),
+                                                      (1, 'Information Technology');
 
 -- --------------------------------------------------------
 
@@ -136,6 +200,19 @@ CREATE TABLE `enrollment` (
                               `status` enum('Enrolled','Completed','Dropped') NOT NULL DEFAULT 'Enrolled'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `enrollment`
+--
+
+INSERT INTO `enrollment` (`enrollment_id`, `reg_no`, `course_id`, `enroll_date`, `status`) VALUES
+                                                                                               (1, 'TG2000', 1, '2026-09-01', 'Enrolled'),
+                                                                                               (2, 'TG2000', 2, '2026-09-01', 'Enrolled'),
+                                                                                               (3, 'TG2001', 1, '2026-09-01', 'Enrolled'),
+                                                                                               (4, 'TG2001', 3, '2026-09-01', 'Enrolled'),
+                                                                                               (5, 'TG2002', 1, '2026-09-02', 'Enrolled'),
+                                                                                               (6, 'TG2003', 4, '2026-09-02', 'Enrolled'),
+                                                                                               (7, 'TG2004', 5, '2026-09-02', 'Enrolled');
+
 -- --------------------------------------------------------
 
 --
@@ -147,6 +224,14 @@ CREATE TABLE `lecturer` (
                             `user_id` varchar(10) NOT NULL,
                             `dept_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `lecturer`
+--
+
+INSERT INTO `lecturer` (`lecturer_id`, `user_id`, `dept_id`) VALUES
+                                                                 ('L001', 'L001', 1),
+                                                                 ('L002', 'L002', 2);
 
 -- --------------------------------------------------------
 
@@ -163,6 +248,15 @@ CREATE TABLE `mark` (
                         `grade` varchar(5) DEFAULT NULL,
                         `grade_point` decimal(3,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mark`
+--
+
+INSERT INTO `mark` (`mark_id`, `enrollment_id`, `end_exam_marks`, `total_CA_marks`, `total_marks`, `grade`, `grade_point`) VALUES
+                                                                                                                               (1, 1, 18.00, 74.00, 92.00, 'A+', 4.00),
+                                                                                                                               (2, 3, 16.00, 69.00, 85.00, 'A', 4.00),
+                                                                                                                               (3, 5, 14.00, 59.00, 73.00, 'B+', 3.30);
 
 -- --------------------------------------------------------
 
@@ -181,6 +275,15 @@ CREATE TABLE `medical` (
                            `status` enum('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `medical`
+--
+
+INSERT INTO `medical` (`medical_id`, `reg_no`, `course_id`, `admin_id`, `medical_date`, `reason`, `approved_by`, `status`) VALUES
+                                                                                                                               (1, 'TG2000', 1, 'A001', '2026-10-10', 'Fever and medical rest', NULL, 'Pending'),
+                                                                                                                               (2, 'TG2001', 3, 'A001', '2026-10-08', 'Hospital appointment', 'Nimal Perera', 'Approved'),
+                                                                                                                               (3, 'TG2002', 1, 'A001', '2026-10-12', 'Viral infection', NULL, 'Pending');
+
 -- --------------------------------------------------------
 
 --
@@ -196,6 +299,15 @@ CREATE TABLE `notice` (
                           `published_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `notice`
+--
+
+INSERT INTO `notice` (`notice_id`, `admin_id`, `title`, `content`, `created_date`, `published_date`) VALUES
+                                                                                                         (1, 'A001', 'Semester Examination Timetable', 'The semester examination timetable will be published soon. Please check the student portal regularly.', '2026-10-01', '2026-10-02'),
+                                                                                                         (2, 'A001', 'Library Opening Hours', 'The library will be open from 8.00 AM to 6.00 PM on weekdays.', '2026-10-05', '2026-10-05'),
+                                                                                                         (3, 'A001', 'Project Submission Reminder', 'Students should submit their mini project documents before the announced deadline.', '2026-10-15', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -209,6 +321,15 @@ CREATE TABLE `semester_result` (
                                    `academic_year` varchar(20) NOT NULL,
                                    `GPA` decimal(3,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `semester_result`
+--
+
+INSERT INTO `semester_result` (`result_id`, `reg_no`, `semester`, `academic_year`, `GPA`) VALUES
+                                                                                              (1, 'TG2000', 'Semester 1', '2025/2026', 3.65),
+                                                                                              (2, 'TG2001', 'Semester 1', '2025/2026', 3.42),
+                                                                                              (3, 'TG2002', 'Semester 1', '2025/2026', 3.18);
 
 -- --------------------------------------------------------
 
@@ -225,6 +346,17 @@ CREATE TABLE `sessions` (
                             `session_type` enum('Theory','Practical') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `sessions`
+--
+
+INSERT INTO `sessions` (`session_id`, `course_id`, `session_date`, `start_time`, `end_time`, `session_type`) VALUES
+                                                                                                                 (1, 1, '2026-10-20', '08:30:00', '10:30:00', 'Theory'),
+                                                                                                                 (2, 2, '2026-10-21', '10:30:00', '12:30:00', 'Practical'),
+                                                                                                                 (3, 3, '2026-10-22', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (4, 4, '2026-10-23', '08:30:00', '10:30:00', 'Theory'),
+                                                                                                                 (5, 5, '2026-10-24', '10:30:00', '12:30:00', 'Theory');
+
 -- --------------------------------------------------------
 
 --
@@ -236,6 +368,13 @@ CREATE TABLE `technical_officer` (
                                      `user_id` varchar(10) NOT NULL,
                                      `dept_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `technical_officer`
+--
+
+INSERT INTO `technical_officer` (`to_id`, `user_id`, `dept_id`) VALUES
+    ('T001', 'T001', 1);
 
 -- --------------------------------------------------------
 
@@ -255,6 +394,17 @@ CREATE TABLE `timetable` (
                              `semester` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `timetable`
+--
+
+INSERT INTO `timetable` (`timetable_id`, `admin_id`, `course_id`, `start_time`, `end_time`, `lecture_hall`, `session_type`, `academic_year`, `semester`) VALUES
+                                                                                                                                                             (1, 'A001', 1, '08:30:00', '10:30:00', 'LT-01', 'Theory', '2026/2027', 'Semester 1'),
+                                                                                                                                                             (2, 'A001', 2, '10:30:00', '12:30:00', 'Lab-02', 'Practical', '2026/2027', 'Semester 1'),
+                                                                                                                                                             (3, 'A001', 3, '13:00:00', '15:00:00', 'LT-03', 'Theory', '2026/2027', 'Semester 1'),
+                                                                                                                                                             (4, 'A001', 4, '08:30:00', '10:30:00', 'LT-02', 'Theory', '2026/2027', 'Semester 1'),
+                                                                                                                                                             (5, 'A001', 5, '10:30:00', '12:30:00', 'LT-04', 'Theory', '2026/2027', 'Semester 1');
+
 -- --------------------------------------------------------
 
 --
@@ -269,6 +419,17 @@ CREATE TABLE `undergraduate` (
                                  `is_repeat` tinyint(1) NOT NULL DEFAULT 0,
                                  `is_batchmissed` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `undergraduate`
+--
+
+INSERT INTO `undergraduate` (`reg_no`, `user_id`, `batch_id`, `dept_id`, `is_repeat`, `is_batchmissed`) VALUES
+                                                                                                            ('TG2000', 'U001', 1, 1, 0, 0),
+                                                                                                            ('TG2001', 'U002', 1, 1, 0, 0),
+                                                                                                            ('TG2002', 'U003', 2, 1, 0, 0),
+                                                                                                            ('TG2003', 'U004', 2, 2, 0, 0),
+                                                                                                            ('TG2004', 'U005', 3, 2, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -286,6 +447,21 @@ CREATE TABLE `user` (
                         `profile_image` varchar(255) DEFAULT NULL,
                         `role` enum('Undergraduate','Technical_Officer','Lecturer','Admin') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`user_id`, `user_name`, `password`, `first_name`, `last_name`, `email`, `profile_image`, `role`) VALUES
+                                                                                                                         ('A001', 'admin01', 'Admin@123', 'Nimal', 'Perera', 'nimal.admin@example.com', NULL, 'Admin'),
+                                                                                                                         ('L001', 'lecturer01', 'Lecturer@123', 'Kamal', 'Silva', 'kamal.silva@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('L002', 'lecturer02', 'Lecturer@123', 'Sanduni', 'Fernando', 'sanduni.fernando@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('T001', 'tech01', 'Tech@123', 'Amara', 'Jayasinghe', 'amara.tech@example.com', NULL, 'Technical_Officer'),
+                                                                                                                         ('U001', 'student01', 'Student@123', 'Kasun', 'Wickramasinghe', 'kasun.student@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U002', 'student02', 'Student@123', 'Tharushi', 'Bandara', 'tharushi.student@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U003', 'student03', 'Student@123', 'Dilan', 'Peris', 'dilan.student@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U004', 'student04', 'Student@123', 'Mihiri', 'Senanayake', 'mihiri.student@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U005', 'student05', 'Student@123', 'Ravindu', 'Dissanayake', 'ravindu.student@example.com', NULL, 'Undergraduate');
 
 --
 -- Indexes for dumped tables
@@ -440,79 +616,79 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `attendance`
 --
 ALTER TABLE `attendance`
-    MODIFY `attendance_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `attendance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `batch`
 --
 ALTER TABLE `batch`
-    MODIFY `batch_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `batch_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `ca_evaluation`
 --
 ALTER TABLE `ca_evaluation`
-    MODIFY `evaluation_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `evaluation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-    MODIFY `course_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `course_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `course_material`
 --
 ALTER TABLE `course_material`
-    MODIFY `material_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `material_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `department`
 --
 ALTER TABLE `department`
-    MODIFY `dept_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `dept_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `enrollment`
 --
 ALTER TABLE `enrollment`
-    MODIFY `enrollment_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `enrollment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `mark`
 --
 ALTER TABLE `mark`
-    MODIFY `mark_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `mark_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `medical`
 --
 ALTER TABLE `medical`
-    MODIFY `medical_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `medical_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `notice`
 --
 ALTER TABLE `notice`
-    MODIFY `notice_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `notice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `semester_result`
 --
 ALTER TABLE `semester_result`
-    MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `sessions`
 --
 ALTER TABLE `sessions`
-    MODIFY `session_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `session_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `timetable`
 --
 ALTER TABLE `timetable`
-    MODIFY `timetable_id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `timetable_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables

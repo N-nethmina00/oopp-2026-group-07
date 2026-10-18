@@ -11,55 +11,15 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane minHeight="500.0" minWidth="750.0" prefHeight="650.0" prefWidth="1000.0" style="-fx-background-color: #F3F6FA;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
-    <top>
-        <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="10.0" style="-fx-background-color: #4c56cd; -fx-background-radius: 0 0 18 18;">
-            <padding>
-                <Insets bottom="10" left="20" right="20" top="10"/>
-            </padding>
-            <Label text="UMS" textFill="WHITE">
-                <font><Font name="System Bold" size="22"/></font>
-            </Label>
-            <Region HBox.hgrow="ALWAYS"/>
-            <VBox alignment="CENTER_RIGHT" spacing="3">
-                <Label text="Welcome, Admin" textFill="WHITE">
-                    <font><Font name="System Bold" size="13"/></font>
-                </Label>
-                <Label text="Administrator" textFill="#DCEEFF">
-                    <font><Font size="11"/></font>
-                </Label>
-            </VBox>
-            <StackPane minHeight="40" minWidth="40" prefHeight="40" prefWidth="40">
-                <Circle fill="WHITE" radius="19"/>
-                <Label text="A" textFill="#4c56cd">
-                    <font><Font name="System Bold" size="18"/></font>
-                </Label>
-            </StackPane>
-        </HBox>
-    </top>
-    <left>
-        <VBox prefWidth="175.0" spacing="10">
-            <padding><Insets bottom="15" left="12" right="12" top="18"/></padding>
-            <VBox spacing="10" style="-fx-background-color: #4c56cd; -fx-background-radius: 18;" VBox.vgrow="ALWAYS">
-                <padding><Insets bottom="15" left="10" right="10" top="18"/></padding>
-                <Button maxWidth="Infinity" prefHeight="38" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;" text="Dashboard"/>
-                <Button maxWidth="Infinity" prefHeight="38" style="-fx-background-color: #FFFFFF; -fx-text-fill: #4c56cd; -fx-background-radius: 8; -fx-font-weight: bold;" text="Users"/>
-                <Button maxWidth="Infinity" prefHeight="38" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;" text="Courses"/>
-                <Button maxWidth="Infinity" prefHeight="38" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;" text="Notices"/>
-                <Button maxWidth="Infinity" prefHeight="38" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;" text="Time Tables"/>
-                <Region VBox.vgrow="ALWAYS"/>
-                <Button maxWidth="Infinity" prefHeight="38" style="-fx-background-color: #005B8F; -fx-text-fill: white; -fx-background-radius: 8;" text="Log Out"/>
-            </VBox>
-        </VBox>
-    </left>
+<BorderPane minHeight="400.0" minWidth="600.0" prefHeight="600.0" prefWidth="900.0"
+            style="-fx-background-color: #F3F6FA;"
+            xmlns="http://javafx.com/javafx/26"
+            xmlns:fx="http://javafx.com/fxml/1">
     <center>
-    <VBox spacing="12" BorderPane.alignment="CENTER">
+<VBox spacing="12" BorderPane.alignment="CENTER">
         <padding><Insets bottom="18" left="10" right="22" top="20"/></padding>
         <Label text="Course Management" textFill="#17324D"><font><Font name="System Bold" size="20"/></font></Label>
         <Label text="Add, view, update and delete courses." textFill="#7B8797"><font><Font size="10"/></font></Label>
@@ -76,5 +36,5 @@
         <TableView prefHeight="230" VBox.vgrow="ALWAYS" style="-fx-font-size: 11;"><TableColumn prefWidth="110" text="Course ID"/><TableColumn prefWidth="230" text="Course Name"/><TableColumn prefWidth="200" text="Department"/><TableColumn prefWidth="100" text="Credits"/><TableColumn prefWidth="130" text="Semester"/></TableView>
     </VBox>
     </VBox>
-</center>
+    </center>
 </BorderPane>

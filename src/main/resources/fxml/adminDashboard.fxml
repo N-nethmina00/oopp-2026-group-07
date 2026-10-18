@@ -11,40 +11,45 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane minHeight="400.0" minWidth="600.0" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #F3F6FA;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:id="mainPane"
+            minHeight="400.0"
+            minWidth="600.0"
+            prefHeight="600.0"
+            prefWidth="900.0"
+            style="-fx-background-color: #F3F6FA;"
+            xmlns="http://javafx.com/javafx/26"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.AdminController">
 
    <top>
-      <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="10.0" style="-fx-background-color: #4c56cd; -fx-background-radius: 0 0 18 18;">
+      <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="10.0"
+            style="-fx-background-color: #4c56cd; -fx-background-radius: 0 0 18 18;">
          <padding>
-            <Insets bottom="10" left="20" right="20" top="10" />
+            <Insets bottom="10" left="20" right="20" top="10"/>
          </padding>
-
          <Label text="UMS" textFill="WHITE">
             <font>
-               <Font name="System Bold" size="22" />
+               <Font name="System Bold" size="22"/>
             </font>
          </Label>
-
-         <Region HBox.hgrow="ALWAYS" />
-
+         <Region HBox.hgrow="ALWAYS"/>
          <VBox alignment="CENTER_RIGHT" spacing="3">
             <Label text="Welcome, Admin" textFill="WHITE">
                <font>
-                  <Font name="System Bold" size="13" />
+                  <Font name="System Bold" size="13"/>
                </font>
             </Label>
             <Label text="Administrator" textFill="#DCEEFF">
                <font>
-                  <Font size="11" />
+                  <Font size="11"/>
                </font>
             </Label>
          </VBox>
-
          <StackPane minHeight="40" minWidth="40" prefHeight="40" prefWidth="40">
-            <Circle fill="WHITE" radius="19" />
+            <Circle fill="WHITE" radius="19"/>
             <Label text="A" textFill="#0078b9">
                <font>
-                  <Font name="System Bold" size="18" />
+                  <Font name="System Bold" size="18"/>
                </font>
             </Label>
          </StackPane>
@@ -54,142 +59,126 @@
    <left>
       <VBox prefWidth="175.0" spacing="10">
          <padding>
-            <Insets bottom="15" left="12" right="12" top="18" />
+            <Insets bottom="15" left="12" right="12" top="18"/>
          </padding>
-
-         <VBox spacing="10" style="-fx-background-color: #4c56cd; -fx-background-radius: 18;" VBox.vgrow="ALWAYS">
+         <VBox spacing="10"
+               style="-fx-background-color: #4c56cd; -fx-background-radius: 18;"
+               VBox.vgrow="ALWAYS">
             <padding>
-               <Insets bottom="15" left="10" right="10" top="18" />
+               <Insets bottom="15" left="10" right="10" top="18"/>
             </padding>
-
-            <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="38" style="-fx-background-color: white;                                -fx-text-fill: #0078b9;                                -fx-background-radius: 8;                                -fx-font-weight: bold;" text="Dashboard" />
-
-            <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="38" style="-fx-background-color: transparent;                                -fx-text-fill: white;                                -fx-background-radius: 8;" text="Users" />
-
-            <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="38" style="-fx-background-color: transparent;                                -fx-text-fill: white;                                -fx-background-radius: 8;" text="Courses" />
-
-            <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="38" style="-fx-background-color: transparent;                                -fx-text-fill: white;                                -fx-background-radius: 8;" text="Notices" />
-
-            <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="38" style="-fx-background-color: transparent;                                -fx-text-fill: white;                                -fx-background-radius: 8;" text="Time Tables" />
-
-            <Region VBox.vgrow="ALWAYS" />
-
-            <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="38" style="-fx-background-color: #005B8F;                                -fx-text-fill: white;                                -fx-background-radius: 8;" text="Log Out" />
+            <Button onAction="#showDashboard" maxWidth="Infinity"
+                    mnemonicParsing="false" prefHeight="38"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8"
+                    text="Dashboard"/>
+            <Button onAction="#showUsers" maxWidth="Infinity"
+                    mnemonicParsing="false" prefHeight="38"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;"
+                    text="Users"/>
+            <Button onAction="#showCourses" maxWidth="Infinity"
+                    mnemonicParsing="false" prefHeight="38"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;"
+                    text="Courses"/>
+            <Button onAction="#showNotices" maxWidth="Infinity"
+                    mnemonicParsing="false" prefHeight="38"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;"
+                    text="Notices"/>
+            <Button onAction="#showTimetables" maxWidth="Infinity"
+                    mnemonicParsing="false" prefHeight="38"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;"
+                    text="Time Tables"/>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button maxWidth="Infinity" mnemonicParsing="false"
+                    prefHeight="38"
+                    style="-fx-background-color: #005B8F; -fx-text-fill: white; -fx-background-radius: 8;"
+                    text="Log Out"/>
          </VBox>
       </VBox>
    </left>
 
    <center>
       <VBox fillWidth="true" spacing="20" BorderPane.alignment="CENTER">
-
          <padding>
-            <Insets bottom="20" left="10" right="22" top="25" />
+            <Insets bottom="20" left="10" right="22" top="25"/>
          </padding>
-
          <Label text="ADMIN DASHBOARD" textFill="#17324D">
             <font>
-               <Font name="System Bold" size="20" />
+               <Font name="System Bold" size="20"/>
             </font>
          </Label>
-
-         <HBox alignment="TOP_LEFT" fillHeight="true" maxWidth="Infinity" spacing="12" VBox.vgrow="NEVER">
-
-            <VBox alignment="CENTER_LEFT" maxWidth="Infinity" minWidth="0" prefHeight="112" prefWidth="1" spacing="10" style="-fx-background-color: white;                              -fx-background-radius: 5;                              -fx-border-color: #D5DCE5;                              -fx-border-radius: 5;                              -fx-border-width: 1;" HBox.hgrow="ALWAYS">
+         <HBox alignment="TOP_LEFT" fillHeight="true"
+               maxWidth="Infinity" spacing="12">
+            <VBox alignment="CENTER_LEFT" maxWidth="Infinity"
+                  minWidth="0" prefHeight="112" spacing="10"
+                  style="-fx-background-color: white; -fx-background-radius: 5; -fx-border-color: #D5DCE5; -fx-border-radius: 5; -fx-border-width: 1;"
+                  HBox.hgrow="ALWAYS">
                <padding>
-                  <Insets bottom="12" left="13" right="13" top="14" />
+                  <Insets bottom="12" left="13" right="13" top="14"/>
                </padding>
-
-               <Label text="Users" textFill="#526174" wrapText="true">
-                  <font>
-                     <Font size="11" />
-                  </font>
+               <Label text="Users" textFill="#526174">
+                  <font><Font size="11"/></font>
                </Label>
-
                <Label text="248" textFill="#172B45">
-                  <font>
-                     <Font name="System Bold" size="22" />
-                  </font>
+                  <font><Font name="System Bold" size="22"/></font>
                </Label>
-
                <Label text="Registered" textFill="#7B8797">
-                  <font>
-                     <Font size="9" />
-                  </font>
+                  <font><Font size="9"/></font>
                </Label>
             </VBox>
-
-            <VBox alignment="CENTER_LEFT" maxWidth="Infinity" minWidth="0" prefHeight="112" prefWidth="1" spacing="10" style="-fx-background-color: white;                              -fx-background-radius: 5;                              -fx-border-color: #D5DCE5;                              -fx-border-radius: 5;                              -fx-border-width: 1;" HBox.hgrow="ALWAYS">
+            <VBox alignment="CENTER_LEFT" maxWidth="Infinity"
+                  minWidth="0" prefHeight="112" spacing="10"
+                  style="-fx-background-color: white; -fx-background-radius: 5; -fx-border-color: #D5DCE5; -fx-border-radius: 5; -fx-border-width: 1;"
+                  HBox.hgrow="ALWAYS">
                <padding>
-                  <Insets bottom="12" left="13" right="13" top="14" />
+                  <Insets bottom="12" left="13" right="13" top="14"/>
                </padding>
-
-               <Label text="Courses" textFill="#526174" wrapText="true">
-                  <font>
-                     <Font size="11" />
-                  </font>
+               <Label text="Courses" textFill="#526174">
+                  <font><Font size="11"/></font>
                </Label>
-
                <Label text="32" textFill="#172B45">
-                  <font>
-                     <Font name="System Bold" size="22" />
-                  </font>
+                  <font><Font name="System Bold" size="22"/></font>
                </Label>
-
                <Label text="Active" textFill="#7B8797">
-                  <font>
-                     <Font size="9" />
-                  </font>
+                  <font><Font size="9"/></font>
                </Label>
             </VBox>
-
          </HBox>
-         <HBox alignment="TOP_LEFT" fillHeight="true" maxWidth="Infinity" spacing="12">
-            <children>
-               <VBox alignment="CENTER_LEFT" maxWidth="Infinity" minWidth="0" prefHeight="112" prefWidth="1" spacing="10" style="-fx-background-color: white;                              -fx-background-radius: 5;                              -fx-border-color: #D5DCE5;                              -fx-border-radius: 5;                              -fx-border-width: 1;" HBox.hgrow="ALWAYS">
-                  <padding>
-                     <Insets bottom="12" left="13" right="13" top="14" />
-                  </padding>
-                  <children>
-                     <Label text="Departments" textFill="#526174" wrapText="true">
-                        <font>
-                           <Font size="11" />
-                        </font>
-                     </Label>
-                     <Label text="6" textFill="#172B45">
-                        <font>
-                           <Font name="System Bold" size="22" />
-                        </font>
-                     </Label>
-                     <Label text="Departments" textFill="#7B8797">
-                        <font>
-                           <Font size="9" />
-                        </font>
-                     </Label>
-                  </children>
-               </VBox>
-               <VBox alignment="CENTER_LEFT" maxWidth="Infinity" minWidth="0" prefHeight="112" prefWidth="1" spacing="10" style="-fx-background-color: white;                              -fx-background-radius: 5;                              -fx-border-color: #D5DCE5;                              -fx-border-radius: 5;                              -fx-border-width: 1;" HBox.hgrow="ALWAYS">
-                  <padding>
-                     <Insets bottom="12" left="13" right="13" top="14" />
-                  </padding>
-                  <children>
-                     <Label text="Pending Medical" textFill="#526174" wrapText="true">
-                        <font>
-                           <Font size="11" />
-                        </font>
-                     </Label>
-                     <Label text="7" textFill="#172B45">
-                        <font>
-                           <Font name="System Bold" size="22" />
-                        </font>
-                     </Label>
-                     <Label text="Need review" textFill="#7B8797">
-                        <font>
-                           <Font size="9" />
-                        </font>
-                     </Label>
-                  </children>
-               </VBox>
-            </children>
+         <HBox alignment="TOP_LEFT" fillHeight="true"
+               maxWidth="Infinity" spacing="12">
+            <VBox alignment="CENTER_LEFT" maxWidth="Infinity"
+                  minWidth="0" prefHeight="112" spacing="10"
+                  style="-fx-background-color: white; -fx-background-radius: 5; -fx-border-color: #D5DCE5; -fx-border-radius: 5; -fx-border-width: 1;"
+                  HBox.hgrow="ALWAYS">
+               <padding>
+                  <Insets bottom="12" left="13" right="13" top="14"/>
+               </padding>
+               <Label text="Departments" textFill="#526174">
+                  <font><Font size="11"/></font>
+               </Label>
+               <Label text="6" textFill="#172B45">
+                  <font><Font name="System Bold" size="22"/></font>
+               </Label>
+               <Label text="Departments" textFill="#7B8797">
+                  <font><Font size="9"/></font>
+               </Label>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" maxWidth="Infinity"
+                  minWidth="0" prefHeight="112" spacing="10"
+                  style="-fx-background-color: white; -fx-background-radius: 5; -fx-border-color: #D5DCE5; -fx-border-radius: 5; -fx-border-width: 1;"
+                  HBox.hgrow="ALWAYS">
+               <padding>
+                  <Insets bottom="12" left="13" right="13" top="14"/>
+               </padding>
+               <Label text="Pending Medical" textFill="#526174">
+                  <font><Font size="11"/></font>
+               </Label>
+               <Label text="7" textFill="#172B45">
+                  <font><Font name="System Bold" size="22"/></font>
+               </Label>
+               <Label text="Need review" textFill="#7B8797">
+                  <font><Font size="9"/></font>
+               </Label>
+            </VBox>
          </HBox>
       </VBox>
    </center>

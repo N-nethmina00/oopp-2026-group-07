@@ -9,7 +9,7 @@
 
 <!-- NOTE: fx:com.fot.ams.controller package eka oyaage project ekata change karanna -->
 <HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="controller.LoginController"
+      fx:controller="com.fot.ams.controller.LoginController"
       stylesheets="@../css/login.css"
       prefWidth="1000" prefHeight="600" styleClass="root-pane">
 

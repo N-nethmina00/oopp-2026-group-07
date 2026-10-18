@@ -72,7 +72,8 @@
 
                 <Button text="Medical Records"
                         maxWidth="Infinity"
-                        styleClass="to-nav-button"/>
+                        styleClass="to-nav-button"
+                        onAction="#showMedical"/>
 
                 <Button text="Notices"
                         maxWidth="Infinity"
@@ -198,7 +199,8 @@
                                     styleClass="to-action-button"/>
 
                             <Button text="View Medical"
-                                    styleClass="to-action-button"/>
+                                    styleClass="to-action-button"
+                                    onAction="#showMedical"/>
 
                         </FlowPane>
 

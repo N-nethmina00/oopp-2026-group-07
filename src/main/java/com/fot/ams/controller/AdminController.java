@@ -2,122 +2,62 @@
 package com.fot.ams.controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 
-import java.util.Optional;
+import java.io.IOException;
+import java.net.URL;
 
 public class AdminController {
 
     @FXML
-    private BorderPane rootPane;
+    private BorderPane mainPane;
 
     @FXML
-    private VBox sidebar;
-
-    @FXML
-    private Button dashboardButton;
-
-    @FXML
-    private Button usersButton;
-
-    @FXML
-    private Button coursesButton;
-
-    @FXML
-    private Button noticesButton;
-
-    @FXML
-    private Button timetableButton;
-
-    @FXML
-    private Button logoutButton;
-
-    @FXML
-    private void initialize() {
-        setActiveButton(dashboardButton);
+    private void showDashboard() {
+        loadPage("adminDashboard.fxml");
     }
 
     @FXML
-    private void handleSidebarClick(javafx.event.ActionEvent event) {
-        if (!(event.getSource() instanceof Button clickedButton)) {
-            return;
-        }
-
-        if (clickedButton == logoutButton) {
-            handleLogout();
-            return;
-        }
-
-        setActiveButton(clickedButton);
-
-        if (clickedButton == dashboardButton) {
-            return;
-        }
-
-        String sectionName = clickedButton.getText();
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Admin Dashboard");
-        alert.setHeaderText(sectionName);
-        alert.setContentText(
-                sectionName + " section selected."
-        );
-        alert.showAndWait();
+    private void showUsers() {
+        loadPage("adminUserManagement.fxml");
     }
 
-    private void setActiveButton(Button activeButton) {
-        if (sidebar == null) {
-            return;
-        }
+    @FXML
+    private void showCourses() {
+        loadPage("adminCourseManagement.fxml");
+    }
 
-        for (Node node : sidebar.getChildren()) {
-            if (node instanceof Button button && button != logoutButton) {
-                button.setStyle(
-                        "-fx-background-color: transparent;" +
-                                "-fx-text-fill: white;" +
-                                "-fx-background-radius: 8;" +
-                                "-fx-font-weight: normal;" +
-                                "-fx-alignment: CENTER_LEFT;" +
-                                "-fx-padding: 0 12 0 12;"
-                );
+    @FXML
+    private void showNotices() {
+        loadPage("adminNoticeManagement.fxml");
+    }
+
+    @FXML
+    private void showTimetables() {
+        loadPage("adminTimetableManagement.fxml");
+    }
+
+    private void loadPage(String fileName) {
+        try {
+            URL url = getClass().getResource("/fxml/" + fileName);
+
+            if (url == null) {
+                System.out.println("FXML file not found: " + fileName);
+                return;
             }
-        }
 
-        if (activeButton != null) {
-            activeButton.setStyle(
-                    "-fx-background-color: white;" +
-                            "-fx-text-fill: #0078b9;" +
-                            "-fx-background-radius: 8;" +
-                            "-fx-font-weight: bold;" +
-                            "-fx-alignment: CENTER_LEFT;" +
-                            "-fx-padding: 0 12 0 12;"
-            );
-        }
-    }
+            FXMLLoader loader = new FXMLLoader(url);
+            BorderPane page = loader.load();
+            Node body = page.getCenter();
 
-    private void handleLogout() {
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("Log Out");
-        confirmation.setHeaderText("Confirm Logout");
-        confirmation.setContentText(
-                "Are you sure you want to log out?"
-        );
+            if (body != null) {
+                mainPane.setCenter(body);
+            }
 
-        Optional<ButtonType> result = confirmation.showAndWait();
-
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            Alert message = new Alert(Alert.AlertType.INFORMATION);
-            message.setTitle("Log Out");
-            message.setHeaderText(null);
-            message.setContentText(
-                    "Logout confirmed. Connect your login screen here."
-            );
-            message.showAndWait();
+        } catch (IOException | RuntimeException e) {
+            e.printStackTrace();
         }
     }
 }

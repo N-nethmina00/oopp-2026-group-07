@@ -18,6 +18,7 @@ public class TechnicalOfficerController {
     private Node attendanceContent;
     private Node medicalContent;
     private Node noticesContent;
+    private Node timetableContent;
 
 
     @FXML
@@ -116,6 +117,35 @@ public class TechnicalOfficerController {
             alert.setHeaderText("Notices page could not be opened.");
             alert.setContentText(exception.getMessage());
             alert.showAndWait();
+        }
+        @FXML
+        private void showTimetable() {
+            try {
+                if (timetableContent == null) {
+                    URL resource = getClass().getResource(
+                            "/fxml/technical-officer-timetable.fxml"
+                    );
+
+                    if (resource == null) {
+                        throw new IOException(
+                                "Cannot find /fxml/technical-officer-timetable.fxml"
+                        );
+                    }
+
+                    timetableContent = FXMLLoader.load(resource);
+                }
+
+                dashboardRoot.setCenter(timetableContent);
+
+            } catch (IOException exception) {
+                exception.printStackTrace();
+
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Page Loading Error");
+                alert.setHeaderText("Timetable page could not be opened.");
+                alert.setContentText(exception.getMessage());
+                alert.showAndWait();
+            }
         }
     }
 }

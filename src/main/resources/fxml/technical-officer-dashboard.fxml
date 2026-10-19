@@ -77,7 +77,8 @@
 
                 <Button text="Notices"
                         maxWidth="Infinity"
-                        styleClass="to-nav-button"/>
+                        styleClass="to-nav-button"
+                        onAction="#showNotices"/>
 
                 <Button text="Profile"
                         maxWidth="Infinity"

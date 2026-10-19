@@ -42,8 +42,7 @@ public class AdminController {
         URL url = getClass().getResource("/fxml/" + fileName);
 
         if (url == null) {
-            showError("FXML File Not Found",
-                    "Missing file: src/main/resources/fxml/" + fileName);
+            showError("FXML File Not Found", "Cannot find /fxml/" + fileName);
             return;
         }
 
@@ -52,22 +51,23 @@ public class AdminController {
             Node page = loader.load();
 
             if (page instanceof BorderPane borderPane) {
-                Node body = borderPane.getCenter();
+                Node content = borderPane.getCenter();
 
-                if (body == null) {
+                if (content == null) {
                     showError("Page Error", fileName + " has no center content.");
                     return;
                 }
 
-                mainPane.setCenter(body);
+                mainPane.setCenter(content);
             } else {
                 mainPane.setCenter(page);
             }
+
         } catch (Exception e) {
-            e.printStackTrace();
-            showError("Unable to Open Page",
-                    fileName + "\n" + e.getClass().getSimpleName()
-                            + ": " + e.getMessage());
+            showError(
+                    "Unable to Open Page",
+                    fileName + "\n" + e.getClass().getSimpleName() + ": " + e.getMessage()
+            );
         }
     }
 

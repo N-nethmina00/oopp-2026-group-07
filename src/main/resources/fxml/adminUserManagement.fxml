@@ -11,160 +11,123 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <BorderPane minHeight="400.0"
             minWidth="600.0"
-            prefHeight="600.0"
-            prefWidth="900.0"
+            prefHeight="700.0"
+            prefWidth="1100.0"
             style="-fx-background-color: #F3F6FA;"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.fot.ams.controller.AdminUserManagementController">
 
     <center>
-        <VBox spacing="12" BorderPane.alignment="CENTER">
+        <VBox spacing="14" BorderPane.alignment="CENTER">
             <padding>
-                <Insets bottom="18" left="20" right="20" top="20"/>
+                <Insets top="22" right="22" bottom="22" left="22"/>
             </padding>
 
-            <Label text="User Profile Management" textFill="#17324D">
-                <font>
-                    <Font name="System Bold" size="20"/>
-                </font>
-            </Label>
+            <Label text="User Profile Management"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #17324D;"/>
 
-            <Label text="Add, view, update and delete user accounts."
-                   textFill="#7B8797">
-                <font>
-                    <Font size="11"/>
-                </font>
-            </Label>
+            <Label text="Manage users and their role-specific IDs"
+                   style="-fx-font-size: 13px; -fx-text-fill: #7B8797;"/>
 
             <VBox spacing="12"
-                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D5DCE5; -fx-border-radius: 8; -fx-border-width: 1;">
+                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #D5DCE5; -fx-border-radius: 10;">
                 <padding>
-                    <Insets bottom="16" left="16" right="16" top="16"/>
+                    <Insets top="18" right="18" bottom="18" left="18"/>
                 </padding>
 
-                <Label text="User Details" textFill="#17324D">
-                    <font>
-                        <Font name="System Bold" size="14"/>
-                    </font>
-                </Label>
+                <Label text="User Details"
+                       style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #17324D;"/>
 
                 <HBox spacing="12">
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="User ID" textFill="#526174"/>
-                        <TextField fx:id="userIdField"
-                                   prefHeight="34"
-                                   promptText="Enter user ID"/>
+                        <Label text="User ID"/>
+                        <TextField fx:id="userIdField" promptText="Enter user ID"/>
                     </VBox>
 
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Username" textFill="#526174"/>
-                        <TextField fx:id="usernameField"
-                                   prefHeight="34"
-                                   promptText="Enter username"/>
+                        <Label fx:id="roleSpecificIdLabel" text="Role-specific ID"/>
+                        <TextField fx:id="roleSpecificIdField" promptText="Enter role-specific ID"/>
                     </VBox>
 
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Role" textFill="#526174"/>
+                        <Label text="Role"/>
                         <ComboBox fx:id="roleComboBox"
-                                  maxWidth="Infinity"
-                                  prefHeight="34"
-                                  promptText="Select role"/>
+                                  promptText="Select role"
+                                  maxWidth="Infinity"/>
                     </VBox>
                 </HBox>
 
                 <HBox spacing="12">
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="First Name" textFill="#526174"/>
-                        <TextField fx:id="firstNameField"
-                                   prefHeight="34"
-                                   promptText="Enter first name"/>
+                        <Label text="Username"/>
+                        <TextField fx:id="usernameField" promptText="Enter username"/>
                     </VBox>
 
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Last Name" textFill="#526174"/>
-                        <TextField fx:id="lastNameField"
-                                   prefHeight="34"
-                                   promptText="Enter last name"/>
-                    </VBox>
-                </HBox>
-
-                <HBox spacing="12">
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Email" textFill="#526174"/>
-                        <TextField fx:id="emailField"
-                                   prefHeight="34"
-                                   promptText="Enter email"/>
-                    </VBox>
-
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Password" textFill="#526174"/>
+                        <Label text="Password"/>
                         <PasswordField fx:id="passwordField"
-                                       prefHeight="34"
-                                       promptText="Enter password"/>
+                                       promptText="Required for new users; optional for updates"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="12">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="First Name"/>
+                        <TextField fx:id="firstNameField" promptText="Enter first name"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Last Name"/>
+                        <TextField fx:id="lastNameField" promptText="Enter last name"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Email"/>
+                        <TextField fx:id="emailField" promptText="Enter email"/>
                     </VBox>
                 </HBox>
 
                 <HBox spacing="10">
-                    <Button onAction="#addUser"
-                            mnemonicParsing="false"
-                            prefHeight="34"
-                            minWidth="100"
-                            style="-fx-background-color: #4C56CD; -fx-text-fill: white; -fx-background-radius: 5; -fx-font-weight: bold;"
-                            text="Add User"/>
+                    <Button text="Add User"
+                            onAction="#addUser"
+                            style="-fx-background-color: #4C56CD; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 9 18;"/>
 
-                    <Button onAction="#updateUser"
-                            mnemonicParsing="false"
-                            prefHeight="34"
-                            minWidth="90"
-                            style="-fx-background-color: #EEF0FF; -fx-text-fill: #4C56CD; -fx-background-radius: 5; -fx-font-weight: bold;"
-                            text="Update"/>
+                    <Button text="Update"
+                            onAction="#updateUser"
+                            style="-fx-background-color: #EEF0FF; -fx-text-fill: #4C56CD; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 9 18;"/>
 
-                    <Button onAction="#deleteUser"
-                            mnemonicParsing="false"
-                            prefHeight="34"
-                            minWidth="90"
-                            style="-fx-background-color: #FFF0F0; -fx-text-fill: #D64545; -fx-background-radius: 5; -fx-font-weight: bold;"
-                            text="Delete"/>
+                    <Button text="Delete"
+                            onAction="#deleteUser"
+                            style="-fx-background-color: #FFF0F0; -fx-text-fill: #D64545; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 9 18;"/>
 
-                    <Button onAction="#clearFields"
-                            mnemonicParsing="false"
-                            prefHeight="34"
-                            minWidth="90"
-                            style="-fx-background-color: #EEF2F6; -fx-text-fill: #526174; -fx-background-radius: 5;"
-                            text="Clear"/>
+                    <Button text="Clear"
+                            onAction="#clearFields"
+                            style="-fx-background-color: #EEF2F6; -fx-text-fill: #526174; -fx-background-radius: 5; -fx-padding: 9 18;"/>
                 </HBox>
             </VBox>
 
             <VBox spacing="10"
                   VBox.vgrow="ALWAYS"
-                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D5DCE5; -fx-border-radius: 8; -fx-border-width: 1;">
+                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #D5DCE5; -fx-border-radius: 10;">
                 <padding>
-                    <Insets bottom="12" left="14" right="14" top="14"/>
+                    <Insets top="16" right="16" bottom="16" left="16"/>
                 </padding>
 
-                <Label text="User List" textFill="#17324D">
-                    <font>
-                        <Font name="System Bold" size="14"/>
-                    </font>
-                </Label>
+                <Label text="Registered Users"
+                       style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #17324D;"/>
 
-                <TableView fx:id="usersTable"
-                           minHeight="150"
-                           prefHeight="230"
-                           VBox.vgrow="ALWAYS"
-                           xmlns:fx="http://javafx.com/fxml/1"
-                           >
+                <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="userIdColumn" text="User ID" prefWidth="100"/>
+                        <TableColumn fx:id="roleSpecificIdColumn" text="Role ID" prefWidth="130"/>
                         <TableColumn fx:id="usernameColumn" text="Username" prefWidth="130"/>
-                        <TableColumn fx:id="fullNameColumn" text="Full Name" prefWidth="170"/>
+                        <TableColumn fx:id="fullNameColumn" text="Full Name" prefWidth="180"/>
                         <TableColumn fx:id="emailColumn" text="Email" prefWidth="220"/>
-                        <TableColumn fx:id="roleColumn" text="Role" prefWidth="130"/>
+                        <TableColumn fx:id="roleColumn" text="Role" prefWidth="160"/>
                     </columns>
                 </TableView>
             </VBox>

@@ -16,7 +16,7 @@
 
 <BorderPane minHeight="400.0" minWidth="600.0" prefHeight="600.0" prefWidth="900.0"
             style="-fx-background-color: #F3F6FA;"
-            xmlns="http://javafx.com/javafx/26">
+            xmlns="http://javafx.com/javafx/21">
     <center>
 <VBox spacing="12" BorderPane.alignment="CENTER">
         <padding><Insets bottom="18" left="10" right="22" top="20"/></padding>

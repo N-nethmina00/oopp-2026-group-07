@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fitToWidth="true"
+            stylesheets="@../css/technical-officer-notices.css"
+            styleClass="notices-scroll">
+
+    <content>
+        <VBox spacing="20" styleClass="notices-page">
+
+            <Label text="NOTICES"
+                   styleClass="notices-title"/>
+
+            <Label text="View university announcements and published notices."
+                   wrapText="true"
+                   styleClass="notices-subtitle"/>
+
+            <VBox spacing="18" styleClass="notices-panel">
+
+                <Label text="Published Notices"
+                       styleClass="notices-section-title"/>
+
+                <HBox spacing="12" alignment="CENTER_LEFT">
+
+                    <TextField fx:id="noticeSearchField"
+                               promptText="Search by notice title"
+                               HBox.hgrow="ALWAYS"/>
+
+                    <Button text="Search"
+                            styleClass="notices-primary-button"/>
+
+                    <Button text="Refresh"
+                            styleClass="notices-secondary-button"/>
+
+                </HBox>
+
+                <TableView fx:id="noticesTable"
+                           prefHeight="250">
+
+                    <columns>
+                        <TableColumn fx:id="noticeIdColumn"
+                                     text="Notice ID"
+                                     prefWidth="100"/>
+
+                        <TableColumn fx:id="noticeTitleColumn"
+                                     text="Title"
+                                     prefWidth="430"/>
+
+                        <TableColumn fx:id="noticePublishedDateColumn"
+                                     text="Published Date"
+                                     prefWidth="180"/>
+                    </columns>
+
+                    <placeholder>
+                        <Label text="No notices loaded."/>
+                    </placeholder>
+
+                </TableView>
+
+            </VBox>
+
+            <VBox spacing="15" styleClass="notices-panel">
+
+                <Label text="Notice Details"
+                       styleClass="notices-section-title"/>
+
+                <Label fx:id="selectedNoticeTitleLabel"
+                       text="Select a notice to view its details."
+                       wrapText="true"
+                       styleClass="notices-detail-title"/>
+
+                <Label fx:id="selectedNoticeDateLabel"
+                       text="Published date: —"
+                       styleClass="notices-subtitle"/>
+
+                <TextArea fx:id="noticeContentArea"
+                          editable="false"
+                          wrapText="true"
+                          promptText="The selected notice content will appear here."
+                          prefRowCount="6"/>
+
+            </VBox>
+
+        </VBox>
+    </content>
+
+</ScrollPane>

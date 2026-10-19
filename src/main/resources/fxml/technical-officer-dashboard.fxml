@@ -68,7 +68,8 @@
 
                 <Button text="Timetable"
                         maxWidth="Infinity"
-                        styleClass="to-nav-button"/>
+                        styleClass="to-nav-button"
+                        onAction="#showTimetable"/>
 
                 <Button text="Medical Records"
                         maxWidth="Infinity"

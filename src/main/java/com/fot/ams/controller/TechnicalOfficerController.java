@@ -17,6 +17,7 @@ public class TechnicalOfficerController {
     private Node dashboardContent;
     private Node attendanceContent;
     private Node medicalContent;
+    private Node noticesContent;
 
 
     @FXML
@@ -83,6 +84,36 @@ public class TechnicalOfficerController {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Page Loading Error");
             alert.setHeaderText("Medical page could not be opened.");
+            alert.setContentText(exception.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void showNotices() {
+        try {
+            if (noticesContent == null) {
+                URL resource = getClass().getResource(
+                        "/fxml/technical-officer-notices.fxml"
+                );
+
+                if (resource == null) {
+                    throw new IOException(
+                            "Cannot find /fxml/technical-officer-notices.fxml"
+                    );
+                }
+
+                noticesContent = FXMLLoader.load(resource);
+            }
+
+            dashboardRoot.setCenter(noticesContent);
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Page Loading Error");
+            alert.setHeaderText("Notices page could not be opened.");
             alert.setContentText(exception.getMessage());
             alert.showAndWait();
         }

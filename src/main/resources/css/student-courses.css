@@ -1,0 +1,96 @@
+/* ===== student-courses.css ===== */
+
+/* ---------- PAGE ---------- */
+.page { -fx-padding: 24 24 20 10; }
+.page-heading  { -fx-text-fill: #17324D; -fx-font-size: 20px; -fx-font-weight: bold; }
+.page-subtitle { -fx-text-fill: #526174; -fx-font-size: 12px; }
+.section-title { -fx-text-fill: #17324D; -fx-font-size: 16px; -fx-font-weight: bold; }
+.field-label   { -fx-text-fill: #526174; -fx-font-size: 11px; -fx-font-weight: bold; }
+
+/* ---------- CARDS ---------- */
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 16 18 16 18;
+}
+.blue-card   { -fx-border-color: #93c5fd; }
+.purple-card { -fx-border-color: #c4b5fd; }
+.green-card  { -fx-border-color: #86efac; }
+.orange-card { -fx-border-color: #fdba74; }
+
+.stat-label { -fx-text-fill: #526174; -fx-font-size: 11px; -fx-font-weight: bold; }
+.stat-value { -fx-text-fill: #172B45; -fx-font-size: 30px; -fx-font-weight: bold; }
+.stat-hint  { -fx-text-fill: #7B8797; -fx-font-size: 11px; }
+
+.section-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 12;
+    -fx-padding: 20;
+}
+
+.progress-bar .track { -fx-background-color: #e2e8f0; -fx-background-radius: 10; -fx-background-insets: 0; }
+.progress-bar .bar   { -fx-background-color: #4c56cd; -fx-background-radius: 10; -fx-background-insets: 0; -fx-padding: 5; }
+
+/* ---------- TABLE ---------- */
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 0;
+}
+.table-view .column-header-background { -fx-background-color: #eff4fb; -fx-background-radius: 6 6 0 0; }
+.table-view .column-header, .table-view .filler { -fx-background-color: transparent; -fx-size: 40px; -fx-border-color: transparent; }
+.table-view .column-header .label { -fx-text-fill: #334155; -fx-font-weight: bold; -fx-font-size: 12px; -fx-alignment: center-left; }
+.table-row-cell { -fx-background-color: white; -fx-cell-size: 44; -fx-border-color: transparent transparent #edf2f7 transparent; }
+.table-row-cell:odd { -fx-background-color: #fbfcfe; }
+.table-row-cell:filled:hover { -fx-background-color: #eff6ff; }
+.table-row-cell:selected { -fx-background-color: #dbeafe; }
+.table-cell { -fx-text-fill: #334155; -fx-font-size: 12px; -fx-alignment: center-left; -fx-padding: 0 12 0 12; }
+.table-row-cell:selected .table-cell { -fx-text-fill: #17324D; }
+.table-view .placeholder .label { -fx-text-fill: #94a3b8; }
+
+/* ---------- BUTTONS ---------- */
+.primary-button {
+    -fx-background-color: #4c56cd;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 11 22 11 22;
+    -fx-background-radius: 7;
+    -fx-cursor: hand;
+}
+.primary-button:hover   { -fx-background-color: #3f48c0; }
+.primary-button:pressed { -fx-background-color: #343ca8; }
+
+.secondary-button {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 12px;
+    -fx-padding: 10 18 10 18;
+    -fx-background-radius: 7;
+    -fx-cursor: hand;
+}
+.secondary-button:hover { -fx-background-color: #d5dce5; }
+
+.small-button {
+    -fx-background-color: #eef0ff;
+    -fx-text-fill: #4c56cd;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 5 14 5 14;
+    -fx-cursor: hand;
+}
+.small-button:hover { -fx-background-color: #4c56cd; -fx-text-fill: white; }
+
+/* ---------- STATUS BADGES ---------- */
+.badge { -fx-padding: 3 12 3 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold; }
+.badge-active, .badge-present, .badge-approved, .badge-enrolled, .badge-completed { -fx-background-color: #dcfce7; -fx-text-fill: #15803d; }
+.badge-absent, .badge-rejected { -fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; }
+.badge-pending, .badge-medical, .badge-upcoming { -fx-background-color: #fef3c7; -fx-text-fill: #b45309; }

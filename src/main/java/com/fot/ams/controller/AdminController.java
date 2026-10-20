@@ -33,6 +33,7 @@ public class AdminController {
         loadPage("adminNoticeManagement.fxml");
     }
 
+
     @FXML
     private void showTimetables() {
         loadPage("adminTimetableManagement.fxml");

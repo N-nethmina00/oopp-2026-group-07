@@ -1,4 +1,3 @@
-
 package com.fot.ams.model;
 
 import java.time.LocalDate;

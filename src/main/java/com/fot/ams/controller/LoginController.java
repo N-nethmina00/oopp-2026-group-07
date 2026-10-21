@@ -1,5 +1,6 @@
 package com.fot.ams.controller;
 
+<<<<<<< HEAD
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -95,3 +96,7 @@ public class LoginController {
         a.showAndWait();
     }
 }
+=======
+public class LoginController {
+}
+>>>>>>> 152347c62e0478a2d3c845c988f642bcf6272926

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane minHeight="600.0"
+            minWidth="850.0"
+            prefHeight="720.0"
+            prefWidth="1100.0"
+            style="-fx-background-color: #F3F6FA;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.AdminCourseManagementController">
+
+    <center>
+        <VBox spacing="14">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Course Management" textFill="#17324D">
+                <font>
+                    <Font name="System Bold" size="22"/>
+                </font>
+            </Label>
+
+            <Label text="Add, view, update and delete courses."
+                   textFill="#7B8797"/>
+
+            <VBox spacing="12"
+                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D5DCE5; -fx-border-radius: 8;">
+                <padding>
+                    <Insets top="16" right="16" bottom="16" left="16"/>
+                </padding>
+
+                <Label text="Course Details" textFill="#17324D">
+                    <font>
+                        <Font name="System Bold" size="15"/>
+                    </font>
+                </Label>
+
+                <HBox spacing="12">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Course ID"/>
+                        <TextField fx:id="courseIdField"
+                                   promptText="Example: ICT2132"
+                                   prefHeight="34"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Course Name"/>
+                        <TextField fx:id="courseNameField"
+                                   promptText="Enter course name"
+                                   prefHeight="34"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Credits"/>
+                        <TextField fx:id="creditField"
+                                   promptText="Example: 3"
+                                   prefHeight="34"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="12">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Course Type"/>
+                        <ComboBox fx:id="typeComboBox"
+                                  promptText="Select type"
+                                  maxWidth="Infinity"
+                                  prefHeight="34"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Department"/>
+                        <ComboBox fx:id="departmentComboBox"
+                                  promptText="Select department"
+                                  maxWidth="Infinity"
+                                  prefHeight="34"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Lecturer ID"/>
+                        <ComboBox fx:id="lecturerComboBox"
+                                  promptText="Select lecturer"
+                                  maxWidth="Infinity"
+                                  prefHeight="34"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="8">
+                    <Button text="Add Course"
+                            onAction="#handleAdd"
+                            prefHeight="34"
+                            style="-fx-background-color: #4c56cd; -fx-text-fill: white; -fx-background-radius: 5;"/>
+
+                    <Button text="Update"
+                            onAction="#handleUpdate"
+                            prefHeight="34"
+                            style="-fx-background-color: #EEF0FF; -fx-text-fill: #4c56cd; -fx-background-radius: 5;"/>
+
+                    <Button text="Delete"
+                            onAction="#handleDelete"
+                            prefHeight="34"
+                            style="-fx-background-color: #FCE8E8; -fx-text-fill: #B42318; -fx-background-radius: 5;"/>
+
+                    <Button text="Clear"
+                            onAction="#handleClear"
+                            prefHeight="34"
+                            style="-fx-background-color: #EEF0FF; -fx-text-fill: #4c56cd; -fx-background-radius: 5;"/>
+                </HBox>
+
+                <Label fx:id="messageLabel"
+                       wrapText="true"
+                       textFill="#526174"/>
+            </VBox>
+
+            <VBox spacing="10" VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D5DCE5; -fx-border-radius: 8;">
+                <padding>
+                    <Insets top="14" right="14" bottom="14" left="14"/>
+                </padding>
+
+                <Label text="Course List" textFill="#17324D">
+                    <font>
+                        <Font name="System Bold" size="15"/>
+                    </font>
+                </Label>
+
+                <TableView fx:id="coursesTable"
+                           VBox.vgrow="ALWAYS"
+                           prefHeight="300">
+                    <columns>
+                        <TableColumn fx:id="courseIdColumn"
+                                     text="Course ID"
+                                     prefWidth="110"/>
+
+                        <TableColumn fx:id="courseNameColumn"
+                                     text="Course Name"
+                                     prefWidth="260"/>
+
+                        <TableColumn fx:id="departmentColumn"
+                                     text="Department"
+                                     prefWidth="170"/>
+
+                        <TableColumn fx:id="creditsColumn"
+                                     text="Credits"
+                                     prefWidth="75"/>
+
+                        <TableColumn fx:id="typeColumn"
+                                     text="Type"
+                                     prefWidth="100"/>
+
+                        <TableColumn fx:id="lecturerColumn"
+                                     text="Lecturer ID"
+                                     prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

@@ -54,7 +54,7 @@ public class LoginController {
         // TODO: DBConnection eken user validate karanna, role eka anuwa dashboard eka open karanna
         // admin         -> /fxml/admin-dashboard.fxml
         // lecturer      -> /fxml/lecturer-dashboard.fxml
-        // undergraduate -> /fxml/undergraduate-dashboard.fxml
+        // undergraduate -> /fxml/student-dashboard.fxml
         hideError();
     }
 

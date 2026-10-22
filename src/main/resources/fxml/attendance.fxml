@@ -6,6 +6,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fot.ams.controller.AttendanceController"
       stylesheets="@../css/technical-officer-attendance.css"
       styleClass="attendance-page"
       spacing="20">

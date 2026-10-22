@@ -5,16 +5,22 @@ import com.fot.ams.dao.CourseDAO;
 import com.fot.ams.model.AttendanceSession;
 import com.fot.ams.model.Batch;
 import com.fot.ams.model.Course;
+import com.fot.ams.model.StudentAttendance;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.control.cell.ComboBoxTableCell;
 
 // TG2070 - Attendance page controller
 public class AttendanceController {
@@ -25,7 +31,6 @@ public class AttendanceController {
     @FXML
     private ComboBox<Course> courseComboBox;
 
-    // TG2070 - Session filter controls
     @FXML
     private DatePicker sessionDatePicker;
 
@@ -35,26 +40,82 @@ public class AttendanceController {
     @FXML
     private ComboBox<AttendanceSession> sessionComboBox;
 
+    // TG2070 - Student attendance table
+    @FXML
+    private TableView<StudentAttendance> attendanceTable;
+
+    @FXML
+    private TableColumn<StudentAttendance, String> regNoColumn;
+
+    @FXML
+    private TableColumn<StudentAttendance, String> studentNameColumn;
+
+    @FXML
+    private TableColumn<StudentAttendance, String> statusColumn;
+
+    @FXML
+    private Label studentCountLabel;
+
     @FXML
     private void initialize() {
+        setupTable();
+
         loadBatches();
         loadCourses();
 
-        // TG2070 - Match database session type values
         sessionTypeComboBox.getItems().add("Theory");
         sessionTypeComboBox.getItems().add("Practical");
 
         sessionComboBox.setDisable(true);
 
-        // TG2070 - Reload sessions when a filter changes
+        // TG2070 - Reload sessions when filters change
         courseComboBox.setOnAction(event -> loadSessions());
         sessionDatePicker.setOnAction(event -> loadSessions());
         sessionTypeComboBox.setOnAction(event -> loadSessions());
+
+        // TG2070 - Clear old students when batch or session changes
+        batchComboBox.setOnAction(event -> clearStudents());
+        sessionComboBox.setOnAction(event -> clearStudents());
     }
 
-    // TG2070 - START: Load batch dropdown
-    private void loadBatches() {
+    // TG2070 - Configure table and editable attendance status
+    private void setupTable() {
+        regNoColumn.setCellValueFactory(
+                new PropertyValueFactory<>("regNo")
+        );
 
+        studentNameColumn.setCellValueFactory(
+                new PropertyValueFactory<>("studentName")
+        );
+
+        statusColumn.setCellValueFactory(
+                new PropertyValueFactory<>("status")
+        );
+
+        attendanceTable.setEditable(true);
+        regNoColumn.setEditable(false);
+        studentNameColumn.setEditable(false);
+        statusColumn.setEditable(true);
+
+        // TG2070 - Status dropdown inside each table row
+        statusColumn.setCellFactory(
+                ComboBoxTableCell.forTableColumn(
+                        "Present",
+                        "Absent",
+                        "Late",
+                        "Excused"
+                )
+        );
+
+        // TG2070 - Store the selected status in the student object
+        statusColumn.setOnEditCommit(event -> {
+            StudentAttendance student = event.getRowValue();
+            student.setStatus(event.getNewValue());
+        });
+
+        clearStudents();
+    }
+    private void loadBatches() {
         AttendanceDAO attendanceDAO = new AttendanceDAO();
 
         try {
@@ -70,11 +131,9 @@ public class AttendanceController {
             showDatabaseError("Could not load batches.", exception);
         }
     }
-    // TG2070 - END
 
-    // TG2070 - START: Load course dropdown
+    // TG2070 - Load course dropdown
     private void loadCourses() {
-
         CourseDAO courseDAO = new CourseDAO();
 
         try {
@@ -90,12 +149,11 @@ public class AttendanceController {
             showDatabaseError("Could not load courses.", exception);
         }
     }
-    // TG2070 - END
 
-    // TG2070 - START: Load sessions using selected filters
+    // TG2070 - Load sessions using selected filters
     private void loadSessions() {
+        clearStudents();
 
-        // Clear the previous session selection and list
         sessionComboBox.getSelectionModel().clearSelection();
         sessionComboBox.getItems().clear();
         sessionComboBox.setDisable(true);
@@ -104,7 +162,6 @@ public class AttendanceController {
         LocalDate selectedDate = sessionDatePicker.getValue();
         String selectedType = sessionTypeComboBox.getValue();
 
-        // All three filters are required
         if (selectedCourse == null
                 || selectedDate == null
                 || selectedType == null) {
@@ -139,12 +196,64 @@ public class AttendanceController {
             showDatabaseError("Could not load sessions.", exception);
         }
     }
+
+    // TG2070 - START: Load students for selected session and batch
+    @FXML
+    private void loadStudents() {
+        Batch selectedBatch = batchComboBox.getValue();
+        AttendanceSession selectedSession = sessionComboBox.getValue();
+
+        clearStudents();
+
+        if (selectedBatch == null || selectedSession == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Missing Selection");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select a batch and session.");
+            alert.showAndWait();
+            return;
+        }
+
+        AttendanceDAO attendanceDAO = new AttendanceDAO();
+
+        try {
+            ArrayList<StudentAttendance> students =
+                    attendanceDAO.getStudentsForSession(
+                            selectedSession.getSessionId(),
+                            selectedBatch.getBatchId()
+                    );
+
+            for (StudentAttendance student : students) {
+                attendanceTable.getItems().add(student);
+            }
+
+            studentCountLabel.setText(students.size() + " students");
+
+            if (students.isEmpty()) {
+                attendanceTable.setPlaceholder(
+                        new Label("No students found for this batch and session.")
+                );
+            }
+
+        } catch (SQLException exception) {
+            showDatabaseError("Could not load students.", exception);
+        }
+    }
     // TG2070 - END
+
+    // TG2070 - Clear students when selections change
+    private void clearStudents() {
+        attendanceTable.getItems().clear();
+        studentCountLabel.setText("0 students");
+
+        attendanceTable.setPlaceholder(
+                new Label("Select a batch and session, then click Load Students.")
+        );
+    }
 
     // TG2070 - Show database errors
     private void showDatabaseError(String message,
                                    SQLException exception) {
-
         exception.printStackTrace();
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -152,5 +261,26 @@ public class AttendanceController {
         alert.setHeaderText(message);
         alert.setContentText(exception.getMessage());
         alert.showAndWait();
+    }
+    // TG2070 - Mark all loaded students as Present
+    @FXML
+    private void markAllPresent() {
+
+        if (attendanceTable.getItems().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Students");
+            alert.setHeaderText(null);
+            alert.setContentText("Please load students first.");
+            alert.showAndWait();
+            return;
+        }
+
+        attendanceTable.edit(-1, null);
+
+        for (StudentAttendance student : attendanceTable.getItems()) {
+            student.setStatus("Present");
+        }
+
+        attendanceTable.refresh();
     }
 }

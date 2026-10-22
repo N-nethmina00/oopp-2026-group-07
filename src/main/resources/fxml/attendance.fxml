@@ -62,7 +62,9 @@
         </FlowPane>
 
         <Button text="Load Students"
-                styleClass="attendance-primary-button"/>
+                styleClass="attendance-primary-button"
+
+                onAction="#loadStudents"/>
 
     </VBox>
 
@@ -76,7 +78,8 @@
 
             <Region HBox.hgrow="ALWAYS"/>
 
-            <Label text="0 students"
+            <Label fx:id="studentCountLabel"
+                    text="0 students"
                    styleClass="attendance-subtitle"/>
         </HBox>
 
@@ -110,7 +113,8 @@
 
         <HBox alignment="CENTER_RIGHT" spacing="12">
             <Button text="Mark All Present"
-                    styleClass="attendance-secondary-button"/>
+                    styleClass="attendance-secondary-button"
+                    onAction="#markAllPresent"/>
 
             <Button text="Save Attendance"
                     styleClass="attendance-primary-button"/>

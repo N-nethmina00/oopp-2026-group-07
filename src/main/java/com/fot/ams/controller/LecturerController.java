@@ -1,6 +1,7 @@
 
 package com.fot.ams.controller;
 
+import com.fot.ams.dao.CourseMaterialDAO;
 import com.fot.ams.dao.StudentDAO;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
@@ -16,6 +17,22 @@ import com.fot.ams.dao.CourseDAO;
 import java.sql.SQLException;
 import javafx.scene.control.Alert;
 import java.util.List;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ButtonBar;
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
+import java.util.Optional;
 
 public class LecturerController {
 
@@ -329,14 +346,308 @@ public class LecturerController {
     }
 
 
+
     @FXML
     private void showMaterials() {
+
         displayPage(
                 "Course Materials",
-                "Manage lecture notes and documents.",
+                "Materials uploaded for your assigned courses.",
                 materialsBtn
         );
+
+        Label heading = new Label("My Course Materials");
+
+        Button uploadButton = new Button("+ Upload Material");
+
+        uploadButton.setStyle(
+                "-fx-background-color: #4c56cd;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-padding: 11 20;"
+        );
+
+        uploadButton.setOnAction(event -> uploadMaterial());
+
+        heading.setStyle(
+                "-fx-font-size: 20px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #17324D;"
+        );
+
+        TableView<String[]> materialsTable = createTable(
+                "No course materials found.",
+                "Course Code",
+                "Material Title",
+                "Type",
+                "File Name",
+                "Uploaded Date"
+        );
+
+        materialsTable.setPrefHeight(400);
+
+        CourseMaterialDAO materialDAO = new CourseMaterialDAO();
+
+        try {
+            List<String[]> materials =
+                    materialDAO.getMaterialsByLecturer(lecturerId);
+
+            materialsTable.getItems().setAll(materials);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load course materials."
+            ).showAndWait();
+        }
+
+        contentArea.getChildren().addAll(
+                heading,
+                uploadButton,
+                materialsTable
+        );
     }
+
+        private void uploadMaterial() {
+
+            // Get assigned courses
+            ComboBox<String> courseComboBox = new ComboBox<>();
+            courseComboBox.setMaxWidth(Double.MAX_VALUE);
+            courseComboBox.setPromptText("Select Course");
+
+            try {
+                CourseDAO courseDAO = new CourseDAO();
+
+                List<String[]> courses =
+                        courseDAO.getCoursesByLecturer(lecturerId);
+
+                for (String[] course : courses) {
+                    courseComboBox.getItems().add(course[0]);
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+
+                new Alert(
+                        Alert.AlertType.ERROR,
+                        "Unable to load assigned courses."
+                ).showAndWait();
+                return;
+            }
+
+            if (courseComboBox.getItems().isEmpty()) {
+                new Alert(
+                        Alert.AlertType.INFORMATION,
+                        "No courses are assigned to this lecturer."
+                ).showAndWait();
+                return;
+            }
+
+            // Material title
+            TextField titleField = new TextField();
+            titleField.setPromptText("Enter material title");
+
+            // Selected PDF
+            final File[] selectedPdf = {null};
+
+            Label fileLabel = new Label("No PDF selected");
+            fileLabel.setWrapText(true);
+
+            Button chooseFileButton = new Button("Choose PDF");
+
+            chooseFileButton.setOnAction(event -> {
+
+                FileChooser chooser = new FileChooser();
+                chooser.setTitle("Select Lecture PDF");
+
+                chooser.getExtensionFilters().add(
+                        new FileChooser.ExtensionFilter(
+                                "PDF Files", "*.pdf"
+                        )
+                );
+
+                File file = chooser.showOpenDialog(
+                        contentArea.getScene().getWindow()
+                );
+
+                if (file != null) {
+                    selectedPdf[0] = file;
+                    fileLabel.setText(file.getName());
+                }
+            });
+
+            // Upload dialog layout
+            VBox form = new VBox(12);
+            form.setPadding(new Insets(15));
+
+            form.getChildren().addAll(
+                    new Label("Select Course"),
+                    courseComboBox,
+                    new Label("Material Title"),
+                    titleField,
+                    chooseFileButton,
+                    fileLabel
+            );
+
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Upload Course Material");
+            dialog.setHeaderText("Add New PDF Material");
+
+            dialog.getDialogPane().setContent(form);
+
+            ButtonType uploadType = new ButtonType(
+                    "Upload",
+                    ButtonBar.ButtonData.OK_DONE
+            );
+
+            dialog.getDialogPane()
+                    .getButtonTypes()
+                    .addAll(uploadType, ButtonType.CANCEL);
+
+            Optional<ButtonType> result = dialog.showAndWait();
+
+            if (result.isEmpty() ||
+                    result.get() != uploadType) {
+                return;
+            }
+
+            String courseCode = courseComboBox.getValue();
+            String materialTitle = titleField.getText().trim();
+
+            // Validate input
+            if (courseCode == null ||
+                    materialTitle.isEmpty() ||
+                    selectedPdf[0] == null) {
+
+                new Alert(
+                        Alert.AlertType.WARNING,
+                        "Please select a course, enter a title, " +
+                                "and choose a PDF file."
+                ).showAndWait();
+                return;
+            }
+
+            if (materialTitle.length() > 150) {
+                new Alert(
+                        Alert.AlertType.WARNING,
+                        "Material title must be 150 characters or less."
+                ).showAndWait();
+                return;
+            }
+
+            File sourceFile = selectedPdf[0];
+
+            if (!sourceFile.getName().toLowerCase()
+                    .endsWith(".pdf")) {
+                new Alert(
+                        Alert.AlertType.WARNING,
+                        "Only PDF files are allowed."
+                ).showAndWait();
+                return;
+            }
+
+            Path targetPath = null;
+
+            try {
+                // Maximum file size: 20 MB
+                long maxSize = 20L * 1024 * 1024;
+
+                long fileSize = Files.size(sourceFile.toPath());
+
+                if (fileSize == 0 || fileSize > maxSize) {
+                    new Alert(
+                            Alert.AlertType.WARNING,
+                            "PDF must be between 1 byte and 20 MB."
+                    ).showAndWait();
+                    return;
+                }
+
+                // Basic PDF signature validation
+                try (InputStream input =
+                             Files.newInputStream(sourceFile.toPath())) {
+
+                    String signature = new String(
+                            input.readNBytes(5),
+                            StandardCharsets.US_ASCII
+                    );
+
+                    if (!"%PDF-".equals(signature)) {
+                        new Alert(
+                                Alert.AlertType.WARNING,
+                                "Selected file is not a valid PDF header."
+                        ).showAndWait();
+                        return;
+                    }
+                }
+
+                // Create upload directory
+                Path uploadDirectory = Paths.get(
+                        System.getProperty("user.dir"),
+                        "uploads",
+                        "materials"
+                );
+
+                Files.createDirectories(uploadDirectory);
+
+                // Unique filename prevents overwriting
+                String storedFileName =
+                        UUID.randomUUID() + ".pdf";
+
+                targetPath =
+                        uploadDirectory.resolve(storedFileName);
+
+                // Save PDF to local storage
+                Files.copy(
+                        sourceFile.toPath(),
+                        targetPath,
+                        StandardCopyOption.COPY_ATTRIBUTES
+                );
+
+                // Relative path stored in MySQL
+                String databasePath =
+                        "uploads/materials/" + storedFileName;
+
+                CourseMaterialDAO materialDAO = new CourseMaterialDAO();
+
+                materialDAO.addMaterial(
+                        lecturerId,
+                        courseCode,
+                        materialTitle,
+                        sourceFile.getName(),
+                        databasePath
+                );
+
+                new Alert(
+                        Alert.AlertType.INFORMATION,
+                        "PDF uploaded successfully!"
+                ).showAndWait();
+
+                // Refresh Course Materials table
+                showMaterials();
+
+            } catch (IOException | SQLException e) {
+
+                // Delete the copied file if database saving fails
+                if (targetPath != null) {
+                    try {
+                        Files.deleteIfExists(targetPath);
+                    } catch (IOException cleanupError) {
+                        e.addSuppressed(cleanupError);
+                    }
+                }
+
+                e.printStackTrace();
+
+                new Alert(
+                        Alert.AlertType.ERROR,
+                        "Unable to upload PDF: " + e.getMessage()
+                ).showAndWait();
+            }
+        }
+
 
     @FXML
     private void showMarks() {

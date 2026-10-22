@@ -1,9 +1,5 @@
 package com.fot.ams.controller;
 
-<<<<<<< HEAD
-public class AdminController {
-}
-=======
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -36,7 +32,6 @@ public class AdminController {
     private void showNotices() {
         loadPage("adminNoticeManagement.fxml");
     }
-
 
     @FXML
     private void showTimetables() {
@@ -84,4 +79,3 @@ public class AdminController {
         alert.showAndWait();
     }
 }
->>>>>>> 152347c62e0478a2d3c845c988f642bcf6272926

@@ -65,16 +65,27 @@ public class StudentLayoutController {
     }
 
     @FXML
-    private void handleLogout() {
+    private void handleLogout(ActionEvent event) {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Do you want to logout?", ButtonType.YES, ButtonType.NO);
         a.setHeaderText(null);
         if (a.showAndWait().orElse(ButtonType.NO) != ButtonType.YES) return;
+
         try {
-            // NOTE: login fxml path eka oyaage project ekata change karanna
-            Parent login = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
-            contentArea.getScene().setRoot(login);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            Parent loginRoot = loader.load();
+
+
+            javafx.stage.Stage stage = (javafx.stage.Stage) ((Node) event.getSource()).getScene().getWindow();
+            javafx.scene.Scene scene = new javafx.scene.Scene(loginRoot);
+            stage.setScene(scene);
+            stage.setTitle("Login - AMS");
+            stage.centerOnScreen();
+            stage.show();
+
         } catch (IOException ex) {
             ex.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Cannot load login page!").showAndWait();
         }
     }
 }

@@ -13,6 +13,7 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import com.fot.ams.model.StudentAttendance;
+import java.util.List;
 
 public class AttendanceDAO {
 
@@ -151,6 +152,102 @@ public class AttendanceDAO {
         }
 
         return students;
+    }
+    // TG2070 - END
+    // TG2070 - START: Save or update session attendance
+    public void saveAttendance(
+            int sessionId,
+            List<StudentAttendance> students) throws SQLException {
+
+        String checkSql =
+                "SELECT attendance_id FROM attendance " +
+                        "WHERE enrollment_id = ? AND session_id = ?";
+
+        String insertSql =
+                "INSERT INTO attendance " +
+                        "(enrollment_id, session_id, status) VALUES (?, ?, ?)";
+
+        String updateSql =
+                "UPDATE attendance SET status = ? " +
+                        "WHERE enrollment_id = ? AND session_id = ?";
+
+        try (Connection connection = DBConnection.getConnection()) {
+
+            // Save all students together
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement checkStatement =
+                         connection.prepareStatement(checkSql);
+
+                 PreparedStatement insertStatement =
+                         connection.prepareStatement(insertSql);
+
+                 PreparedStatement updateStatement =
+                         connection.prepareStatement(updateSql)) {
+
+                for (StudentAttendance student : students) {
+
+                    String status = student.getStatus();
+
+                    // TG2070 - Accept only valid attendance statuses
+                    if (!"Present".equals(status)
+                            && !"Absent".equals(status)
+                            && !"Late".equals(status)
+                            && !"Excused".equals(status)) {
+
+                        throw new SQLException(
+                                "Invalid attendance status for "
+                                        + student.getRegNo()
+                        );
+                    }
+
+                    checkStatement.setInt(1, student.getEnrollmentId());
+                    checkStatement.setInt(2, sessionId);
+
+                    boolean attendanceExists;
+
+                    try (ResultSet resultSet =
+                                 checkStatement.executeQuery()) {
+
+                        attendanceExists = resultSet.next();
+                    }
+
+                    if (attendanceExists) {
+
+                        updateStatement.setString(1, status);
+                        updateStatement.setInt(
+                                2, student.getEnrollmentId()
+                        );
+                        updateStatement.setInt(3, sessionId);
+
+                        updateStatement.executeUpdate();
+
+                    } else {
+
+                        insertStatement.setInt(
+                                1, student.getEnrollmentId()
+                        );
+                        insertStatement.setInt(2, sessionId);
+                        insertStatement.setString(3, status);
+
+                        insertStatement.executeUpdate();
+                    }
+                }
+
+                connection.commit();
+
+            } catch (SQLException exception) {
+
+                // Undo this save if any student record fails
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackException) {
+                    exception.addSuppressed(rollbackException);
+                }
+
+                throw exception;
+            }
+        }
     }
     // TG2070 - END
 }

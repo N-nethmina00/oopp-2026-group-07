@@ -13,6 +13,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import com.fot.ams.dao.CourseDAO;
 import java.sql.SQLException;
+import javafx.scene.control.Alert;
+import java.util.List;
 
 public class LecturerController {
 
@@ -47,7 +49,7 @@ public class LecturerController {
 
     @FXML
     // Temporary lecturer ID for testing only
-    private String lecturerId = "L002";
+    private String lecturerId = "L001";
 
     private String loadMyCoursesCount() {
 
@@ -275,13 +277,56 @@ public class LecturerController {
     }
 
     @FXML
+
     private void showCourses() {
+
         displayPage(
                 "My Courses",
-                "View assigned courses.",
+                "Courses assigned to Lecturer " + lecturerId,
                 coursesBtn
         );
+
+        Label heading = new Label("My Assigned Courses");
+
+        heading.setStyle(
+                "-fx-font-size: 20px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #17324D;"
+        );
+
+        TableView<String[]> coursesTable = createTable(
+                "No courses assigned to this lecturer.",
+                "Course Code",
+                "Course Name",
+                "Credits",
+                "Type"
+        );
+
+        coursesTable.setPrefHeight(350);
+
+        CourseDAO courseDAO = new CourseDAO();
+
+        try {
+            List<String[]> courses =
+                    courseDAO.getCoursesByLecturer(lecturerId);
+
+            coursesTable.getItems().setAll(courses);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load courses from database."
+            ).showAndWait();
+        }
+
+        contentArea.getChildren().addAll(
+                heading,
+                coursesTable
+        );
     }
+
 
     @FXML
     private void showMaterials() {

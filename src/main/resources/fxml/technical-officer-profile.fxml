@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fitToWidth="true"
+            stylesheets="@../css/technical-officer-profile.css"
+            styleClass="profile-scroll">
+
+    <content>
+        <VBox spacing="20" styleClass="profile-page">
+
+            <Label text="MY PROFILE"
+                   styleClass="profile-title"/>
+
+            <Label text="View your account information and update your personal details."
+                   wrapText="true"
+                   styleClass="profile-subtitle"/>
+
+            <VBox spacing="20" styleClass="profile-panel">
+
+                <HBox spacing="20" alignment="CENTER_LEFT">
+
+                    <StackPane styleClass="profile-avatar">
+                        <Label text="TO"
+                               styleClass="profile-avatar-text"/>
+                    </StackPane>
+
+                    <VBox spacing="8">
+                        <Label text="Technical Officer"
+                               styleClass="profile-section-title"/>
+
+                        <Label text="Profile Photo"
+                               styleClass="profile-subtitle"/>
+
+                        <Button text="Change Photo"
+                                styleClass="profile-secondary-button"/>
+                    </VBox>
+
+                </HBox>
+
+            </VBox>
+
+            <VBox spacing="18" styleClass="profile-panel">
+
+                <Label text="Account Information"
+                       styleClass="profile-section-title"/>
+
+                <FlowPane hgap="20" vgap="15">
+
+                    <VBox spacing="7">
+                        <Label text="Username"/>
+                        <TextField fx:id="profileUsernameField"
+                                   editable="false"
+                                   promptText="Username"
+                                   prefWidth="250"
+                                   styleClass="profile-readonly"/>
+                    </VBox>
+
+                    <VBox spacing="7">
+                        <Label text="Role"/>
+                        <TextField text="Technical Officer"
+                                   editable="false"
+                                   prefWidth="250"
+                                   styleClass="profile-readonly"/>
+                    </VBox>
+
+                    <VBox spacing="7">
+                        <Label text="Department"/>
+                        <TextField fx:id="profileDepartmentField"
+                                   editable="false"
+                                   promptText="Department"
+                                   prefWidth="250"
+                                   styleClass="profile-readonly"/>
+                    </VBox>
+
+                </FlowPane>
+
+            </VBox>
+
+            <VBox spacing="18" styleClass="profile-panel">
+
+                <Label text="Personal Details"
+                       styleClass="profile-section-title"/>
+
+                <FlowPane hgap="20" vgap="15">
+
+                    <VBox spacing="7">
+                        <Label text="First Name"/>
+                        <TextField fx:id="profileFirstNameField"
+                                   promptText="Enter first name"
+                                   prefWidth="250"/>
+                    </VBox>
+
+                    <VBox spacing="7">
+                        <Label text="Last Name"/>
+                        <TextField fx:id="profileLastNameField"
+                                   promptText="Enter last name"
+                                   prefWidth="250"/>
+                    </VBox>
+
+                </FlowPane>
+
+                <VBox spacing="7">
+                    <Label text="Email"/>
+                    <TextField fx:id="profileEmailField"
+                               promptText="Enter email address"/>
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12">
+
+                    <Button text="Cancel Changes"
+                            styleClass="profile-secondary-button"/>
+
+                    <Button text="Save Changes"
+                            styleClass="profile-primary-button"/>
+
+                </HBox>
+
+            </VBox>
+
+        </VBox>
+    </content>
+
+</ScrollPane>

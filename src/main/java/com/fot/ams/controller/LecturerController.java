@@ -1,6 +1,7 @@
 
 package com.fot.ams.controller;
 
+import com.fot.ams.dao.StudentDAO;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -348,10 +349,53 @@ public class LecturerController {
 
     @FXML
     private void showStudents() {
+
         displayPage(
                 "Undergraduate Details",
-                "View undergraduate academic information.",
+                "Students enrolled in your assigned courses.",
                 studentsBtn
+        );
+
+        Label heading = new Label("Enrolled Students");
+
+        heading.setStyle(
+                "-fx-font-size: 20px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #17324D;"
+        );
+
+        TableView<String[]> studentsTable = createTable(
+                "No student enrollments found.",
+                "Registration No",
+                "Course Code",
+                "Course Name",
+                "Batch ID",
+                "Status"
+        );
+
+        studentsTable.setPrefHeight(400);
+
+        StudentDAO studentDAO = new StudentDAO();
+
+        try {
+            List<String[]> students =
+                    studentDAO.getStudentsByLecturer(lecturerId);
+
+            studentsTable.getItems().setAll(students);
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load student records from database."
+            ).showAndWait();
+        }
+
+        contentArea.getChildren().addAll(
+                heading,
+                studentsTable
         );
     }
 

@@ -386,13 +386,27 @@ CREATE TABLE `timetable` (
                              `timetable_id` int(11) NOT NULL,
                              `admin_id` varchar(10) NOT NULL,
                              `course_id` int(11) NOT NULL,
+
+                             `day_of_week` enum(
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+    ) DEFAULT NULL,
+
                              `start_time` time NOT NULL,
                              `end_time` time NOT NULL,
                              `lecture_hall` varchar(50) NOT NULL,
                              `session_type` enum('Theory','Practical') NOT NULL,
                              `academic_year` varchar(20) NOT NULL,
                              `semester` varchar(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `timetable`

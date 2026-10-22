@@ -33,7 +33,7 @@ public class LoginController {
         txtPassword.clear();
         hideError();
 
-        // ඔයාගේ පැවති Focus Styles සහ Event Listeners ටික
+
         bindFocusStyle(txtUsername, boxUsername);
         bindFocusStyle(txtPassword, boxPassword);
 

@@ -40,6 +40,8 @@
 
     <left>
         <VBox styleClass="to-sidebar-wrapper">
+
+            <!-- TG2070 - Technical Officer navigation -->
             <VBox spacing="9"
                   styleClass="to-sidebar"
                   VBox.vgrow="ALWAYS">
@@ -49,27 +51,10 @@
                         styleClass="to-nav-button"
                         onAction="#showDashboard"/>
 
-                <Button text="Students"
-                        maxWidth="Infinity"
-                        styleClass="to-nav-button"/>
-
                 <Button text="Attendance"
                         maxWidth="Infinity"
                         styleClass="to-nav-button"
                         onAction="#showAttendance"/>
-
-                <Button text="Sessions"
-                        maxWidth="Infinity"
-                        styleClass="to-nav-button"/>
-
-                <Button text="Course Materials"
-                        maxWidth="Infinity"
-                        styleClass="to-nav-button"/>
-
-                <Button text="Timetable"
-                        maxWidth="Infinity"
-                        styleClass="to-nav-button"
-                        onAction="#showTimetable"/>
 
                 <Button text="Medical Records"
                         maxWidth="Infinity"
@@ -80,6 +65,11 @@
                         maxWidth="Infinity"
                         styleClass="to-nav-button"
                         onAction="#showNotices"/>
+
+                <Button text="Timetable"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"
+                        onAction="#showTimetable"/>
 
                 <Button text="Profile"
                         maxWidth="Infinity"
@@ -99,6 +89,7 @@
     <center>
         <ScrollPane fitToWidth="true"
                     styleClass="to-scroll">
+
             <content>
                 <VBox spacing="20"
                       styleClass="to-content">
@@ -110,6 +101,7 @@
                            wrapText="true"
                            styleClass="to-subtitle"/>
 
+                    <!-- TG2070 - Dashboard summary cards -->
                     <HBox spacing="15">
 
                         <VBox spacing="10"
@@ -146,10 +138,6 @@
                                    styleClass="to-card-description"/>
                         </VBox>
 
-                    </HBox>
-
-                    <HBox spacing="15">
-
                         <VBox spacing="10"
                               minWidth="0"
                               prefWidth="1"
@@ -167,25 +155,9 @@
                                    styleClass="to-card-description"/>
                         </VBox>
 
-                        <VBox spacing="10"
-                              minWidth="0"
-                              prefWidth="1"
-                              styleClass="to-stat-card"
-                              HBox.hgrow="ALWAYS">
-
-                            <Label text="Materials"
-                                   styleClass="to-card-title"/>
-
-                            <Label fx:id="materialCountLabel"
-                                   text="24"
-                                   styleClass="to-card-value"/>
-
-                            <Label text="Uploaded"
-                                   styleClass="to-card-description"/>
-                        </VBox>
-
                     </HBox>
 
+                    <!-- TG2070 - Attendance and medical quick actions -->
                     <VBox spacing="18"
                           styleClass="to-section-card">
 
@@ -197,9 +169,6 @@
                             <Button text="Record Attendance"
                                     styleClass="to-action-button"
                                     onAction="#showAttendance"/>
-
-                            <Button text="Manage Session"
-                                    styleClass="to-action-button"/>
 
                             <Button text="View Medical"
                                     styleClass="to-action-button"

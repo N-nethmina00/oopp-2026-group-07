@@ -79,4 +79,9 @@ public class Course {
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
     }
+    // TG2070 - Display course code and name in dropdown
+    @Override
+    public String toString() {
+        return courseId + " - " + courseName;
+    }
 }

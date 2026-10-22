@@ -160,4 +160,27 @@ public class CourseDAO {
 
         return lecturerIds;
     }
+    // TG2070 - START: Find database course ID for attendance
+    public int getCourseDatabaseId(String courseCode) throws SQLException {
+        String sql = """
+            SELECT course_id
+            FROM course
+            WHERE course_code = ?
+            """;
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, courseCode);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("course_id");
+                }
+            }
+        }
+
+        throw new SQLException("Course not found: " + courseCode);
+    }
+// TG2070 - END
 }

@@ -19,6 +19,7 @@ public class TechnicalOfficerController {
     private Node medicalContent;
     private Node noticesContent;
     private Node timetableContent;
+    private Node profileContent;
 
     @FXML
     private void initialize() {
@@ -112,5 +113,20 @@ public class TechnicalOfficerController {
         alert.setHeaderText(page + " page could not be opened.");
         alert.setContentText(exception.getMessage());
         alert.showAndWait();
+    }
+    @FXML
+    private void showProfile() {
+        try {
+            if (profileContent == null) {
+                profileContent = loadPage(
+                        "/fxml/technical-officer-profile.fxml"
+                );
+            }
+
+            dashboardRoot.setCenter(profileContent);
+
+        } catch (IOException exception) {
+            showPageError("Profile", exception);
+        }
     }
 }

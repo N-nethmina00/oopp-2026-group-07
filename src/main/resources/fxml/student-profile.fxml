@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fot.ams.controller.StudentProfileController"
+      stylesheets="@../css/student-profile.css" styleClass="page" spacing="20">
+
+    <VBox spacing="4">
+        <Label text="MY PROFILE" styleClass="page-heading"/>
+        <Label text="Manage your personal information" styleClass="page-subtitle"/>
+    </VBox>
+
+    <HBox styleClass="section-card" spacing="36" alignment="TOP_LEFT">
+        <VBox alignment="TOP_CENTER" spacing="12">
+            <Label fx:id="lblPhoto" text="S" styleClass="photo-circle"/>
+            <Button text="Change Photo" onAction="#handleChangePhoto" styleClass="small-button"/>
+        </VBox>
+
+        <VBox spacing="14" HBox.hgrow="ALWAYS">
+            <HBox spacing="16">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="FIRST NAME" styleClass="field-label"/>
+                    <TextField fx:id="txtFirstName" styleClass="form-control"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="LAST NAME" styleClass="field-label"/>
+                    <TextField fx:id="txtLastName" styleClass="form-control"/>
+                </VBox>
+            </HBox>
+
+            <VBox spacing="6">
+                <Label text="EMAIL" styleClass="field-label"/>
+                <TextField fx:id="txtEmail" styleClass="form-control"/>
+            </VBox>
+
+            <HBox spacing="16">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="REGISTRATION NO." styleClass="field-label"/>
+                    <TextField fx:id="txtRegNo" editable="false" styleClass="form-control"/>
+                </VBox>
+            </HBox>
+
+            <Label fx:id="lblMessage" managed="false" visible="false"/>
+
+            <HBox spacing="12" alignment="CENTER_RIGHT">
+                <Button text="Change Password" onAction="#handleChangePassword" styleClass="secondary-button"/>
+                <Button text="Save Changes" onAction="#handleSave" styleClass="primary-button"/>
+            </HBox>
+        </VBox>
+    </HBox>
+</VBox>

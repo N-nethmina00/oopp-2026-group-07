@@ -17,7 +17,7 @@
             prefHeight="600.0"
             prefWidth="900.0"
             style="-fx-background-color: #F3F6FA;"
-            xmlns="http://javafx.com/javafx/26"
+            xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.fot.ams.controller.AdminController">
 
@@ -88,10 +88,16 @@
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;"
                     text="Time Tables"/>
             <Region VBox.vgrow="ALWAYS"/>
-            <Button maxWidth="Infinity" mnemonicParsing="false"
+
+            <Button
+                    fx:id="btnLogout"
+                    onAction="#handleLogout"
+                    maxWidth="Infinity"
+                    mnemonicParsing="false"
                     prefHeight="38"
                     style="-fx-background-color: #005B8F; -fx-text-fill: white; -fx-background-radius: 8;"
                     text="Log Out"/>
+
          </VBox>
       </VBox>
    </left>

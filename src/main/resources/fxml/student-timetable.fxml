@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fot.ams.controller.StudentTimetableController"
+      stylesheets="@../css/student-timetable.css" styleClass="page" spacing="20">
+
+    <VBox spacing="4">
+        <Label text="WEEKLY TIMETABLE" styleClass="page-heading"/>
+        <Label text="Your lectures and practical sessions for this week" styleClass="page-subtitle"/>
+    </VBox>
+
+    <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
+        <Label text="This Week" styleClass="section-title"/>
+        <TableView fx:id="tblTimetable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colDay" text="Day"/>
+            <TableColumn fx:id="colTime" text="Time"/>
+            <TableColumn fx:id="colCode" text="Code"/>
+            <TableColumn fx:id="colName" text="Course"/>
+            <TableColumn fx:id="colHall" text="Hall"/>
+            <TableColumn fx:id="colLecturer" text="Lecturer"/>
+        </columns>
+        </TableView>
+    </VBox>
+</VBox>

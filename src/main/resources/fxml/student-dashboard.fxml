@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fot.ams.controller.StudentDashboardController"
+      stylesheets="@../css/student-dashboard.css" styleClass="page" spacing="22">
+
+    <VBox spacing="4">
+        <Label text="STUDENT DASHBOARD" styleClass="page-heading"/>
+        <Label text="Here is a quick overview of your academic progress" styleClass="page-subtitle"/>
+    </VBox>
+
+    <HBox spacing="18">
+        <VBox styleClass="stat-card, blue-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+            <Label text="ENROLLED COURSES" styleClass="stat-label"/>
+            <Label fx:id="lblCourses" text="6" styleClass="stat-value"/>
+            <Label text="This semester" styleClass="stat-hint"/>
+        </VBox>
+        <VBox styleClass="stat-card, purple-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+            <Label text="ATTENDANCE" styleClass="stat-label"/>
+            <Label fx:id="lblAttendance" text="86%" styleClass="stat-value"/>
+            <Label text="Overall" styleClass="stat-hint"/>
+        </VBox>
+        <VBox styleClass="stat-card, green-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+            <Label text="GPA" styleClass="stat-label"/>
+            <Label fx:id="lblGpa" text="3.42" styleClass="stat-value"/>
+            <Label text="Current" styleClass="stat-hint"/>
+        </VBox>
+        <VBox styleClass="stat-card, orange-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+            <Label text="PENDING MEDICAL" styleClass="stat-label"/>
+            <Label fx:id="lblPending" text="1" styleClass="stat-value"/>
+            <Label text="Application" styleClass="stat-hint"/>
+        </VBox>
+    </HBox>
+
+    <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
+        <Label text="Today's Timetable" styleClass="section-title"/>
+        <TableView fx:id="tblToday" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colTime" text="Time"/>
+                <TableColumn fx:id="colCode" text="Code"/>
+                <TableColumn fx:id="colCourse" text="Course"/>
+                <TableColumn fx:id="colHall" text="Hall"/>
+                <TableColumn fx:id="colStatus" text="Status"/>
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

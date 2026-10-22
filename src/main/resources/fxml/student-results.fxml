@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fot.ams.controller.StudentResultsController"
+      stylesheets="@../css/student-results.css" styleClass="page" spacing="20">
+
+    <VBox spacing="4">
+        <Label text="SEMESTER RESULTS" styleClass="page-heading"/>
+        <Label text="View your results by academic year and semester" styleClass="page-subtitle"/>
+    </VBox>
+
+    <HBox spacing="14" alignment="BOTTOM_LEFT">
+        <VBox spacing="6">
+            <Label text="ACADEMIC YEAR" styleClass="field-label"/>
+            <ComboBox fx:id="cmbYear" prefWidth="180" styleClass="form-control"/>
+        </VBox>
+        <VBox spacing="6">
+            <Label text="SEMESTER" styleClass="field-label"/>
+            <ComboBox fx:id="cmbSemester" prefWidth="180" styleClass="form-control"/>
+        </VBox>
+        <Button text="View" onAction="#handleView" styleClass="primary-button"/>
+    </HBox>
+
+    <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
+        <Label text="Results" styleClass="section-title"/>
+        <TableView fx:id="tblResults" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colCode" text="Code"/>
+            <TableColumn fx:id="colName" text="Course"/>
+            <TableColumn fx:id="colCredits" text="Credits"/>
+            <TableColumn fx:id="colGrade" text="Grade"/>
+            <TableColumn fx:id="colGp" text="Grade point"/>
+        </columns>
+        </TableView>
+    </VBox>
+
+    <HBox>
+        <VBox styleClass="stat-card, blue-card" spacing="4" minWidth="220">
+            <Label text="SEMESTER GPA" styleClass="stat-label"/>
+            <Label fx:id="lblGpa" text="3.42" styleClass="stat-value"/>
+        </VBox>
+    </HBox>
+</VBox>

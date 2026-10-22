@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fot.ams.controller.StudentCoursesController"
+      stylesheets="@../css/student-courses.css" styleClass="page" spacing="20">
+
+    <VBox spacing="4">
+        <Label text="MY COURSES" styleClass="page-heading"/>
+        <Label text="Courses you are enrolled in this semester" styleClass="page-subtitle"/>
+    </VBox>
+
+    <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
+        <Label text="Enrolled Courses" styleClass="section-title"/>
+        <TableView fx:id="tblCourses" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colCode" text="Code"/>
+            <TableColumn fx:id="colName" text="Course name"/>
+            <TableColumn fx:id="colCredits" text="Credits"/>
+            <TableColumn fx:id="colLecturer" text="Lecturer"/>
+            <TableColumn fx:id="colStatus" text="Status"/>
+            <TableColumn fx:id="colAction" text="Action" sortable="false"/>
+        </columns>
+        </TableView>
+    </VBox>
+
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+        <Button text="Refresh" onAction="#handleRefresh" styleClass="secondary-button"/>
+        <Button text="View Details" onAction="#handleView" styleClass="primary-button"/>
+    </HBox>
+</VBox>

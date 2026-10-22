@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- Main shell: top bar + rounded sidebar. Each page loads into contentArea. -->
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.StudentLayoutController"
+            stylesheets="@../css/student-layout.css" styleClass="root-pane"
+            prefWidth="1100" prefHeight="680" minWidth="900" minHeight="600">
+
+    <top>
+        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="12" prefHeight="70" minHeight="70">
+            <Label text="UMS" styleClass="top-brand"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <VBox alignment="CENTER_RIGHT" spacing="3">
+                <Label fx:id="lblUserName" text="Welcome, Student" styleClass="top-user-name"/>
+                <Label fx:id="lblUserRole" text="Undergraduate" styleClass="top-user-role"/>
+            </VBox>
+            <Label fx:id="lblAvatar" text="S" styleClass="avatar" onMouseClicked="#openProfile"/>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox styleClass="sidebar-wrap" prefWidth="200" minWidth="200" maxWidth="200">
+            <VBox styleClass="sidebar" spacing="6" VBox.vgrow="ALWAYS">
+                <VBox fx:id="navBox" spacing="6">
+                    <Button text="Dashboard" userData="student-dashboard" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
+                    <Button text="My Courses" userData="student-courses" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
+                    <Button text="Attendance" userData="student-attendance" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
+                    <Button text="CA / Marks" userData="student-marks" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
+                    <Button text="Semester Results" userData="student-results" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
+                    <Button text="Medical" userData="student-medical" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
+                    <Button text="Timetable" userData="student-timetable" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
+                    <Button text="Course Materials" userData="student-materials" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
+                    <Button text="Notices" userData="student-notices" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
+                    <Button text="My Profile" userData="student-profile" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
+                </VBox>
+                <Region VBox.vgrow="ALWAYS"/>
+                <Button text="Log Out" onAction="#handleLogout" styleClass="logout-button" maxWidth="Infinity"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <center>
+        <BorderPane>
+            <center>
+                <StackPane fx:id="contentArea"/>
+            </center>
+            <bottom>
+                <Label text="University Management System  •  Student Portal" styleClass="footer-text"
+                       maxWidth="Infinity" alignment="CENTER"/>
+            </bottom>
+        </BorderPane>
+    </center>
+</BorderPane>

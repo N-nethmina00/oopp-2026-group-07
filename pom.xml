@@ -12,11 +12,17 @@
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+<<<<<<< HEAD
+        <javafx.version>21</javafx.version>
+=======
         <javafx.version>21.0.6</javafx.version>
+>>>>>>> 152347c62e0478a2d3c845c988f642bcf6272926
     </properties>
 
     <dependencies>
 
+<<<<<<< HEAD
+=======
         <!-- JavaFX Base -->
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -32,18 +38,25 @@
         </dependency>
 
         <!-- JavaFX Controls -->
+>>>>>>> 152347c62e0478a2d3c845c988f642bcf6272926
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
 
+<<<<<<< HEAD
+
+=======
         <!-- JavaFX FXML -->
+>>>>>>> 152347c62e0478a2d3c845c988f642bcf6272926
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+<<<<<<< HEAD
+=======
 
         <!-- MySQL Database -->
         <dependency>
@@ -52,10 +65,22 @@
             <version>8.3.0</version>
         </dependency>
 
+>>>>>>> 152347c62e0478a2d3c845c988f642bcf6272926
     </dependencies>
 
     <build>
         <plugins>
+<<<<<<< HEAD
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+=======
 
             <!-- Compile Java code -->
             <plugin>
@@ -87,6 +112,7 @@
                 </configuration>
             </plugin>
 
+>>>>>>> 152347c62e0478a2d3c845c988f642bcf6272926
         </plugins>
     </build>
 

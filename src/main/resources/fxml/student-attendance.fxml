@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fot.ams.controller.StudentAttendanceController"
+      stylesheets="@../css/student-attendance.css" styleClass="page" spacing="20">
+
+    <VBox spacing="4">
+        <Label text="ATTENDANCE" styleClass="page-heading"/>
+        <Label text="Check your attendance for each course" styleClass="page-subtitle"/>
+    </VBox>
+
+    <HBox spacing="12" alignment="BOTTOM_LEFT">
+        <VBox spacing="6">
+            <Label text="COURSE" styleClass="field-label"/>
+            <ComboBox fx:id="cmbCourse" prefWidth="280" styleClass="form-control"/>
+        </VBox>
+        <Button text="Search" onAction="#handleSearch" styleClass="primary-button"/>
+    </HBox>
+
+    <VBox styleClass="section-card" spacing="10">
+        <HBox alignment="CENTER_LEFT" spacing="14">
+            <Label text="ATTENDANCE" styleClass="stat-label"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblCount" text="Present 24 / 28" styleClass="hint-label"/>
+        </HBox>
+        <Label fx:id="lblPercent" text="86%" styleClass="stat-value"/>
+        <ProgressBar fx:id="barAttendance" progress="0.86" maxWidth="Infinity" prefHeight="14"/>
+    </VBox>
+
+    <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
+        <Label text="Attendance Records" styleClass="section-title"/>
+        <TableView fx:id="tblAttendance" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colDate" text="Date"/>
+            <TableColumn fx:id="colSession" text="Session"/>
+            <TableColumn fx:id="colStatus" text="Status"/>
+        </columns>
+        </TableView>
+    </VBox>
+</VBox>

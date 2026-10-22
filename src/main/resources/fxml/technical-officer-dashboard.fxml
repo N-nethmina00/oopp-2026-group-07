@@ -83,7 +83,8 @@
 
                 <Button text="Profile"
                         maxWidth="Infinity"
-                        styleClass="to-nav-button"/>
+                        styleClass="to-nav-button"
+                        onAction="#showProfile"/>
 
                 <Region VBox.vgrow="ALWAYS"/>
 

@@ -1,9 +1,5 @@
 package com.fot.ams.controller;
 
-<<<<<<< HEAD
-public class AdminController {
-}
-=======
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -37,7 +33,6 @@ public class AdminController {
         loadPage("adminNoticeManagement.fxml");
     }
 
-
     @FXML
     private void showTimetables() {
         loadPage("adminTimetableManagement.fxml");
@@ -47,7 +42,10 @@ public class AdminController {
         URL url = getClass().getResource("/fxml/" + fileName);
 
         if (url == null) {
-            showError("FXML File Not Found", "Cannot find /fxml/" + fileName);
+            showError(
+                    "FXML File Not Found",
+                    "Cannot find /fxml/" + fileName
+            );
             return;
         }
 
@@ -59,7 +57,10 @@ public class AdminController {
                 Node content = borderPane.getCenter();
 
                 if (content == null) {
-                    showError("Page Error", fileName + " has no center content.");
+                    showError(
+                            "Page Error",
+                            fileName + " has no center content."
+                    );
                     return;
                 }
 
@@ -71,7 +72,9 @@ public class AdminController {
         } catch (Exception e) {
             showError(
                     "Unable to Open Page",
-                    fileName + "\n" + e.getClass().getSimpleName() + ": " + e.getMessage()
+                    fileName + "\n"
+                            + e.getClass().getSimpleName()
+                            + ": " + e.getMessage()
             );
         }
     }
@@ -84,4 +87,3 @@ public class AdminController {
         alert.showAndWait();
     }
 }
->>>>>>> 152347c62e0478a2d3c845c988f642bcf6272926

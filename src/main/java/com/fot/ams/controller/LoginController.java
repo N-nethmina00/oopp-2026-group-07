@@ -1,12 +1,17 @@
 package com.fot.ams.controller;
 
-<<<<<<< HEAD
+import com.fot.ams.dao.UserDAO;
+import com.fot.ams.model.User;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
 public class LoginController {
 
@@ -18,16 +23,22 @@ public class LoginController {
     @FXML private PasswordField txtPassword;
     @FXML private Label lblError;
 
+
+    private final UserDAO userDAO = new UserDAO();
+
     @FXML
     private void initialize() {
-        // Input box eka focus unama border eka highlight wenna
+
+        txtUsername.clear();
+        txtPassword.clear();
+        hideError();
+
+        // ඔයාගේ පැවති Focus Styles සහ Event Listeners ටික
         bindFocusStyle(txtUsername, boxUsername);
         bindFocusStyle(txtPassword, boxPassword);
 
-        // Username eke Enter ebuwama password ekata yanna
         txtUsername.setOnAction(e -> txtPassword.requestFocus());
 
-        // Type karanakota error eka hide wenna
         txtUsername.textProperty().addListener((o, a, b) -> hideError());
         txtPassword.textProperty().addListener((o, a, b) -> hideError());
     }
@@ -42,21 +53,48 @@ public class LoginController {
         });
     }
 
+
     @FXML
     private void handleLogin() {
         String username = txtUsername.getText().trim();
-        String password = txtPassword.getText();
+        String password = txtPassword.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
             showError("Please enter username and password");
             return;
         }
 
-        // TODO: DBConnection eken user validate karanna, role eka anuwa dashboard eka open karanna
-        // admin         -> /fxml/admin-dashboard.fxml
-        // lecturer      -> /fxml/lecturer-dashboard.fxml
-        // undergraduate -> /fxml/student-dashboard.fxml
         hideError();
+
+        // check the user
+        User user = userDAO.authenticateUser(username, password);
+
+        if (user != null) {
+            // considering database role and redirecting dashboard
+            switch (user.getRole()) {
+                case "Admin" -> navigateToDashboard("/fxml/admindashboard.fxml", "AMS - Admin Dashboard");
+                case "Lecturer" -> navigateToDashboard("/fxml/lecturer-dashboard.fxml", "AMS - Lecturer Dashboard");
+                case "Undergraduate" -> navigateToDashboard("/fxml/student-layout.fxml", "AMS - Student Dashboard");
+                case "Technical_Officer" -> navigateToDashboard("/fxml/technical-officer-dashboard.fxml", "AMS - TO Dashboard");
+                default -> showError("Invalid user role detected: " + user.getRole());
+            }
+        } else {
+            showError("Invalid username or password!");
+        }
+    }
+
+    // to change the page
+    private void navigateToDashboard(String fxmlPath, String title) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
+            Stage stage = (Stage) txtUsername.getScene().getWindow();
+            stage.setTitle(title);
+            stage.setScene(new Scene(root, 1100, 680));
+            stage.centerOnScreen();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Failed to load dashboard interface!");
+        }
     }
 
     @FXML
@@ -96,7 +134,3 @@ public class LoginController {
         a.showAndWait();
     }
 }
-=======
-public class LoginController {
-}
->>>>>>> 152347c62e0478a2d3c845c988f642bcf6272926

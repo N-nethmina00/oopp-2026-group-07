@@ -11,6 +11,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
+    public User authenticateUser(String username, String password) {
+        String sql = "SELECT * FROM `user` WHERE user_name = ? AND password = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ps.setString(2, password);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setUserId(rs.getString("user_id"));
+                    user.setUsername(rs.getString("user_name"));
+                    user.setFirstName(rs.getString("first_name"));
+                    user.setLastName(rs.getString("last_name"));
+                    user.setEmail(rs.getString("email"));
+                    user.setRole(rs.getString("role")); // Admin / Undergraduate / Lecturer / Technical_Officer
+
+                    return user;
+                }
+            }
+        } catch (SQLException e)
+        {
+            System.out.println("Login Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
 
     private String getRoleTable(String role) {
         return switch (role) {

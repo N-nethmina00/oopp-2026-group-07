@@ -283,4 +283,64 @@ public class AttendanceController {
 
         attendanceTable.refresh();
     }
+    // TG2070 - START: Save loaded student attendance
+    @FXML
+    private void saveAttendance() {
+
+        AttendanceSession selectedSession =
+                sessionComboBox.getValue();
+
+        if (selectedSession == null
+                || attendanceTable.getItems().isEmpty()) {
+
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Attendance");
+            alert.setHeaderText(null);
+            alert.setContentText(
+                    "Please select a session and load students first."
+            );
+            alert.showAndWait();
+            return;
+        }
+
+        // Finish selecting a status before saving
+        if (attendanceTable.getEditingCell() != null) {
+
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Finish Editing");
+            alert.setHeaderText(null);
+            alert.setContentText(
+                    "Please finish selecting the attendance status "
+                            + "before saving."
+            );
+            alert.showAndWait();
+            return;
+        }
+
+        AttendanceDAO attendanceDAO = new AttendanceDAO();
+
+        try {
+            attendanceDAO.saveAttendance(
+                    selectedSession.getSessionId(),
+                    attendanceTable.getItems()
+            );
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Attendance Saved");
+            alert.setHeaderText(null);
+            alert.setContentText(
+                    "Attendance saved successfully for "
+                            + attendanceTable.getItems().size()
+                            + " student(s)."
+            );
+            alert.showAndWait();
+
+        } catch (SQLException exception) {
+            showDatabaseError(
+                    "Could not save attendance.",
+                    exception
+            );
+        }
+    }
+    // TG2070 - END
 }

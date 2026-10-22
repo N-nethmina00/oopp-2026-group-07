@@ -117,12 +117,13 @@
                     onAction="#markAllPresent"/>
 
             <Button text="Save Attendance"
-                    styleClass="attendance-primary-button"/>
+                    styleClass="attendance-primary-button"
+                    onAction="#saveAttendance"/>
         </HBox>
 
     </VBox>
 
-    <Label text="UI preview — database and button actions will be connected later."
+    <Label text="Select attendance statuses, then click Save Attendance"
            styleClass="attendance-subtitle"
            wrapText="true"/>
 

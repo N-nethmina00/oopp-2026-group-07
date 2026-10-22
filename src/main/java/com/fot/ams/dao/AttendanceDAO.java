@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import com.fot.ams.model.StudentAttendance;
 
 public class AttendanceDAO {
 
@@ -86,6 +87,70 @@ public class AttendanceDAO {
         }
 
         return sessions;
+    }
+    // TG2070 - END
+    // TG2070 - START: Load students and existing session attendance
+    public ArrayList<StudentAttendance> getStudentsForSession(
+            int sessionId, int batchId) throws SQLException {
+
+        ArrayList<StudentAttendance> students = new ArrayList<>();
+
+        String sql =
+                "SELECT e.enrollment_id, ug.reg_no, " +
+                        "u.first_name, u.last_name, a.status " +
+                        "FROM sessions s " +
+                        "INNER JOIN enrollment e ON e.course_id = s.course_id " +
+                        "INNER JOIN undergraduate ug ON ug.reg_no = e.reg_no " +
+                        "INNER JOIN `user` u ON u.user_id = ug.user_id " +
+                        "LEFT JOIN attendance a " +
+                        "ON a.enrollment_id = e.enrollment_id " +
+                        "AND a.session_id = s.session_id " +
+                        "WHERE s.session_id = ? " +
+                        "AND ug.batch_id = ? " +
+                        "AND e.status <> 'Dropped' " +
+                        "AND e.enroll_date <= s.session_date " +
+                        "ORDER BY ug.reg_no";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, sessionId);
+            statement.setInt(2, batchId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+
+                while (resultSet.next()) {
+
+                    int enrollmentId =
+                            resultSet.getInt("enrollment_id");
+
+                    String regNo =
+                            resultSet.getString("reg_no");
+
+                    String studentName =
+                            resultSet.getString("first_name") + " " +
+                                    resultSet.getString("last_name");
+
+                    String status = resultSet.getString("status");
+
+                    // New records start as Absent in the UI
+                    if (status == null) {
+                        status = "Absent";
+                    }
+
+                    StudentAttendance student = new StudentAttendance(
+                            enrollmentId,
+                            regNo,
+                            studentName,
+                            status
+                    );
+
+                    students.add(student);
+                }
+            }
+        }
+
+        return students;
     }
     // TG2070 - END
 }

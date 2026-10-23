@@ -1,0 +1,58 @@
+/* ===== student-layout.css ===== */
+
+.root { -fx-font-family: "Segoe UI", Arial, sans-serif; }
+.root-pane { -fx-background-color: #F3F6FA; }
+
+/* ---------- SIDEBAR ---------- */
+.sidebar-wrap { -fx-padding: 18 12 15 12; }
+.sidebar {
+    -fx-background-color: #4c56cd;
+    -fx-background-radius: 18;
+    -fx-padding: 18 10 15 10;
+}
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 14 0 14;
+    -fx-pref-height: 38;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.nav-button:hover { -fx-background-color: rgba(255,255,255,0.16); }
+.nav-button-active, .nav-button-active:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #0078b9;
+    -fx-font-weight: bold;
+}
+.logout-button {
+    -fx-background-color: #005B8F;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-pref-height: 38;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.logout-button:hover { -fx-background-color: #004a75; }
+
+/* ---------- TOP BAR ---------- */
+.top-bar {
+    -fx-background-color: #4c56cd;
+    -fx-background-radius: 0 0 18 18;
+    -fx-padding: 10 20 10 20;
+}
+.top-brand     { -fx-text-fill: white;   -fx-font-size: 22px; -fx-font-weight: bold; }
+.top-user-name { -fx-text-fill: white;   -fx-font-size: 13px; -fx-font-weight: bold; }
+.top-user-role { -fx-text-fill: #DCEEFF; -fx-font-size: 11px; }
+.avatar {
+    -fx-background-color: white;
+    -fx-background-radius: 50;
+    -fx-text-fill: #0078b9;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-min-width: 40; -fx-min-height: 40; -fx-pref-width: 40; -fx-pref-height: 40;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+}
+.footer-text { -fx-font-size: 10px; -fx-text-fill: #94a3b8; -fx-padding: 0 0 10 0; }

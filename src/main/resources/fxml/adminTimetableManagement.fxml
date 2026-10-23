@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+        <?import javafx.geometry.Insets?>
+        <?import javafx.scene.control.*?>
+        <?import javafx.scene.layout.*?>
+        <?import javafx.scene.text.Font?>
+
+<BorderPane minHeight="600.0" minWidth="850.0"
+            prefHeight="720.0" prefWidth="1100.0"
+            style="-fx-background-color: #F3F6FA;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.AdminTimetableManagementController">
+
+    <center>
+        <VBox spacing="14">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Timetable Management" textFill="#17324D">
+                <font>
+                    <Font name="System Bold" size="22"/>
+                </font>
+            </Label>
+
+            <Label text="Add, view, update and delete timetable entries."
+                   textFill="#7B8797"/>
+
+            <VBox spacing="12"
+                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D5DCE5; -fx-border-radius: 8;">
+                <padding>
+                    <Insets top="16" right="16" bottom="16" left="16"/>
+                </padding>
+
+                <Label text="Timetable Details" textFill="#17324D">
+                    <font>
+                        <Font name="System Bold" size="15"/>
+                    </font>
+                </Label>
+
+                <HBox spacing="12">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Entry ID"/>
+                        <TextField fx:id="entryIdField"
+                                   promptText="Auto-generated"
+                                   prefHeight="34"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Course"/>
+                        <ComboBox fx:id="courseComboBox"
+                                  promptText="Select course"
+                                  maxWidth="Infinity"
+                                  prefHeight="34"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Day"/>
+                        <ComboBox fx:id="dayComboBox"
+                                  promptText="Select day"
+                                  maxWidth="Infinity"
+                                  prefHeight="34"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="12">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Start Time (24-hour)"/>
+                        <TextField fx:id="startTimeField"
+                                   promptText="08:30"
+                                   prefHeight="34"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="End Time (24-hour)"/>
+                        <TextField fx:id="endTimeField"
+                                   promptText="10:30"
+                                   prefHeight="34"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Venue / Lecture Hall"/>
+                        <TextField fx:id="venueField"
+                                   promptText="LT-01 / Lab-02"
+                                   prefHeight="34"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="12">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Session Type"/>
+                        <ComboBox fx:id="sessionTypeComboBox"
+                                  promptText="Select type"
+                                  maxWidth="Infinity"
+                                  prefHeight="34"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Academic Year"/>
+                        <TextField fx:id="academicYearField"
+                                   promptText="2026/2027"
+                                   prefHeight="34"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Semester"/>
+                        <ComboBox fx:id="semesterComboBox"
+                                  promptText="Select semester"
+                                  maxWidth="Infinity"
+                                  prefHeight="34"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="8">
+                    <Button text="Add Entry"
+                            onAction="#handleAdd"
+                            prefHeight="34"
+                            style="-fx-background-color: #4c56cd; -fx-text-fill: white; -fx-background-radius: 5;"/>
+
+                    <Button text="Update"
+                            onAction="#handleUpdate"
+                            prefHeight="34"
+                            style="-fx-background-color: #EEF0FF; -fx-text-fill: #4c56cd; -fx-background-radius: 5;"/>
+
+                    <Button text="Delete"
+                            onAction="#handleDelete"
+                            prefHeight="34"
+                            style="-fx-background-color: #FCE8E8; -fx-text-fill: #B42318; -fx-background-radius: 5;"/>
+
+                    <Button text="Clear"
+                            onAction="#handleClear"
+                            prefHeight="34"
+                            style="-fx-background-color: #EEF0FF; -fx-text-fill: #4c56cd; -fx-background-radius: 5;"/>
+                </HBox>
+
+                <Label fx:id="messageLabel"
+                       wrapText="true"
+                       textFill="#526174"/>
+            </VBox>
+
+            <VBox spacing="10" VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D5DCE5; -fx-border-radius: 8;">
+                <padding>
+                    <Insets top="14" right="14" bottom="14" left="14"/>
+                </padding>
+
+                <Label text="Timetable List" textFill="#17324D">
+                    <font>
+                        <Font name="System Bold" size="15"/>
+                    </font>
+                </Label>
+
+                <TableView fx:id="timetableTable"
+                           VBox.vgrow="ALWAYS"
+                           prefHeight="300">
+                    <columns>
+                        <TableColumn fx:id="entryIdColumn"
+                                     text="Entry ID"
+                                     prefWidth="75"/>
+                        <TableColumn fx:id="courseColumn"
+                                     text="Course Code"
+                                     prefWidth="105"/>
+                        <TableColumn fx:id="dayColumn"
+                                     text="Day"
+                                     prefWidth="95"/>
+                        <TableColumn fx:id="timeColumn"
+                                     text="Time"
+                                     prefWidth="115"/>
+                        <TableColumn fx:id="venueColumn"
+                                     text="Venue"
+                                     prefWidth="105"/>
+                        <TableColumn fx:id="sessionTypeColumn"
+                                     text="Session"
+                                     prefWidth="90"/>
+                        <TableColumn fx:id="yearColumn"
+                                     text="Academic Year"
+                                     prefWidth="110"/>
+                        <TableColumn fx:id="semesterColumn"
+                                     text="Semester"
+                                     prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

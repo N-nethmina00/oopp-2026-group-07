@@ -16,6 +16,11 @@ import java.util.List;
 
 // TG2070 - Technical Officer medical page controller
 public class MedicalController {
+    private String technicalOfficerId;
+
+    public void setTechnicalOfficerId(String technicalOfficerId) {
+        this.technicalOfficerId = technicalOfficerId;
+    }
 
     @FXML
     private TextField registrationField;

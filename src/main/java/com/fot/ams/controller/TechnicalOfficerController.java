@@ -21,6 +21,19 @@ public class TechnicalOfficerController {
     private Node timetableContent;
     private Node profileContent;
 
+    // TG2070 - Logged-in Technical Officer details
+    private String technicalOfficerId;
+    private MedicalController medicalController;
+
+    // TG2070 - Receive TO ID from LoginController
+    public void setTechnicalOfficerId(String technicalOfficerId) {
+        this.technicalOfficerId = technicalOfficerId;
+
+        if (medicalController != null) {
+            medicalController.setTechnicalOfficerId(technicalOfficerId);
+        }
+    }
+
     @FXML
     private void initialize() {
         dashboardContent = dashboardRoot.getCenter();
@@ -51,9 +64,34 @@ public class TechnicalOfficerController {
     private void showMedical() {
         try {
             if (medicalContent == null) {
-                medicalContent = loadPage(
+
+                // TG2070 - Load medical page and obtain its controller
+                URL resource = getClass().getResource(
                         "/fxml/medical.fxml"
                 );
+
+                if (resource == null) {
+                    throw new IOException(
+                            "Cannot find /fxml/medical.fxml"
+                    );
+                }
+
+                FXMLLoader loader = new FXMLLoader(resource);
+                Node page = loader.load();
+
+                MedicalController controller = loader.getController();
+
+                if (controller == null) {
+                    throw new IOException(
+                            "MedicalController is not linked in medical.fxml"
+                    );
+                }
+
+                // TG2070 - Pass logged-in TO ID to medical page
+                controller.setTechnicalOfficerId(technicalOfficerId);
+
+                medicalController = controller;
+                medicalContent = page;
             }
 
             dashboardRoot.setCenter(medicalContent);
@@ -95,6 +133,22 @@ public class TechnicalOfficerController {
         }
     }
 
+    @FXML
+    private void showProfile() {
+        try {
+            if (profileContent == null) {
+                profileContent = loadPage(
+                        "/fxml/technical-officer-profile.fxml"
+                );
+            }
+
+            dashboardRoot.setCenter(profileContent);
+
+        } catch (IOException exception) {
+            showPageError("Profile", exception);
+        }
+    }
+
     private Node loadPage(String path) throws IOException {
         URL resource = getClass().getResource(path);
 
@@ -113,20 +167,5 @@ public class TechnicalOfficerController {
         alert.setHeaderText(page + " page could not be opened.");
         alert.setContentText(exception.getMessage());
         alert.showAndWait();
-    }
-    @FXML
-    private void showProfile() {
-        try {
-            if (profileContent == null) {
-                profileContent = loadPage(
-                        "/fxml/technical-officer-profile.fxml"
-                );
-            }
-
-            dashboardRoot.setCenter(profileContent);
-
-        } catch (IOException exception) {
-            showPageError("Profile", exception);
-        }
     }
 }

@@ -126,6 +126,20 @@
                     </placeholder>
 
                 </TableView>
+                <!-- TG2070 - Update selected medical record status -->
+                <HBox alignment="CENTER_RIGHT" spacing="12">
+
+                    <Label text="Selected Record Status"/>
+
+                    <ComboBox fx:id="medicalUpdateStatusComboBox"
+                              promptText="Select status"
+                              prefWidth="180"/>
+
+                    <Button text="Update Status"
+                            styleClass="medical-primary-button"
+                            onAction="#updateMedicalStatus"/>
+
+                </HBox>
 
                 <Label text="Approval statuses: Pending, Approved, Rejected"
                        styleClass="medical-subtitle"/>

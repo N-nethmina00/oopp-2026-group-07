@@ -6,7 +6,14 @@ import com.fot.ams.model.Course;
 import com.fot.ams.model.MedicalRecord;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.sql.SQLException;
@@ -16,6 +23,8 @@ import java.util.List;
 
 // TG2070 - Technical Officer medical page controller
 public class MedicalController {
+
+    // TG2070 - ID received from Technical Officer dashboard
     private String technicalOfficerId;
 
     public void setTechnicalOfficerId(String technicalOfficerId) {
@@ -39,6 +48,9 @@ public class MedicalController {
 
     @FXML
     private ComboBox<String> medicalStatusFilter;
+
+    @FXML
+    private ComboBox<String> medicalUpdateStatusComboBox;
 
     @FXML
     private TableView<MedicalRecord> medicalTable;
@@ -73,6 +85,26 @@ public class MedicalController {
         );
 
         medicalStatusFilter.setValue("All statuses");
+
+        // TG2070 - Status options for the selected record
+        medicalUpdateStatusComboBox.getItems().addAll(
+                "Pending",
+                "Approved",
+                "Rejected"
+        );
+
+        // TG2070 - Display selected record's current status
+        medicalTable.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldRecord, selectedRecord) -> {
+                    if (selectedRecord == null) {
+                        medicalUpdateStatusComboBox
+                                .getSelectionModel().clearSelection();
+                    } else {
+                        medicalUpdateStatusComboBox.setValue(
+                                selectedRecord.getStatus()
+                        );
+                    }
+                });
 
         loadCourses();
         loadMedicalRecords();
@@ -123,11 +155,14 @@ public class MedicalController {
             }
 
         } catch (SQLException exception) {
-            showDatabaseError("Could not load courses.", exception);
+            showDatabaseError(
+                    "Could not load courses.",
+                    exception
+            );
         }
     }
 
-    // TG2070 - Load records using registration and status filters
+    // TG2070 - Load and search medical records
     @FXML
     private void loadMedicalRecords() {
         MedicalDAO medicalDAO = new MedicalDAO();
@@ -139,7 +174,11 @@ public class MedicalController {
                             medicalStatusFilter.getValue()
                     );
 
+            medicalTable.getSelectionModel().clearSelection();
             medicalTable.getItems().clear();
+
+            medicalUpdateStatusComboBox
+                    .getSelectionModel().clearSelection();
 
             for (MedicalRecord record : records) {
                 medicalTable.getItems().add(record);
@@ -159,9 +198,14 @@ public class MedicalController {
         String registrationNumber =
                 registrationField.getText().trim();
 
-        Course selectedCourse = medicalCourseComboBox.getValue();
-        LocalDate selectedDate = medicalDatePicker.getValue();
-        String reason = medicalReasonArea.getText().trim();
+        Course selectedCourse =
+                medicalCourseComboBox.getValue();
+
+        LocalDate selectedDate =
+                medicalDatePicker.getValue();
+
+        String reason =
+                medicalReasonArea.getText().trim();
 
         if (registrationNumber.isEmpty()
                 || selectedCourse == null
@@ -185,15 +229,12 @@ public class MedicalController {
             return;
         }
 
-        CourseDAO courseDAO = new CourseDAO();
+        // TG2070 - Use integer ID from updated Course model
+        int courseId = selectedCourse.getCourseId();
+
         MedicalDAO medicalDAO = new MedicalDAO();
 
         try {
-            // Course model stores course code in its courseId field
-            int courseId = courseDAO.getCourseDatabaseId(
-                    selectedCourse.getCourseId()
-            );
-
             boolean enrolled = medicalDAO.isStudentEnrolled(
                     registrationNumber,
                     courseId
@@ -242,6 +283,89 @@ public class MedicalController {
         }
     }
 
+    // TG2070 - Update selected medical record status
+    @FXML
+    private void updateMedicalStatus() {
+        MedicalRecord selectedRecord =
+                medicalTable.getSelectionModel().getSelectedItem();
+
+        String selectedStatus =
+                medicalUpdateStatusComboBox.getValue();
+
+        if (selectedRecord == null) {
+            showMessage(
+                    Alert.AlertType.WARNING,
+                    "No Record Selected",
+                    "Please select a medical record from the table."
+            );
+            return;
+        }
+
+        if (selectedStatus == null) {
+            showMessage(
+                    Alert.AlertType.WARNING,
+                    "No Status Selected",
+                    "Please select a status."
+            );
+            return;
+        }
+
+        if (technicalOfficerId == null
+                || technicalOfficerId.isBlank()) {
+
+            showMessage(
+                    Alert.AlertType.WARNING,
+                    "Login Required",
+                    "Please log in as a Technical Officer."
+            );
+            return;
+        }
+
+        // Avoid updating an unchanged status
+        if (selectedStatus.equals(selectedRecord.getStatus())) {
+            showMessage(
+                    Alert.AlertType.INFORMATION,
+                    "No Change",
+                    "This record already has the selected status."
+            );
+            return;
+        }
+
+        MedicalDAO medicalDAO = new MedicalDAO();
+
+        try {
+            boolean updated = medicalDAO.updateMedicalStatus(
+                    selectedRecord.getMedicalId(),
+                    selectedStatus,
+                    technicalOfficerId
+            );
+
+            if (updated) {
+                showMessage(
+                        Alert.AlertType.INFORMATION,
+                        "Status Updated",
+                        "Medical status updated successfully."
+                );
+
+                loadMedicalRecords();
+
+            } else {
+                showMessage(
+                        Alert.AlertType.WARNING,
+                        "Not Updated",
+                        "No record was updated. Refresh the records "
+                                + "and check your Technical Officer account."
+                );
+            }
+
+        } catch (SQLException exception) {
+            showDatabaseError(
+                    "Could not update medical status.",
+                    exception
+            );
+        }
+    }
+
     // TG2070 - Clear medical entry form
     @FXML
     private void clearForm() {
@@ -252,7 +376,7 @@ public class MedicalController {
         registrationField.requestFocus();
     }
 
-    // TG2070 - Display messages
+    // TG2070 - Display information and validation messages
     private void showMessage(Alert.AlertType type,
                              String title,
                              String message) {

@@ -123,4 +123,50 @@ public class MedicalDAO {
         }
     }
     // TG2070 - END
+    // TG2070 - START: Update medical status using logged-in TO ID
+    public boolean updateMedicalStatus(
+            int medicalId,
+            String status,
+            String technicalOfficerId) throws SQLException {
+
+        if (!"Pending".equals(status)
+                && !"Approved".equals(status)
+                && !"Rejected".equals(status)) {
+            throw new SQLException("Invalid medical status.");
+        }
+
+        if (technicalOfficerId == null
+                || technicalOfficerId.isBlank()) {
+            throw new SQLException(
+                    "Please log in as a Technical Officer."
+            );
+        }
+
+        String sql =
+                "UPDATE medical " +
+                        "SET status = ?, approved_by = ?, admin_id = NULL " +
+                        "WHERE medical_id = ? " +
+                        "AND EXISTS (" +
+                        "SELECT 1 FROM technical_officer WHERE to_id = ?" +
+                        ")";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, status);
+
+            if ("Pending".equals(status)) {
+                statement.setNull(2, java.sql.Types.VARCHAR);
+            } else {
+                statement.setString(2, technicalOfficerId);
+            }
+
+            statement.setInt(3, medicalId);
+            statement.setString(4, technicalOfficerId);
+
+            return statement.executeUpdate() > 0;
+        }
+    }
+    // TG2070 - END
 }

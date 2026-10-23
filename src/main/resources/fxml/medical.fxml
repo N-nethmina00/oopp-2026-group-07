@@ -5,6 +5,7 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.MedicalController"
             fitToWidth="true"
             stylesheets="@../css/technical-officer-medical.css"
             styleClass="medical-scroll">
@@ -59,10 +60,13 @@
 
                 <HBox alignment="CENTER_RIGHT" spacing="12">
                     <Button text="Clear"
-                            styleClass="medical-secondary-button"/>
+                            styleClass="medical-secondary-button"
+
+                                onAction="#clearForm"/>
 
                     <Button text="Save Medical"
-                            styleClass="medical-primary-button"/>
+                            styleClass="medical-primary-button"
+                            onAction="#saveMedical"/>
                 </HBox>
 
             </VBox>
@@ -83,7 +87,8 @@
                               prefWidth="180"/>
 
                     <Button text="Search"
-                            styleClass="medical-primary-button"/>
+                            styleClass="medical-primary-button"
+                            onAction="#loadMedicalRecords"/>
 
                 </FlowPane>
 
@@ -91,22 +96,28 @@
                            prefHeight="260">
 
                     <columns>
-                        <TableColumn text="Medical ID"
+                        <TableColumn fx:id="medicalIdColumn"
+                                     text="Medical ID"
                                      prefWidth="90"/>
 
-                        <TableColumn text="Registration No."
+                        <TableColumn fx:id="registrationColumn"
+                                     text="Registration No."
                                      prefWidth="150"/>
 
-                        <TableColumn text="Course"
+                        <TableColumn fx:id="courseColumn"
+                                     text="Course"
                                      prefWidth="130"/>
 
-                        <TableColumn text="Medical Date"
+                        <TableColumn fx:id="medicalDateColumn"
+                                     text="Medical Date"
                                      prefWidth="120"/>
 
-                        <TableColumn text="Reason"
+                        <TableColumn fx:id="reasonColumn"
+                                     text="Reason"
                                      prefWidth="200"/>
 
-                        <TableColumn text="Status"
+                        <TableColumn fx:id="statusColumn"
+                                     text="Status"
                                      prefWidth="110"/>
                     </columns>
 
@@ -121,7 +132,7 @@
 
             </VBox>
 
-            <Label text="UI preview — data and form actions will be connected later."
+            <Label text="New medical records are saved with Pending status."
                    wrapText="true"
                    styleClass="medical-subtitle"/>
 

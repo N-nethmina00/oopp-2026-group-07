@@ -1,0 +1,272 @@
+package com.fot.ams.controller;
+
+import com.fot.ams.dao.CourseDAO;
+import com.fot.ams.dao.MedicalDAO;
+import com.fot.ams.model.Course;
+import com.fot.ams.model.MedicalRecord;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+// TG2070 - Technical Officer medical page controller
+public class MedicalController {
+
+    @FXML
+    private TextField registrationField;
+
+    @FXML
+    private ComboBox<Course> medicalCourseComboBox;
+
+    @FXML
+    private DatePicker medicalDatePicker;
+
+    @FXML
+    private TextArea medicalReasonArea;
+
+    @FXML
+    private TextField medicalSearchField;
+
+    @FXML
+    private ComboBox<String> medicalStatusFilter;
+
+    @FXML
+    private TableView<MedicalRecord> medicalTable;
+
+    @FXML
+    private TableColumn<MedicalRecord, Integer> medicalIdColumn;
+
+    @FXML
+    private TableColumn<MedicalRecord, String> registrationColumn;
+
+    @FXML
+    private TableColumn<MedicalRecord, String> courseColumn;
+
+    @FXML
+    private TableColumn<MedicalRecord, LocalDate> medicalDateColumn;
+
+    @FXML
+    private TableColumn<MedicalRecord, String> reasonColumn;
+
+    @FXML
+    private TableColumn<MedicalRecord, String> statusColumn;
+
+    @FXML
+    private void initialize() {
+        setupTable();
+
+        medicalStatusFilter.getItems().addAll(
+                "All statuses",
+                "Pending",
+                "Approved",
+                "Rejected"
+        );
+
+        medicalStatusFilter.setValue("All statuses");
+
+        loadCourses();
+        loadMedicalRecords();
+    }
+
+    // TG2070 - Connect table columns to model getters
+    private void setupTable() {
+        medicalIdColumn.setCellValueFactory(
+                new PropertyValueFactory<>("medicalId")
+        );
+
+        registrationColumn.setCellValueFactory(
+                new PropertyValueFactory<>("regNo")
+        );
+
+        courseColumn.setCellValueFactory(
+                new PropertyValueFactory<>("courseCode")
+        );
+
+        medicalDateColumn.setCellValueFactory(
+                new PropertyValueFactory<>("medicalDate")
+        );
+
+        reasonColumn.setCellValueFactory(
+                new PropertyValueFactory<>("reason")
+        );
+
+        statusColumn.setCellValueFactory(
+                new PropertyValueFactory<>("status")
+        );
+
+        medicalTable.setPlaceholder(
+                new Label("No medical records found.")
+        );
+    }
+
+    // TG2070 - Load courses from database
+    private void loadCourses() {
+        CourseDAO courseDAO = new CourseDAO();
+
+        try {
+            List<Course> courses = courseDAO.getAllCourses();
+
+            medicalCourseComboBox.getItems().clear();
+
+            for (Course course : courses) {
+                medicalCourseComboBox.getItems().add(course);
+            }
+
+        } catch (SQLException exception) {
+            showDatabaseError("Could not load courses.", exception);
+        }
+    }
+
+    // TG2070 - Load records using registration and status filters
+    @FXML
+    private void loadMedicalRecords() {
+        MedicalDAO medicalDAO = new MedicalDAO();
+
+        try {
+            ArrayList<MedicalRecord> records =
+                    medicalDAO.getMedicalRecords(
+                            medicalSearchField.getText(),
+                            medicalStatusFilter.getValue()
+                    );
+
+            medicalTable.getItems().clear();
+
+            for (MedicalRecord record : records) {
+                medicalTable.getItems().add(record);
+            }
+
+        } catch (SQLException exception) {
+            showDatabaseError(
+                    "Could not load medical records.",
+                    exception
+            );
+        }
+    }
+
+    // TG2070 - Save a new medical record as Pending
+    @FXML
+    private void saveMedical() {
+        String registrationNumber =
+                registrationField.getText().trim();
+
+        Course selectedCourse = medicalCourseComboBox.getValue();
+        LocalDate selectedDate = medicalDatePicker.getValue();
+        String reason = medicalReasonArea.getText().trim();
+
+        if (registrationNumber.isEmpty()
+                || selectedCourse == null
+                || selectedDate == null
+                || reason.isEmpty()) {
+
+            showMessage(
+                    Alert.AlertType.WARNING,
+                    "Missing Details",
+                    "Please enter registration number, course, date and reason."
+            );
+            return;
+        }
+
+        if (selectedDate.isAfter(LocalDate.now())) {
+            showMessage(
+                    Alert.AlertType.WARNING,
+                    "Invalid Date",
+                    "Medical date cannot be in the future."
+            );
+            return;
+        }
+
+        CourseDAO courseDAO = new CourseDAO();
+        MedicalDAO medicalDAO = new MedicalDAO();
+
+        try {
+            // Course model stores course code in its courseId field
+            int courseId = courseDAO.getCourseDatabaseId(
+                    selectedCourse.getCourseId()
+            );
+
+            boolean enrolled = medicalDAO.isStudentEnrolled(
+                    registrationNumber,
+                    courseId
+            );
+
+            if (!enrolled) {
+                showMessage(
+                        Alert.AlertType.WARNING,
+                        "Enrollment Not Found",
+                        "No eligible enrollment was found for this "
+                                + "registration number and course."
+                );
+                return;
+            }
+
+            boolean saved = medicalDAO.addMedical(
+                    registrationNumber,
+                    courseId,
+                    selectedDate,
+                    reason
+            );
+
+            if (saved) {
+                showMessage(
+                        Alert.AlertType.INFORMATION,
+                        "Medical Saved",
+                        "Medical record saved with Pending status."
+                );
+
+                clearForm();
+                loadMedicalRecords();
+
+            } else {
+                showMessage(
+                        Alert.AlertType.WARNING,
+                        "Not Saved",
+                        "Medical record was not saved."
+                );
+            }
+
+        } catch (SQLException exception) {
+            showDatabaseError(
+                    "Could not save medical record.",
+                    exception
+            );
+        }
+    }
+
+    // TG2070 - Clear medical entry form
+    @FXML
+    private void clearForm() {
+        registrationField.clear();
+        medicalCourseComboBox.getSelectionModel().clearSelection();
+        medicalDatePicker.setValue(null);
+        medicalReasonArea.clear();
+        registrationField.requestFocus();
+    }
+
+    // TG2070 - Display messages
+    private void showMessage(Alert.AlertType type,
+                             String title,
+                             String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    // TG2070 - Display database errors
+    private void showDatabaseError(String message,
+                                   SQLException exception) {
+        exception.printStackTrace();
+
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Database Error");
+        alert.setHeaderText(message);
+        alert.setContentText(exception.getMessage());
+        alert.showAndWait();
+    }
+}

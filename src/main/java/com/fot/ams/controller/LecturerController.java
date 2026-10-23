@@ -33,6 +33,13 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.Optional;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+
+
 
 public class LecturerController {
 
@@ -772,12 +779,53 @@ public class LecturerController {
         );
     }
 
+
     @FXML
     private void logout() {
-        displayPage(
-                "Logout",
-                "Logout integration will be implemented later.",
-                null
+
+        Alert confirmation = new Alert(
+                Alert.AlertType.CONFIRMATION,
+                "Are you sure you want to log out?",
+                ButtonType.YES,
+                ButtonType.NO
         );
+
+        confirmation.setTitle("Confirm Logout");
+        confirmation.setHeaderText("Log Out");
+
+        Optional<ButtonType> result =
+                confirmation.showAndWait();
+
+        if (result.isEmpty() ||
+                result.get() != ButtonType.YES) {
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/login.fxml")
+            );
+
+            Parent root = loader.load();
+
+            Stage stage = (Stage)
+                    contentArea.getScene().getWindow();
+
+            stage.setTitle("University Management System - Login");
+            stage.setScene(new Scene(root, 1100, 680));
+            stage.centerOnScreen();
+
+            // Clear lecturer information
+            lecturerId = null;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to return to Login Page."
+            ).showAndWait();
+        }
     }
+
 }

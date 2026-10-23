@@ -66,8 +66,19 @@ public class LecturerController {
                     "-fx-background-radius: 8;";
 
     @FXML
-    // Temporary lecturer ID for testing only
-    private String lecturerId = "L001";
+    private String lecturerId;
+
+    public void setLecturerId(String lecturerId) {
+
+        if (lecturerId == null || lecturerId.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Valid Lecturer ID is required"
+            );
+        }
+
+        this.lecturerId = lecturerId;
+        showDashboard();
+    }
 
     private String loadMyCoursesCount() {
 
@@ -85,8 +96,14 @@ public class LecturerController {
         }
     }
 
+    @FXML
     public void initialize() {
-        showDashboard();
+
+        displayPage(
+                "Lecturer Dashboard",
+                "Loading lecturer information...",
+                dashboardBtn
+        );
     }
 
     private void setActiveButton(Button activeButton) {

@@ -1,87 +1,64 @@
 package com.fot.ams.model;
 
 public class Course {
-    private String courseId;
+
+    private int courseId;
+    private String courseCode;
     private String courseName;
     private int credit;
     private String type;
     private String lecturerId;
-    private int departmentId;
+    private int deptId;
     private String departmentName;
 
-    public Course() {
-    }
+    public Course(int courseId, String courseCode, String courseName,
+                  int credit, String type, String lecturerId,
+                  int deptId, String departmentName) {
 
-    public Course(String courseId, String courseName, int credit,
-                  String type, String lecturerId, int departmentId,
-                  String departmentName) {
         this.courseId = courseId;
+        this.courseCode = courseCode;
         this.courseName = courseName;
         this.credit = credit;
         this.type = type;
         this.lecturerId = lecturerId;
-        this.departmentId = departmentId;
+        this.deptId = deptId;
         this.departmentName = departmentName;
     }
 
-    public String getCourseId() {
+    public int getCourseId() {
         return courseId;
     }
 
-    public void setCourseId(String courseId) {
-        this.courseId = courseId;
+    public String getCourseCode() {
+        return courseCode;
     }
 
     public String getCourseName() {
         return courseName;
     }
 
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
-
     public int getCredit() {
         return credit;
-    }
-
-    public void setCredit(int credit) {
-        this.credit = credit;
     }
 
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public String getLecturerId() {
         return lecturerId;
     }
 
-    public void setLecturerId(String lecturerId) {
-        this.lecturerId = lecturerId;
-    }
-
-    public int getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(int departmentId) {
-        this.departmentId = departmentId;
+    public int getDeptId() {
+        return deptId;
     }
 
     public String getDepartmentName() {
         return departmentName;
     }
 
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
-    }
-    // TG2070 - Display course code and name in dropdown
     @Override
     public String toString() {
-        return courseId + " - " + courseName;
+        return courseCode + " - " + courseName;
     }
 }

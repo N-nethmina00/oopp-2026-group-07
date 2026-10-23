@@ -174,8 +174,9 @@ public class AttendanceController {
 
         try {
             ArrayList<AttendanceSession> sessions =
+                    // TG2070 - Use course code with the updated Course model
                     attendanceDAO.getSessions(
-                            selectedCourse.getCourseId(),
+                            selectedCourse.getCourseCode(),
                             selectedDate,
                             selectedType
                     );

@@ -23,7 +23,11 @@ public class TechnicalOfficerController {
 
     // TG2070 - Logged-in Technical Officer details
     private String technicalOfficerId;
+
     private MedicalController medicalController;
+
+    // TG2070 - Keep timetable controller to pass TO ID
+    private TechnicalOfficerTimetableController timetableController;
 
     // TG2070 - Receive TO ID from LoginController
     public void setTechnicalOfficerId(String technicalOfficerId) {
@@ -31,6 +35,11 @@ public class TechnicalOfficerController {
 
         if (medicalController != null) {
             medicalController.setTechnicalOfficerId(technicalOfficerId);
+        }
+
+        // TG2070 - Update timetable controller if already loaded
+        if (timetableController != null) {
+            timetableController.setTechnicalOfficerId(technicalOfficerId);
         }
     }
 
@@ -65,7 +74,6 @@ public class TechnicalOfficerController {
         try {
             if (medicalContent == null) {
 
-                // TG2070 - Load medical page and obtain its controller
                 URL resource = getClass().getResource(
                         "/fxml/medical.fxml"
                 );
@@ -117,13 +125,39 @@ public class TechnicalOfficerController {
         }
     }
 
+    // TG2070 - Load department timetable with logged-in TO ID
     @FXML
     private void showTimetable() {
         try {
             if (timetableContent == null) {
-                timetableContent = loadPage(
+
+                URL resource = getClass().getResource(
                         "/fxml/technical-officer-timetable.fxml"
                 );
+
+                if (resource == null) {
+                    throw new IOException(
+                            "Cannot find /fxml/technical-officer-timetable.fxml"
+                    );
+                }
+
+                FXMLLoader loader = new FXMLLoader(resource);
+                Node page = loader.load();
+
+                TechnicalOfficerTimetableController controller =
+                        loader.getController();
+
+                if (controller == null) {
+                    throw new IOException(
+                            "TechnicalOfficerTimetableController is not "
+                                    + "linked in technical-officer-timetable.fxml"
+                    );
+                }
+
+                controller.setTechnicalOfficerId(technicalOfficerId);
+
+                timetableController = controller;
+                timetableContent = page;
             }
 
             dashboardRoot.setCenter(timetableContent);

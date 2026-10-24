@@ -5,6 +5,7 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.TechnicalOfficerTimetableController"
             fitToWidth="true"
             stylesheets="@../css/technical-officer-timetable.css"
             styleClass="timetable-scroll">
@@ -28,6 +29,7 @@
 
                     <VBox spacing="7">
                         <Label text="Academic Year"/>
+
                         <ComboBox fx:id="timetableYearComboBox"
                                   promptText="Select academic year"
                                   prefWidth="200"/>
@@ -35,6 +37,7 @@
 
                     <VBox spacing="7">
                         <Label text="Semester"/>
+
                         <ComboBox fx:id="timetableSemesterComboBox"
                                   promptText="Select semester"
                                   prefWidth="180"/>
@@ -42,6 +45,7 @@
 
                     <VBox spacing="7">
                         <Label text="Course"/>
+
                         <ComboBox fx:id="timetableCourseComboBox"
                                   promptText="All courses"
                                   prefWidth="220"/>
@@ -49,20 +53,24 @@
 
                     <VBox spacing="7">
                         <Label text="Session Type"/>
+
                         <ComboBox fx:id="timetableTypeComboBox"
-                                  promptText="Theory / Practical"
+                                  promptText="All types"
                                   prefWidth="180"/>
                     </VBox>
 
                 </FlowPane>
 
+                <!-- TG2070 - Timetable filter actions -->
                 <HBox spacing="12" alignment="CENTER_RIGHT">
 
                     <Button text="Reset Filters"
-                            styleClass="timetable-secondary-button"/>
+                            styleClass="timetable-secondary-button"
+                            onAction="#resetFilters"/>
 
                     <Button text="View Timetable"
-                            styleClass="timetable-primary-button"/>
+                            styleClass="timetable-primary-button"
+                            onAction="#viewTimetable"/>
 
                 </HBox>
 
@@ -85,6 +93,11 @@
                         <TableColumn fx:id="timetableCourseNameColumn"
                                      text="Course Name"
                                      prefWidth="240"/>
+
+                        <!-- TG2070 - Weekly timetable day -->
+                        <TableColumn fx:id="timetableDayColumn"
+                                     text="Day"
+                                     prefWidth="120"/>
 
                         <TableColumn fx:id="timetableTypeColumn"
                                      text="Type"

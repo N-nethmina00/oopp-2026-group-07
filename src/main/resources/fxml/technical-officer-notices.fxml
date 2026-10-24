@@ -5,6 +5,7 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.TechnicalOfficerNoticesController"
             fitToWidth="true"
             stylesheets="@../css/technical-officer-notices.css"
             styleClass="notices-scroll">
@@ -31,10 +32,12 @@
                                HBox.hgrow="ALWAYS"/>
 
                     <Button text="Search"
-                            styleClass="notices-primary-button"/>
+                            styleClass="notices-primary-button"
+                            onAction="#searchNotices"/>
 
                     <Button text="Refresh"
-                            styleClass="notices-secondary-button"/>
+                            styleClass="notices-secondary-button"
+                            onAction="#refreshNotices"/>
 
                 </HBox>
 

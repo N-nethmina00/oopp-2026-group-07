@@ -17,21 +17,23 @@ public class CourseMaterialDAO {
 
         List<String[]> materials = new ArrayList<>();
 
+
         String sql = """
-                SELECT
-                    c.course_code,
-                    cm.material_title,
-                    cm.material_type,
-                    cm.file_name,
-                    cm.uploaded_date
-                FROM course_material cm
-                JOIN course c
-                    ON cm.course_id = c.course_id
-                WHERE cm.lecturer_id = ?
-                  AND c.lecturer_id = ?
-                ORDER BY cm.uploaded_date DESC,
-                         cm.material_id DESC
-                """;
+        SELECT
+            cm.material_id,
+            c.course_code,
+            cm.material_title,
+            cm.material_type,
+            cm.file_name,
+            cm.uploaded_date
+        FROM course_material cm
+        JOIN course c ON cm.course_id = c.course_id
+        WHERE cm.lecturer_id = ?
+          AND c.lecturer_id = ?
+        ORDER BY cm.uploaded_date DESC,
+                 cm.material_id DESC
+        """;
+
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -43,6 +45,7 @@ public class CourseMaterialDAO {
 
                 while (rs.next()) {
                     materials.add(new String[]{
+                            rs.getString("material_id"),
                             rs.getString("course_code"),
                             rs.getString("material_title"),
                             rs.getString("material_type"),
@@ -95,5 +98,59 @@ public class CourseMaterialDAO {
             }
         }
     }
+
+
+    public String getMaterialPath(int materialId, String lecturerId)
+            throws SQLException {
+
+        String sql = """
+            SELECT cm.`file`
+            FROM course_material cm
+            JOIN course c ON cm.course_id = c.course_id
+            WHERE cm.material_id = ?
+              AND cm.lecturer_id = ?
+              AND c.lecturer_id = ?
+            """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, materialId);
+            stmt.setString(2, lecturerId);
+            stmt.setString(3, lecturerId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("file");
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public boolean deleteMaterial(int materialId, String lecturerId)
+            throws SQLException {
+
+        String sql = """
+            DELETE cm
+            FROM course_material cm
+            JOIN course c ON cm.course_id = c.course_id
+            WHERE cm.material_id = ?
+              AND cm.lecturer_id = ?
+              AND c.lecturer_id = ?
+            """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, materialId);
+            stmt.setString(2, lecturerId);
+            stmt.setString(3, lecturerId);
+
+            return stmt.executeUpdate() == 1;
+        }
+    }
+
 
 }

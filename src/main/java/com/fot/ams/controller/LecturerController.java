@@ -37,6 +37,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import java.awt.Desktop;
 
 
 
@@ -402,6 +403,7 @@ public class LecturerController {
 
         TableView<String[]> materialsTable = createTable(
                 "No course materials found.",
+                "Material ID",
                 "Course Code",
                 "Material Title",
                 "Type",
@@ -410,6 +412,219 @@ public class LecturerController {
         );
 
         materialsTable.setPrefHeight(400);
+
+
+        Button openButton = new Button("Open PDF");
+        Button deleteButton = new Button("Delete");
+
+        openButton.setStyle(
+                "-fx-background-color: #0877B8;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 8;"
+        );
+
+        deleteButton.setStyle(
+                "-fx-background-color: #D9534F;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 8;"
+        );
+
+// Open selected PDF
+        openButton.setOnAction(event -> {
+
+            String[] selected =
+                    materialsTable.getSelectionModel().getSelectedItem();
+
+            if (selected == null) {
+                new Alert(
+                        Alert.AlertType.WARNING,
+                        "Please select a material first."
+                ).showAndWait();
+                return;
+            }
+
+            try {
+                int materialId = Integer.parseInt(selected[0]);
+
+                CourseMaterialDAO dao = new CourseMaterialDAO();
+
+                String filePath = dao.getMaterialPath(
+                        materialId,
+                        lecturerId
+                );
+
+                if (filePath == null || filePath.isBlank()) {
+                    throw new IOException(
+                            "Material not found or access denied."
+                    );
+                }
+
+                Path projectRoot = Paths.get(
+                        System.getProperty("user.dir")
+                ).toAbsolutePath().normalize();
+
+                Path pdfPath = projectRoot
+                        .resolve(filePath)
+                        .normalize();
+
+                if (!pdfPath.startsWith(projectRoot)) {
+                    throw new IOException("Invalid file path.");
+                }
+
+                if (!Files.isRegularFile(pdfPath)) {
+                    throw new IOException(
+                            "PDF file not found: " + filePath
+                    );
+                }
+
+                if (!Desktop.isDesktopSupported() ||
+                        !Desktop.getDesktop().isSupported(
+                                Desktop.Action.OPEN)) {
+                    throw new IOException(
+                            "PDF opening is not supported."
+                    );
+                }
+
+                Desktop.getDesktop().open(pdfPath.toFile());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                new Alert(
+                        Alert.AlertType.ERROR,
+                        "Unable to open PDF: " + e.getMessage()
+                ).showAndWait();
+            }
+        });
+
+// Delete selected material record
+
+        deleteButton.setOnAction(event -> {
+
+            String[] selected =
+                    materialsTable.getSelectionModel().getSelectedItem();
+
+            if (selected == null) {
+                new Alert(
+                        Alert.AlertType.WARNING,
+                        "Please select a material first."
+                ).showAndWait();
+                return;
+            }
+
+            Alert confirmation = new Alert(
+                    Alert.AlertType.CONFIRMATION,
+                    "Are you sure you want to delete this material?",
+                    ButtonType.YES,
+                    ButtonType.NO
+            );
+
+            confirmation.setTitle("Confirm Delete");
+            confirmation.setHeaderText("Delete Course Material");
+
+            if (confirmation.showAndWait().orElse(ButtonType.NO)
+                    != ButtonType.YES) {
+                return;
+            }
+
+            try {
+                int materialId = Integer.parseInt(selected[0]);
+
+                CourseMaterialDAO dao = new CourseMaterialDAO();
+
+                // Get authorized material path before deleting record
+                String filePath = dao.getMaterialPath(
+                        materialId,
+                        lecturerId
+                );
+
+                if (filePath == null || filePath.isBlank()) {
+                    new Alert(
+                            Alert.AlertType.WARNING,
+                            "Material not found or access denied."
+                    ).showAndWait();
+                    return;
+                }
+
+                // Identify local uploads directory
+                Path projectRoot = Paths.get(
+                        System.getProperty("user.dir")
+                ).toAbsolutePath().normalize();
+
+                Path uploadDirectory = projectRoot.resolve(
+                        "uploads/materials"
+                ).normalize();
+
+                Path pdfPath = projectRoot
+                        .resolve(filePath)
+                        .normalize();
+
+                // Only files inside uploads/materials can be deleted
+                boolean isManagedUpload =
+                        pdfPath.startsWith(uploadDirectory)
+                                && pdfPath.getFileName().toString()
+                                .toLowerCase().endsWith(".pdf");
+
+                // Delete database record
+                boolean deleted = dao.deleteMaterial(
+                        materialId,
+                        lecturerId
+                );
+
+                if (!deleted) {
+                    new Alert(
+                            Alert.AlertType.WARNING,
+                            "Material not found or access denied."
+                    ).showAndWait();
+                    return;
+                }
+
+                // Delete the physical file only for managed uploads
+                if (isManagedUpload) {
+                    try {
+                        Files.deleteIfExists(pdfPath);
+                    } catch (IOException fileError) {
+                        fileError.printStackTrace();
+
+                        new Alert(
+                                Alert.AlertType.WARNING,
+                                "Database record deleted, but the PDF " +
+                                        "could not be removed from local storage."
+                        ).showAndWait();
+
+                        showMaterials();
+                        return;
+                    }
+                }
+
+                new Alert(
+                        Alert.AlertType.INFORMATION,
+                        isManagedUpload
+                                ? "Material and uploaded PDF deleted successfully."
+                                : "Material record deleted successfully."
+                ).showAndWait();
+
+                // Refresh table
+                showMaterials();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                new Alert(
+                        Alert.AlertType.ERROR,
+                        "Unable to delete material: " + e.getMessage()
+                ).showAndWait();
+            }
+        });
+
+
+// Arrange buttons horizontally
+        HBox actionButtons = new HBox(10);
+        actionButtons.getChildren().addAll(
+                openButton,
+                deleteButton
+        );
+
 
         CourseMaterialDAO materialDAO = new CourseMaterialDAO();
 
@@ -431,6 +646,7 @@ public class LecturerController {
         contentArea.getChildren().addAll(
                 heading,
                 uploadButton,
+                actionButtons,
                 materialsTable
         );
     }

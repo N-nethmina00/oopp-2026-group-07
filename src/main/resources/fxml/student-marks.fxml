@@ -15,16 +15,13 @@
     <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
         <Label text="Course Marks" styleClass="section-title"/>
         <TableView fx:id="tblMarks" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colCode" text="Code"/>
-            <TableColumn fx:id="colName" text="Course"/>
-            <TableColumn fx:id="colQuiz" text="Quiz /10"/>
-            <TableColumn fx:id="colAssign" text="Assignment /15"/>
-            <TableColumn fx:id="colMid" text="Mid /25"/>
-            <TableColumn fx:id="colCa" text="CA /50"/>
-            <TableColumn fx:id="colFinal" text="Final /50"/>
-            <TableColumn fx:id="colGrade" text="Grade"/>
-        </columns>
+
+            <columns>
+                <TableColumn fx:id="colCode" text="Code"/>
+                <TableColumn fx:id="colName" text="Course"/>
+                <TableColumn fx:id="colEligibility" text="CA Eligibility"/>
+            </columns>
+
         </TableView>
     </VBox>
 

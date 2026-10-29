@@ -58,7 +58,6 @@
     <build>
         <plugins>
 
-            <!-- Compile Java code -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -75,7 +74,7 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.fot.ams.Main</mainClass>
-                    <mainClass>${app.mainClass}</mainClass>
+
                 </configuration>
             </plugin>
 

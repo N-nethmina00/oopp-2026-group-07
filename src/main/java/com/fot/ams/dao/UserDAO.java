@@ -291,4 +291,30 @@ public class UserDAO {
             throw new RuntimeException("Failed to delete user: " + e.getMessage(), e);
         }
     }
+
+
+    public String getLecturerIdByUserId(String userId)
+            throws SQLException {
+
+        String sql = """
+            SELECT lecturer_id
+            FROM lecturer
+            WHERE user_id = ?
+            """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("lecturer_id");
+                }
+            }
+        }
+
+        return null;
+    }
+
 }

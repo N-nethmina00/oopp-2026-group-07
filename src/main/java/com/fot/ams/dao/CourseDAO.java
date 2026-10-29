@@ -3,10 +3,7 @@ package com.fot.ams.dao;
 import com.fot.ams.model.Course;
 import com.fot.ams.util.DBConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,26 +13,28 @@ public class CourseDAO {
         List<Course> courses = new ArrayList<>();
 
         String sql = """
-                SELECT c.course_code, c.course_name, c.credit, c.type,
-                       c.lecturer_id, c.dept_id, d.dept_name
+                SELECT c.course_id, c.course_code, c.course_name,
+                       c.credit, c.type, c.lecturer_id,
+                       c.dept_id, d.dept_name
                 FROM course c
-                LEFT JOIN department d ON c.dept_id = d.dept_id
-                ORDER BY c.course_code
+                JOIN department d ON c.dept_id = d.dept_id
+                ORDER BY c.course_id
                 """;
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-            while (resultSet.next()) {
+            while (rs.next()) {
                 courses.add(new Course(
-                        resultSet.getString("course_code"),
-                        resultSet.getString("course_name"),
-                        resultSet.getInt("credit"),
-                        resultSet.getString("type"),
-                        resultSet.getString("lecturer_id"),
-                        resultSet.getInt("dept_id"),
-                        resultSet.getString("dept_name")
+                        rs.getInt("course_id"),
+                        rs.getString("course_code"),
+                        rs.getString("course_name"),
+                        rs.getInt("credit"),
+                        rs.getString("type"),
+                        rs.getString("lecturer_id"),
+                        rs.getInt("dept_id"),
+                        rs.getString("dept_name")
                 ));
             }
         }
@@ -43,24 +42,82 @@ public class CourseDAO {
         return courses;
     }
 
+    public List<String> getDepartments() throws SQLException {
+        List<String> departments = new ArrayList<>();
+
+        String sql = "SELECT dept_name FROM department ORDER BY dept_name";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                departments.add(rs.getString("dept_name"));
+            }
+        }
+
+        return departments;
+    }
+
+    public List<String> getLecturers() throws SQLException {
+        List<String> lecturers = new ArrayList<>();
+
+        String sql = """
+                SELECT l.lecturer_id
+                FROM lecturer l
+                ORDER BY l.lecturer_id
+                """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                lecturers.add(rs.getString("lecturer_id"));
+            }
+        }
+
+        return lecturers;
+    }
+
+    private int getDepartmentId(Connection con, String department)
+            throws SQLException {
+
+        String sql = "SELECT dept_id FROM department WHERE dept_name = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, department);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("dept_id");
+                }
+            }
+        }
+
+        throw new SQLException("Department not found: " + department);
+    }
+
     public boolean addCourse(Course course) throws SQLException {
         String sql = """
                 INSERT INTO course
-                    (course_code, course_name, credit, type, lecturer_id, dept_id)
+                (course_code, course_name, credit, type, lecturer_id, dept_id)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection con = DBConnection.getConnection()) {
+            int deptId = getDepartmentId(con, course.getDepartmentName());
 
-            statement.setString(1, course.getCourseId());
-            statement.setString(2, course.getCourseName());
-            statement.setInt(3, course.getCredit());
-            statement.setString(4, course.getType());
-            statement.setString(5, course.getLecturerId());
-            statement.setInt(6, course.getDepartmentId());
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, course.getCourseCode());
+                ps.setString(2, course.getCourseName());
+                ps.setInt(3, course.getCredit());
+                ps.setString(4, course.getType());
+                ps.setString(5, course.getLecturerId());
+                ps.setInt(6, deptId);
 
-            return statement.executeUpdate() > 0;
+                return ps.executeUpdate() > 0;
+            }
         }
     }
 
@@ -72,92 +129,83 @@ public class CourseDAO {
                 WHERE course_code = ?
                 """;
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection con = DBConnection.getConnection()) {
+            int deptId = getDepartmentId(con, course.getDepartmentName());
 
-            statement.setString(1, course.getCourseName());
-            statement.setInt(2, course.getCredit());
-            statement.setString(3, course.getType());
-            statement.setString(4, course.getLecturerId());
-            statement.setInt(5, course.getDepartmentId());
-            statement.setString(6, course.getCourseId());
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, course.getCourseName());
+                ps.setInt(2, course.getCredit());
+                ps.setString(3, course.getType());
+                ps.setString(4, course.getLecturerId());
+                ps.setInt(5, deptId);
+                ps.setString(6, course.getCourseCode());
 
-            return statement.executeUpdate() > 0;
+                return ps.executeUpdate() > 0;
+            }
         }
     }
 
-    public boolean deleteCourse(String courseId) throws SQLException {
+    public boolean deleteCourse(String courseCode) throws SQLException {
         String sql = "DELETE FROM course WHERE course_code = ?";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            statement.setString(1, courseId);
-            return statement.executeUpdate() > 0;
+            ps.setString(1, courseCode);
+            return ps.executeUpdate() > 0;
         }
     }
 
-    public boolean courseExists(String courseId) throws SQLException {
-        String sql = "SELECT 1 FROM course WHERE course_code = ?";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+    public int countCoursesByLecturer(String lecturerId)
+            throws SQLException {
 
-            statement.setString(1, courseId);
+        String sql =
+                "SELECT COUNT(*) FROM course WHERE lecturer_id = ?";
 
-            try (ResultSet resultSet = statement.executeQuery()) {
-                return resultSet.next();
-            }
-        }
-    }
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
 
-    public List<String> getDepartmentNames() throws SQLException {
-        List<String> departments = new ArrayList<>();
-        String sql = "SELECT dept_name FROM department ORDER BY dept_name";
+            stmt.setString(1, lecturerId);
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
-
-            while (resultSet.next()) {
-                departments.add(resultSet.getString("dept_name"));
-            }
-        }
-
-        return departments;
-    }
-
-    public int getDepartmentId(String departmentName) throws SQLException {
-        String sql = "SELECT dept_id FROM department WHERE dept_name = ?";
-
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setString(1, departmentName);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getInt("dept_id");
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
                 }
             }
         }
 
-        throw new SQLException("Department not found: " + departmentName);
+        return 0;
     }
 
-    public List<String> getLecturerIds() throws SQLException {
-        List<String> lecturerIds = new ArrayList<>();
-        String sql = "SELECT lecturer_id FROM lecturer ORDER BY lecturer_id";
+    public List<String[]> getCoursesByLecturer(String lecturerId)
+            throws SQLException {
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+        List<String[]> courses = new ArrayList<>();
 
-            while (resultSet.next()) {
-                lecturerIds.add(resultSet.getString("lecturer_id"));
+        String sql =
+                "SELECT course_code, course_name, credit, type " +
+                        "FROM course WHERE lecturer_id = ? " +
+                        "ORDER BY course_id";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, lecturerId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    courses.add(new String[]{
+                            rs.getString("course_code"),
+                            rs.getString("course_name"),
+                            rs.getString("credit"),
+                            rs.getString("type")
+                    });
+                }
             }
         }
 
-        return lecturerIds;
+        return courses;
     }
+
 }

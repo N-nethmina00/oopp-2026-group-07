@@ -15,7 +15,7 @@ public class StudentDAO {
     // Test database connection
     public void testConnection() {
 
-        try (Connection conn = DBConnection.getConnection()) {
+        try (Connection conn = DBConnection.getStudentConnection()) {
 
             System.out.println("Student DAO database connected successfully!");
 

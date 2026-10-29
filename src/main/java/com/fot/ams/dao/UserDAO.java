@@ -387,4 +387,102 @@ public class UserDAO {
         return null;
     }
     // TG2070 - END
+    // TG2070 - START: Load Technical Officer profile
+    public User getTechnicalOfficerProfile(String technicalOfficerId)
+            throws SQLException {
+
+        String sql = """
+                SELECT u.user_id, u.user_name, u.first_name,
+                       u.last_name, u.email, u.role, t.to_id
+                FROM `user` u
+                JOIN technical_officer t ON t.user_id = u.user_id
+                WHERE t.to_id = ?
+                  AND u.role = 'Technical_Officer'
+                """;
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, technicalOfficerId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    User user = new User();
+
+                    user.setUserId(resultSet.getString("user_id"));
+                    user.setRoleSpecificId(resultSet.getString("to_id"));
+                    user.setUsername(resultSet.getString("user_name"));
+                    user.setFirstName(resultSet.getString("first_name"));
+                    user.setLastName(resultSet.getString("last_name"));
+                    user.setEmail(resultSet.getString("email"));
+                    user.setRole(resultSet.getString("role"));
+
+                    return user;
+                }
+            }
+        }
+
+        return null;
+    }
+    // TG2070 - END
+
+    // TG2070 - START: Load Technical Officer department name
+    public String getTechnicalOfficerDepartment(String technicalOfficerId)
+            throws SQLException {
+
+        String sql = """
+                SELECT d.dept_name
+                FROM technical_officer t
+                JOIN department d ON d.dept_id = t.dept_id
+                WHERE t.to_id = ?
+                """;
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, technicalOfficerId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("dept_name");
+                }
+            }
+        }
+
+        return null;
+    }
+    // TG2070 - END
+
+    // TG2070 - START: Update Technical Officer personal details
+    public boolean updateTechnicalOfficerProfile(
+            String technicalOfficerId,
+            String firstName,
+            String lastName,
+            String email) throws SQLException {
+
+        String sql = """
+                UPDATE `user` u
+                JOIN technical_officer t ON t.user_id = u.user_id
+                SET u.first_name = ?,
+                    u.last_name = ?,
+                    u.email = ?
+                WHERE t.to_id = ?
+                  AND u.role = 'Technical_Officer'
+                """;
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, firstName);
+            statement.setString(2, lastName);
+            statement.setString(3, email);
+            statement.setString(4, technicalOfficerId);
+
+            return statement.executeUpdate() > 0;
+        }
+    }
+    // TG2070 - END
 }

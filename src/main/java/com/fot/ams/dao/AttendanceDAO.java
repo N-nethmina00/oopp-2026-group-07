@@ -250,4 +250,75 @@ public class AttendanceDAO {
         }
     }
     // TG2070 - END
+    // TG2070 - START: Add a session for TO department
+    public boolean addSession(
+            String technicalOfficerId,
+            int courseId,
+            LocalDate sessionDate,
+            java.time.LocalTime startTime,
+            java.time.LocalTime endTime,
+            String sessionType) throws SQLException {
+
+        if (technicalOfficerId == null
+                || technicalOfficerId.isBlank()) {
+            throw new SQLException("Technical Officer ID is missing.");
+        }
+
+        if (sessionDate == null
+                || startTime == null
+                || endTime == null) {
+            throw new SQLException("Please enter session date and times.");
+        }
+
+        if (!endTime.isAfter(startTime)) {
+            throw new SQLException(
+                    "End time must be after start time."
+            );
+        }
+
+        if (!"Theory".equals(sessionType)
+                && !"Practical".equals(sessionType)) {
+            throw new SQLException(
+                    "Please select Theory or Practical."
+            );
+        }
+
+        String sql = """
+                INSERT INTO sessions
+                    (course_id, session_date, start_time,
+                     end_time, session_type)
+                SELECT c.course_id, ?, ?, ?, ?
+                FROM course c
+                JOIN technical_officer t ON t.dept_id = c.dept_id
+                WHERE c.course_id = ?
+                  AND t.to_id = ?
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM sessions s
+                      WHERE s.course_id = c.course_id
+                        AND s.session_date = ?
+                        AND s.start_time < ?
+                        AND s.end_time > ?
+                  )
+                """;
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setDate(1, Date.valueOf(sessionDate));
+            statement.setTime(2, Time.valueOf(startTime));
+            statement.setTime(3, Time.valueOf(endTime));
+            statement.setString(4, sessionType);
+            statement.setInt(5, courseId);
+            statement.setString(6, technicalOfficerId);
+
+            statement.setDate(7, Date.valueOf(sessionDate));
+            statement.setTime(8, Time.valueOf(endTime));
+            statement.setTime(9, Time.valueOf(startTime));
+
+            return statement.executeUpdate() == 1;
+        }
+    }
+    // TG2070 - END
 }

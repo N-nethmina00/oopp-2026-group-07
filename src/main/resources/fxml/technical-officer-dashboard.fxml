@@ -80,7 +80,8 @@
 
                 <Button text="Log Out"
                         maxWidth="Infinity"
-                        styleClass="to-logout-button"/>
+                        styleClass="to-logout-button"
+                        onAction="#handleLogout"/>
 
             </VBox>
         </VBox>
@@ -101,7 +102,7 @@
                            wrapText="true"
                            styleClass="to-subtitle"/>
 
-                    <!-- TG2070 - Dashboard summary cards -->
+                    <!-- TG2070 - Counts loaded from database -->
                     <HBox spacing="15">
 
                         <VBox spacing="10"
@@ -114,7 +115,7 @@
                                    styleClass="to-card-title"/>
 
                             <Label fx:id="studentCountLabel"
-                                   text="420"
+                                   text="—"
                                    styleClass="to-card-value"/>
 
                             <Label text="Department"
@@ -131,7 +132,7 @@
                                    styleClass="to-card-title"/>
 
                             <Label fx:id="sessionCountLabel"
-                                   text="36"
+                                   text="—"
                                    styleClass="to-card-value"/>
 
                             <Label text="This week"
@@ -148,10 +149,11 @@
                                    styleClass="to-card-title"/>
 
                             <Label fx:id="attendanceCountLabel"
-                                   text="12"
+                                   text="—"
                                    styleClass="to-card-value"/>
 
-                            <Label text="Pending"
+                            <Label text="Sessions not recorded"
+                                   wrapText="true"
                                    styleClass="to-card-description"/>
                         </VBox>
 

@@ -25,9 +25,10 @@ public class TechnicalOfficerController {
     private String technicalOfficerId;
 
     private MedicalController medicalController;
-
-    // TG2070 - Keep timetable controller to pass TO ID
     private TechnicalOfficerTimetableController timetableController;
+
+    // TG2070 - Keep profile controller to pass TO ID
+    private TechnicalOfficerProfileController profileController;
 
     // TG2070 - Receive TO ID from LoginController
     public void setTechnicalOfficerId(String technicalOfficerId) {
@@ -37,9 +38,13 @@ public class TechnicalOfficerController {
             medicalController.setTechnicalOfficerId(technicalOfficerId);
         }
 
-        // TG2070 - Update timetable controller if already loaded
         if (timetableController != null) {
             timetableController.setTechnicalOfficerId(technicalOfficerId);
+        }
+
+        // TG2070 - Update profile controller if already loaded
+        if (profileController != null) {
+            profileController.setTechnicalOfficerId(technicalOfficerId);
         }
     }
 
@@ -73,7 +78,6 @@ public class TechnicalOfficerController {
     private void showMedical() {
         try {
             if (medicalContent == null) {
-
                 URL resource = getClass().getResource(
                         "/fxml/medical.fxml"
                 );
@@ -130,7 +134,6 @@ public class TechnicalOfficerController {
     private void showTimetable() {
         try {
             if (timetableContent == null) {
-
                 URL resource = getClass().getResource(
                         "/fxml/technical-officer-timetable.fxml"
                 );
@@ -167,13 +170,38 @@ public class TechnicalOfficerController {
         }
     }
 
+    // TG2070 - Load profile and pass logged-in TO ID
     @FXML
     private void showProfile() {
         try {
             if (profileContent == null) {
-                profileContent = loadPage(
+                URL resource = getClass().getResource(
                         "/fxml/technical-officer-profile.fxml"
                 );
+
+                if (resource == null) {
+                    throw new IOException(
+                            "Cannot find /fxml/technical-officer-profile.fxml"
+                    );
+                }
+
+                FXMLLoader loader = new FXMLLoader(resource);
+                Node page = loader.load();
+
+                TechnicalOfficerProfileController controller =
+                        loader.getController();
+
+                if (controller == null) {
+                    throw new IOException(
+                            "TechnicalOfficerProfileController is not "
+                                    + "linked in technical-officer-profile.fxml"
+                    );
+                }
+
+                controller.setTechnicalOfficerId(technicalOfficerId);
+
+                profileController = controller;
+                profileContent = page;
             }
 
             dashboardRoot.setCenter(profileContent);

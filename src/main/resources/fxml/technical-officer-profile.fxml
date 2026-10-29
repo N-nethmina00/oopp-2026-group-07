@@ -5,6 +5,7 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.TechnicalOfficerProfileController"
             fitToWidth="true"
             stylesheets="@../css/technical-officer-profile.css"
             styleClass="profile-scroll">
@@ -112,9 +113,11 @@
                 <HBox alignment="CENTER_RIGHT" spacing="12">
 
                     <Button text="Cancel Changes"
+                            onAction="#cancelChanges"
                             styleClass="profile-secondary-button"/>
 
                     <Button text="Save Changes"
+                            onAction="#saveProfile"
                             styleClass="profile-primary-button"/>
 
                 </HBox>

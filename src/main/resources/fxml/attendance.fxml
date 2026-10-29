@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -61,10 +60,18 @@
 
         </FlowPane>
 
-        <Button text="Load Students"
-                styleClass="attendance-primary-button"
+        <!-- TG2070 - Load students or create a new session -->
+        <HBox spacing="12">
 
-                onAction="#loadStudents"/>
+            <Button text="Load Students"
+                    styleClass="attendance-primary-button"
+                    onAction="#loadStudents"/>
+
+            <Button text="Add Session"
+                    styleClass="attendance-secondary-button"
+                    onAction="#showAddSession"/>
+
+        </HBox>
 
     </VBox>
 
@@ -79,7 +86,7 @@
             <Region HBox.hgrow="ALWAYS"/>
 
             <Label fx:id="studentCountLabel"
-                    text="0 students"
+                   text="0 students"
                    styleClass="attendance-subtitle"/>
         </HBox>
 
@@ -112,6 +119,7 @@
         </TableView>
 
         <HBox alignment="CENTER_RIGHT" spacing="12">
+
             <Button text="Mark All Present"
                     styleClass="attendance-secondary-button"
                     onAction="#markAllPresent"/>
@@ -119,11 +127,12 @@
             <Button text="Save Attendance"
                     styleClass="attendance-primary-button"
                     onAction="#saveAttendance"/>
+
         </HBox>
 
     </VBox>
 
-    <Label text="Select attendance statuses, then click Save Attendance"
+    <Label text="Select attendance statuses, then click Save Attendance."
            styleClass="attendance-subtitle"
            wrapText="true"/>
 

@@ -14,13 +14,13 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.scene.control.cell.ComboBoxTableCell;
 
 // TG2070 - Attendance page controller
 public class AttendanceController {
@@ -40,7 +40,6 @@ public class AttendanceController {
     @FXML
     private ComboBox<AttendanceSession> sessionComboBox;
 
-    // TG2070 - Student attendance table
     @FXML
     private TableView<StudentAttendance> attendanceTable;
 
@@ -55,6 +54,14 @@ public class AttendanceController {
 
     @FXML
     private Label studentCountLabel;
+
+    // TG2070 - START: Receive logged-in TO ID from dashboard
+    private String technicalOfficerId;
+
+    public void setTechnicalOfficerId(String technicalOfficerId) {
+        this.technicalOfficerId = technicalOfficerId;
+    }
+    // TG2070 - END
 
     @FXML
     private void initialize() {
@@ -73,12 +80,12 @@ public class AttendanceController {
         sessionDatePicker.setOnAction(event -> loadSessions());
         sessionTypeComboBox.setOnAction(event -> loadSessions());
 
-        // TG2070 - Clear old students when batch or session changes
+        // TG2070 - Clear students when batch or session changes
         batchComboBox.setOnAction(event -> clearStudents());
         sessionComboBox.setOnAction(event -> clearStudents());
     }
 
-    // TG2070 - Configure table and editable attendance status
+    // TG2070 - Configure editable attendance table
     private void setupTable() {
         regNoColumn.setCellValueFactory(
                 new PropertyValueFactory<>("regNo")
@@ -97,7 +104,6 @@ public class AttendanceController {
         studentNameColumn.setEditable(false);
         statusColumn.setEditable(true);
 
-        // TG2070 - Status dropdown inside each table row
         statusColumn.setCellFactory(
                 ComboBoxTableCell.forTableColumn(
                         "Present",
@@ -107,7 +113,6 @@ public class AttendanceController {
                 )
         );
 
-        // TG2070 - Store the selected status in the student object
         statusColumn.setOnEditCommit(event -> {
             StudentAttendance student = event.getRowValue();
             student.setStatus(event.getNewValue());
@@ -115,6 +120,8 @@ public class AttendanceController {
 
         clearStudents();
     }
+
+    // TG2070 - Load batches
     private void loadBatches() {
         AttendanceDAO attendanceDAO = new AttendanceDAO();
 
@@ -132,7 +139,7 @@ public class AttendanceController {
         }
     }
 
-    // TG2070 - Load course dropdown
+    // TG2070 - Load courses
     private void loadCourses() {
         CourseDAO courseDAO = new CourseDAO();
 
@@ -174,7 +181,6 @@ public class AttendanceController {
 
         try {
             ArrayList<AttendanceSession> sessions =
-                    // TG2070 - Use course code with the updated Course model
                     attendanceDAO.getSessions(
                             selectedCourse.getCourseCode(),
                             selectedDate,
@@ -198,7 +204,7 @@ public class AttendanceController {
         }
     }
 
-    // TG2070 - START: Load students for selected session and batch
+    // TG2070 - Load students and existing attendance
     @FXML
     private void loadStudents() {
         Batch selectedBatch = batchComboBox.getValue();
@@ -240,9 +246,8 @@ public class AttendanceController {
             showDatabaseError("Could not load students.", exception);
         }
     }
-    // TG2070 - END
 
-    // TG2070 - Clear students when selections change
+    // TG2070 - Clear old students when selections change
     private void clearStudents() {
         attendanceTable.getItems().clear();
         studentCountLabel.setText("0 students");
@@ -252,9 +257,10 @@ public class AttendanceController {
         );
     }
 
-    // TG2070 - Show database errors
-    private void showDatabaseError(String message,
-                                   SQLException exception) {
+    private void showDatabaseError(
+            String message,
+            SQLException exception) {
+
         exception.printStackTrace();
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -263,10 +269,10 @@ public class AttendanceController {
         alert.setContentText(exception.getMessage());
         alert.showAndWait();
     }
+
     // TG2070 - Mark all loaded students as Present
     @FXML
     private void markAllPresent() {
-
         if (attendanceTable.getItems().isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("No Students");
@@ -284,12 +290,11 @@ public class AttendanceController {
 
         attendanceTable.refresh();
     }
-    // TG2070 - START: Save loaded student attendance
+
+    // TG2070 - Save or update attendance
     @FXML
     private void saveAttendance() {
-
-        AttendanceSession selectedSession =
-                sessionComboBox.getValue();
+        AttendanceSession selectedSession = sessionComboBox.getValue();
 
         if (selectedSession == null
                 || attendanceTable.getItems().isEmpty()) {
@@ -304,9 +309,7 @@ public class AttendanceController {
             return;
         }
 
-        // Finish selecting a status before saving
         if (attendanceTable.getEditingCell() != null) {
-
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Finish Editing");
             alert.setHeaderText(null);
@@ -343,5 +346,180 @@ public class AttendanceController {
             );
         }
     }
-    // TG2070 - END
+    // TG2070 - START: Open Add Session form
+    @FXML
+    private void showAddSession() {
+        if (technicalOfficerId == null
+                || technicalOfficerId.isBlank()) {
+            showSessionMessage(
+                    Alert.AlertType.ERROR,
+                    "Please log in again before adding a session."
+            );
+            return;
+        }
+
+        Course selectedCourse = courseComboBox.getValue();
+        LocalDate selectedDate = sessionDatePicker.getValue();
+        String selectedType = sessionTypeComboBox.getValue();
+
+        if (selectedCourse == null
+                || selectedDate == null
+                || selectedType == null) {
+            showSessionMessage(
+                    Alert.AlertType.WARNING,
+                    "Please select course, date and session type first."
+            );
+            return;
+        }
+
+        javafx.scene.control.Dialog<Void> dialog =
+                new javafx.scene.control.Dialog<>();
+
+        dialog.setTitle("Add Session");
+        dialog.setHeaderText(
+                selectedCourse.getCourseCode()
+                        + " | " + selectedDate
+                        + " | " + selectedType
+        );
+
+        dialog.initOwner(courseComboBox.getScene().getWindow());
+
+        javafx.scene.control.TextField startField =
+                new javafx.scene.control.TextField();
+        startField.setPromptText("09:00");
+
+        javafx.scene.control.TextField endField =
+                new javafx.scene.control.TextField();
+        endField.setPromptText("11:00");
+
+        Label errorLabel = new Label();
+        errorLabel.setWrapText(true);
+
+        javafx.scene.layout.GridPane form =
+                new javafx.scene.layout.GridPane();
+
+        form.setHgap(12);
+        form.setVgap(12);
+        form.setPadding(new javafx.geometry.Insets(20));
+
+        form.add(new Label("Start Time (HH:mm)"), 0, 0);
+        form.add(startField, 1, 0);
+
+        form.add(new Label("End Time (HH:mm)"), 0, 1);
+        form.add(endField, 1, 1);
+
+        form.add(errorLabel, 0, 2, 2, 1);
+
+        dialog.getDialogPane().setContent(form);
+
+        javafx.scene.control.ButtonType saveButtonType =
+                new javafx.scene.control.ButtonType(
+                        "Save Session",
+                        javafx.scene.control.ButtonBar.ButtonData.OK_DONE
+                );
+
+        dialog.getDialogPane().getButtonTypes().addAll(
+                saveButtonType,
+                javafx.scene.control.ButtonType.CANCEL
+        );
+
+        javafx.scene.Node saveButton =
+                dialog.getDialogPane().lookupButton(saveButtonType);
+
+        // Keep the form open if validation or saving fails
+        saveButton.addEventFilter(
+                javafx.event.ActionEvent.ACTION,
+                event -> {
+                    event.consume();
+                    errorLabel.setText("");
+
+                    String startText = startField.getText().trim();
+                    String endText = endField.getText().trim();
+
+                    if (!startText.matches("\\d{2}:\\d{2}")
+                            || !endText.matches("\\d{2}:\\d{2}")) {
+                        errorLabel.setText(
+                                "Enter times as HH:mm, for example 09:00."
+                        );
+                        return;
+                    }
+
+                    java.time.LocalTime startTime;
+                    java.time.LocalTime endTime;
+
+                    try {
+                        startTime = java.time.LocalTime.parse(startText);
+                        endTime = java.time.LocalTime.parse(endText);
+
+                    } catch (java.time.format.DateTimeParseException exception) {
+                        errorLabel.setText(
+                                "Enter valid times between 00:00 and 23:59."
+                        );
+                        return;
+                    }
+
+                    if (!endTime.isAfter(startTime)) {
+                        errorLabel.setText(
+                                "End time must be after start time."
+                        );
+                        return;
+                    }
+
+                    AttendanceDAO attendanceDAO = new AttendanceDAO();
+
+                    try {
+                        boolean saved = attendanceDAO.addSession(
+                                technicalOfficerId,
+                                selectedCourse.getCourseId(),
+                                selectedDate,
+                                startTime,
+                                endTime,
+                                selectedType
+                        );
+
+                        if (!saved) {
+                            errorLabel.setText(
+                                    "Session was not added. Check that the course "
+                                            + "belongs to your department and "
+                                            + "the time does not overlap another session."
+                            );
+                            return;
+                        }
+
+                        dialog.close();
+
+                        // Refresh session dropdown after saving
+                        loadSessions();
+
+                        showSessionMessage(
+                                Alert.AlertType.INFORMATION,
+                                "Session added successfully. "
+                                        + "Select it from the Session dropdown."
+                        );
+
+                    } catch (SQLException exception) {
+                        exception.printStackTrace();
+                        errorLabel.setText(
+                                "Could not save session: "
+                                        + exception.getMessage()
+                        );
+                    }
+                }
+        );
+
+        dialog.showAndWait();
+    }
+// TG2070 - END
+
+    // TG2070 - Show session messages
+    private void showSessionMessage(
+            Alert.AlertType type,
+            String message) {
+
+        Alert alert = new Alert(type);
+        alert.setTitle("Session");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 }

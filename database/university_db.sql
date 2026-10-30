@@ -1,603 +1,4140 @@
--- MySQL dump 10.13  Distrib 9.7.0, for Win64 (x86_64)
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
 --
--- Host: localhost    Database: university_db
--- ------------------------------------------------------
--- Server version	9.7.0
+-- Host: 127.0.0.1:3307
+-- Generation Time: Oct 30, 2026 at 04:37 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
--- Current Database: `university_db`
+-- Database: `university_db`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `university_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-
-USE `university_db`;
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `admin`
 --
 
-DROP TABLE IF EXISTS `admin`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `admin` (
-                         `admin_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                         `user_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                         PRIMARY KEY (`admin_id`),
-                         UNIQUE KEY `uq_admin_user` (`user_id`),
-                         CONSTRAINT `fk_admin_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                         `admin_id` varchar(10) NOT NULL,
+                         `user_id` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `admin`
 --
 
-LOCK TABLES `admin` WRITE;
-/*!40000 ALTER TABLE `admin` DISABLE KEYS */;
-INSERT INTO `admin` VALUES ('A001','A001');
-/*!40000 ALTER TABLE `admin` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `admin` (`admin_id`, `user_id`) VALUES
+    ('A001', 'A001');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `ams_ca_batch_summary`
+-- (See below for the actual view)
+--
+CREATE TABLE `ams_ca_batch_summary` (
+                                        `batch_id` int(11)
+    ,`course_code` varchar(20)
+    ,`students` bigint(21)
+    ,`average_CA` decimal(6,2)
+    ,`CA_passed` decimal(22,0)
+    ,`exam_eligible` decimal(22,0)
+    ,`pending_results` decimal(22,0)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `ams_result_details`
+-- (See below for the actual view)
+--
+CREATE TABLE `ams_result_details` (
+                                      `user_id` varchar(10)
+    ,`reg_no` varchar(20)
+    ,`batch_id` int(11)
+    ,`is_repeat` tinyint(1)
+    ,`course_code` varchar(20)
+    ,`course_name` varchar(150)
+    ,`credit` int(11)
+    ,`quiz1_marks` decimal(5,2)
+    ,`quiz2_marks` decimal(5,2)
+    ,`quiz_marks` decimal(5,2)
+    ,`assignment1_marks` decimal(5,2)
+    ,`assignment2_marks` decimal(5,2)
+    ,`mid_exam_marks` decimal(5,2)
+    ,`total_CA_marks` decimal(5,2)
+    ,`CA_status` varchar(30)
+    ,`eligibility` tinyint(1)
+    ,`total_sessions` bigint(21)
+    ,`present_sessions` decimal(22,0)
+    ,`attendance_percent` decimal(28,2)
+    ,`end_exam_marks` decimal(5,2)
+    ,`total_marks` decimal(5,2)
+    ,`grade` varchar(5)
+    ,`grade_point` decimal(3,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `ams_semester_gpa`
+-- (See below for the actual view)
+--
+CREATE TABLE `ams_semester_gpa` (
+                                    `user_id` varchar(10)
+    ,`reg_no` varchar(20)
+    ,`batch_id` int(11)
+    ,`is_repeat` tinyint(1)
+    ,`registered_credits` decimal(32,0)
+    ,`pending_results` decimal(22,0)
+    ,`provisional_SGPA` decimal(37,2)
+);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `attendance`
 --
 
-DROP TABLE IF EXISTS `attendance`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `attendance` (
-                              `attendance_id` int NOT NULL AUTO_INCREMENT,
-                              `enrollment_id` int NOT NULL,
-                              `session_id` int NOT NULL,
-                              `status` enum('Present','Absent','Late','Excused') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Absent',
-                              PRIMARY KEY (`attendance_id`),
-                              UNIQUE KEY `uq_attendance` (`enrollment_id`,`session_id`),
-                              KEY `idx_attendance_enrollment` (`enrollment_id`),
-                              KEY `idx_attendance_session` (`session_id`),
-                              CONSTRAINT `fk_attendance_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollment` (`enrollment_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                              CONSTRAINT `fk_attendance_session` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`session_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                              `attendance_id` int(11) NOT NULL,
+                              `enrollment_id` int(11) NOT NULL,
+                              `session_id` int(11) NOT NULL,
+                              `status` enum('Present','Absent','Late','Excused') NOT NULL DEFAULT 'Absent'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `attendance`
 --
 
-LOCK TABLES `attendance` WRITE;
-/*!40000 ALTER TABLE `attendance` DISABLE KEYS */;
-INSERT INTO `attendance` VALUES (1,1,1,'Present'),(2,3,1,'Late'),(3,5,1,'Absent'),(4,2,2,'Present'),(5,4,3,'Excused');
-/*!40000 ALTER TABLE `attendance` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `attendance` (`attendance_id`, `enrollment_id`, `session_id`, `status`) VALUES
+                                                                                        (1, 1, 4, 'Present'),
+                                                                                        (2, 1, 16, 'Present'),
+                                                                                        (3, 1, 22, 'Absent'),
+                                                                                        (4, 1, 34, 'Present'),
+                                                                                        (5, 1, 40, 'Present'),
+                                                                                        (6, 1, 52, 'Present'),
+                                                                                        (7, 1, 58, 'Present'),
+                                                                                        (8, 1, 70, 'Present'),
+                                                                                        (9, 1, 76, 'Present'),
+                                                                                        (10, 1, 88, 'Present'),
+                                                                                        (11, 1, 94, 'Present'),
+                                                                                        (12, 1, 106, 'Present'),
+                                                                                        (13, 1, 112, 'Absent'),
+                                                                                        (14, 1, 124, 'Present'),
+                                                                                        (15, 2, 1, 'Present'),
+                                                                                        (16, 2, 10, 'Present'),
+                                                                                        (17, 2, 19, 'Present'),
+                                                                                        (18, 2, 28, 'Present'),
+                                                                                        (19, 2, 37, 'Present'),
+                                                                                        (20, 2, 46, 'Present'),
+                                                                                        (21, 2, 55, 'Present'),
+                                                                                        (22, 2, 64, 'Absent'),
+                                                                                        (23, 2, 73, 'Present'),
+                                                                                        (24, 2, 82, 'Present'),
+                                                                                        (25, 2, 91, 'Present'),
+                                                                                        (26, 2, 100, 'Present'),
+                                                                                        (27, 2, 109, 'Present'),
+                                                                                        (28, 2, 118, 'Absent'),
+                                                                                        (29, 3, 4, 'Present'),
+                                                                                        (30, 3, 16, 'Absent'),
+                                                                                        (31, 3, 22, 'Present'),
+                                                                                        (32, 3, 34, 'Present'),
+                                                                                        (33, 3, 40, 'Present'),
+                                                                                        (34, 3, 52, 'Present'),
+                                                                                        (35, 3, 58, 'Present'),
+                                                                                        (36, 3, 70, 'Present'),
+                                                                                        (37, 3, 76, 'Absent'),
+                                                                                        (38, 3, 88, 'Present'),
+                                                                                        (39, 3, 94, 'Present'),
+                                                                                        (40, 3, 106, 'Present'),
+                                                                                        (41, 3, 112, 'Present'),
+                                                                                        (42, 3, 124, 'Present'),
+                                                                                        (43, 4, 2, 'Present'),
+                                                                                        (44, 4, 11, 'Absent'),
+                                                                                        (45, 4, 20, 'Present'),
+                                                                                        (46, 4, 29, 'Absent'),
+                                                                                        (47, 4, 38, 'Present'),
+                                                                                        (48, 4, 47, 'Present'),
+                                                                                        (49, 4, 56, 'Present'),
+                                                                                        (50, 4, 65, 'Present'),
+                                                                                        (51, 4, 74, 'Present'),
+                                                                                        (52, 4, 83, 'Present'),
+                                                                                        (53, 4, 92, 'Present'),
+                                                                                        (54, 4, 101, 'Present'),
+                                                                                        (55, 4, 110, 'Present'),
+                                                                                        (56, 4, 119, 'Present'),
+                                                                                        (57, 5, 4, 'Absent'),
+                                                                                        (58, 5, 16, 'Present'),
+                                                                                        (59, 5, 22, 'Present'),
+                                                                                        (60, 5, 34, 'Present'),
+                                                                                        (61, 5, 40, 'Present'),
+                                                                                        (62, 5, 52, 'Present'),
+                                                                                        (63, 5, 58, 'Present'),
+                                                                                        (64, 5, 70, 'Present'),
+                                                                                        (65, 5, 76, 'Present'),
+                                                                                        (66, 5, 88, 'Absent'),
+                                                                                        (67, 5, 94, 'Present'),
+                                                                                        (68, 5, 106, 'Present'),
+                                                                                        (69, 5, 112, 'Present'),
+                                                                                        (70, 5, 124, 'Present'),
+                                                                                        (71, 6, 9, 'Present'),
+                                                                                        (72, 6, 18, 'Present'),
+                                                                                        (73, 6, 27, 'Present'),
+                                                                                        (74, 6, 36, 'Present'),
+                                                                                        (75, 6, 45, 'Present'),
+                                                                                        (76, 6, 54, 'Present'),
+                                                                                        (77, 6, 63, 'Present'),
+                                                                                        (78, 6, 72, 'Present'),
+                                                                                        (79, 6, 81, 'Present'),
+                                                                                        (80, 6, 90, 'Present'),
+                                                                                        (81, 6, 99, 'Present'),
+                                                                                        (82, 6, 108, 'Present'),
+                                                                                        (83, 6, 117, 'Present'),
+                                                                                        (84, 6, 126, 'Present'),
+                                                                                        (85, 7, 8, 'Present'),
+                                                                                        (86, 7, 17, 'Present'),
+                                                                                        (87, 7, 26, 'Present'),
+                                                                                        (88, 7, 35, 'Present'),
+                                                                                        (89, 7, 44, 'Absent'),
+                                                                                        (90, 7, 53, 'Present'),
+                                                                                        (91, 7, 62, 'Present'),
+                                                                                        (92, 7, 71, 'Present'),
+                                                                                        (93, 7, 80, 'Present'),
+                                                                                        (94, 7, 89, 'Present'),
+                                                                                        (95, 7, 98, 'Present'),
+                                                                                        (96, 7, 107, 'Present'),
+                                                                                        (97, 7, 116, 'Present'),
+                                                                                        (98, 7, 125, 'Present'),
+                                                                                        (99, 8, 9, 'Absent'),
+                                                                                        (100, 8, 18, 'Present'),
+                                                                                        (101, 8, 27, 'Present'),
+                                                                                        (102, 8, 36, 'Present'),
+                                                                                        (103, 8, 45, 'Absent'),
+                                                                                        (104, 8, 54, 'Present'),
+                                                                                        (105, 8, 63, 'Absent'),
+                                                                                        (106, 8, 72, 'Present'),
+                                                                                        (107, 8, 81, 'Present'),
+                                                                                        (108, 8, 90, 'Absent'),
+                                                                                        (109, 8, 99, 'Present'),
+                                                                                        (110, 8, 108, 'Present'),
+                                                                                        (111, 8, 117, 'Absent'),
+                                                                                        (112, 8, 126, 'Present'),
+                                                                                        (113, 9, 9, 'Absent'),
+                                                                                        (114, 9, 18, 'Present'),
+                                                                                        (115, 9, 27, 'Present'),
+                                                                                        (116, 9, 36, 'Present'),
+                                                                                        (117, 9, 45, 'Absent'),
+                                                                                        (118, 9, 54, 'Present'),
+                                                                                        (119, 9, 63, 'Present'),
+                                                                                        (120, 9, 72, 'Present'),
+                                                                                        (121, 9, 81, 'Absent'),
+                                                                                        (122, 9, 90, 'Present'),
+                                                                                        (123, 9, 99, 'Absent'),
+                                                                                        (124, 9, 108, 'Present'),
+                                                                                        (125, 9, 117, 'Absent'),
+                                                                                        (126, 9, 126, 'Present'),
+                                                                                        (127, 10, 9, 'Absent'),
+                                                                                        (128, 10, 18, 'Absent'),
+                                                                                        (129, 10, 27, 'Present'),
+                                                                                        (130, 10, 36, 'Absent'),
+                                                                                        (131, 10, 45, 'Absent'),
+                                                                                        (132, 10, 54, 'Present'),
+                                                                                        (133, 10, 63, 'Absent'),
+                                                                                        (134, 10, 72, 'Present'),
+                                                                                        (135, 10, 81, 'Present'),
+                                                                                        (136, 10, 90, 'Absent'),
+                                                                                        (137, 10, 99, 'Present'),
+                                                                                        (138, 10, 108, 'Absent'),
+                                                                                        (139, 10, 117, 'Present'),
+                                                                                        (140, 10, 126, 'Present'),
+                                                                                        (141, 11, 9, 'Absent'),
+                                                                                        (142, 11, 18, 'Present'),
+                                                                                        (143, 11, 27, 'Present'),
+                                                                                        (144, 11, 36, 'Present'),
+                                                                                        (145, 11, 45, 'Absent'),
+                                                                                        (146, 11, 54, 'Present'),
+                                                                                        (147, 11, 63, 'Present'),
+                                                                                        (148, 11, 72, 'Present'),
+                                                                                        (149, 11, 81, 'Present'),
+                                                                                        (150, 11, 90, 'Present'),
+                                                                                        (151, 11, 99, 'Present'),
+                                                                                        (152, 11, 108, 'Present'),
+                                                                                        (153, 11, 117, 'Present'),
+                                                                                        (154, 11, 126, 'Present'),
+                                                                                        (155, 12, 9, 'Present'),
+                                                                                        (156, 12, 18, 'Present'),
+                                                                                        (157, 12, 27, 'Present'),
+                                                                                        (158, 12, 36, 'Absent'),
+                                                                                        (159, 12, 45, 'Present'),
+                                                                                        (160, 12, 54, 'Present'),
+                                                                                        (161, 12, 63, 'Present'),
+                                                                                        (162, 12, 72, 'Present'),
+                                                                                        (163, 12, 81, 'Present'),
+                                                                                        (164, 12, 90, 'Absent'),
+                                                                                        (165, 12, 99, 'Present'),
+                                                                                        (166, 12, 108, 'Present'),
+                                                                                        (167, 12, 117, 'Present'),
+                                                                                        (168, 12, 126, 'Present'),
+                                                                                        (169, 13, 9, 'Present'),
+                                                                                        (170, 13, 18, 'Present'),
+                                                                                        (171, 13, 27, 'Present'),
+                                                                                        (172, 13, 36, 'Absent'),
+                                                                                        (173, 13, 45, 'Present'),
+                                                                                        (174, 13, 54, 'Present'),
+                                                                                        (175, 13, 63, 'Present'),
+                                                                                        (176, 13, 72, 'Absent'),
+                                                                                        (177, 13, 81, 'Present'),
+                                                                                        (178, 13, 90, 'Present'),
+                                                                                        (179, 13, 99, 'Present'),
+                                                                                        (180, 13, 108, 'Present'),
+                                                                                        (181, 13, 117, 'Present'),
+                                                                                        (182, 13, 126, 'Present'),
+                                                                                        (183, 14, 9, 'Present'),
+                                                                                        (184, 14, 18, 'Present'),
+                                                                                        (185, 14, 27, 'Present'),
+                                                                                        (186, 14, 36, 'Absent'),
+                                                                                        (187, 14, 45, 'Present'),
+                                                                                        (188, 14, 54, 'Present'),
+                                                                                        (189, 14, 63, 'Present'),
+                                                                                        (190, 14, 72, 'Present'),
+                                                                                        (191, 14, 81, 'Present'),
+                                                                                        (192, 14, 90, 'Present'),
+                                                                                        (193, 14, 99, 'Present'),
+                                                                                        (194, 14, 108, 'Present'),
+                                                                                        (195, 14, 117, 'Present'),
+                                                                                        (196, 14, 126, 'Present'),
+                                                                                        (197, 15, 9, 'Present'),
+                                                                                        (198, 15, 18, 'Present'),
+                                                                                        (199, 15, 27, 'Present'),
+                                                                                        (200, 15, 36, 'Present'),
+                                                                                        (201, 15, 45, 'Present'),
+                                                                                        (202, 15, 54, 'Present'),
+                                                                                        (203, 15, 63, 'Absent'),
+                                                                                        (204, 15, 72, 'Present'),
+                                                                                        (205, 15, 81, 'Present'),
+                                                                                        (206, 15, 90, 'Present'),
+                                                                                        (207, 15, 99, 'Present'),
+                                                                                        (208, 15, 108, 'Present'),
+                                                                                        (209, 15, 117, 'Present'),
+                                                                                        (210, 15, 126, 'Present'),
+                                                                                        (211, 16, 9, 'Present'),
+                                                                                        (212, 16, 18, 'Present'),
+                                                                                        (213, 16, 27, 'Absent'),
+                                                                                        (214, 16, 36, 'Absent'),
+                                                                                        (215, 16, 45, 'Present'),
+                                                                                        (216, 16, 54, 'Present'),
+                                                                                        (217, 16, 63, 'Present'),
+                                                                                        (218, 16, 72, 'Present'),
+                                                                                        (219, 16, 81, 'Present'),
+                                                                                        (220, 16, 90, 'Present'),
+                                                                                        (221, 16, 99, 'Present'),
+                                                                                        (222, 16, 108, 'Present'),
+                                                                                        (223, 16, 117, 'Present'),
+                                                                                        (224, 16, 126, 'Present'),
+                                                                                        (225, 17, 9, 'Present'),
+                                                                                        (226, 17, 18, 'Present'),
+                                                                                        (227, 17, 27, 'Present'),
+                                                                                        (228, 17, 36, 'Present'),
+                                                                                        (229, 17, 45, 'Present'),
+                                                                                        (230, 17, 54, 'Present'),
+                                                                                        (231, 17, 63, 'Present'),
+                                                                                        (232, 17, 72, 'Present'),
+                                                                                        (233, 17, 81, 'Present'),
+                                                                                        (234, 17, 90, 'Present'),
+                                                                                        (235, 17, 99, 'Present'),
+                                                                                        (236, 17, 108, 'Present'),
+                                                                                        (237, 17, 117, 'Present'),
+                                                                                        (238, 17, 126, 'Present'),
+                                                                                        (239, 18, 9, 'Present'),
+                                                                                        (240, 18, 18, 'Present'),
+                                                                                        (241, 18, 27, 'Absent'),
+                                                                                        (242, 18, 36, 'Present'),
+                                                                                        (243, 18, 45, 'Present'),
+                                                                                        (244, 18, 54, 'Present'),
+                                                                                        (245, 18, 63, 'Present'),
+                                                                                        (246, 18, 72, 'Present'),
+                                                                                        (247, 18, 81, 'Present'),
+                                                                                        (248, 18, 90, 'Present'),
+                                                                                        (249, 18, 99, 'Present'),
+                                                                                        (250, 18, 108, 'Present'),
+                                                                                        (251, 18, 117, 'Present'),
+                                                                                        (252, 18, 126, 'Present'),
+                                                                                        (253, 19, 9, 'Present'),
+                                                                                        (254, 19, 18, 'Present'),
+                                                                                        (255, 19, 27, 'Present'),
+                                                                                        (256, 19, 36, 'Present'),
+                                                                                        (257, 19, 45, 'Present'),
+                                                                                        (258, 19, 54, 'Present'),
+                                                                                        (259, 19, 63, 'Present'),
+                                                                                        (260, 19, 72, 'Present'),
+                                                                                        (261, 19, 81, 'Present'),
+                                                                                        (262, 19, 90, 'Present'),
+                                                                                        (263, 19, 99, 'Present'),
+                                                                                        (264, 19, 108, 'Present'),
+                                                                                        (265, 19, 117, 'Present'),
+                                                                                        (266, 19, 126, 'Present'),
+                                                                                        (267, 20, 9, 'Present'),
+                                                                                        (268, 20, 18, 'Present'),
+                                                                                        (269, 20, 27, 'Present'),
+                                                                                        (270, 20, 36, 'Present'),
+                                                                                        (271, 20, 45, 'Present'),
+                                                                                        (272, 20, 54, 'Present'),
+                                                                                        (273, 20, 63, 'Present'),
+                                                                                        (274, 20, 72, 'Present'),
+                                                                                        (275, 20, 81, 'Present'),
+                                                                                        (276, 20, 90, 'Present'),
+                                                                                        (277, 20, 99, 'Present'),
+                                                                                        (278, 20, 108, 'Absent'),
+                                                                                        (279, 20, 117, 'Present'),
+                                                                                        (280, 20, 126, 'Present'),
+                                                                                        (281, 21, 9, 'Present'),
+                                                                                        (282, 21, 18, 'Absent'),
+                                                                                        (283, 21, 27, 'Present'),
+                                                                                        (284, 21, 36, 'Present'),
+                                                                                        (285, 21, 45, 'Present'),
+                                                                                        (286, 21, 54, 'Present'),
+                                                                                        (287, 21, 63, 'Absent'),
+                                                                                        (288, 21, 72, 'Present'),
+                                                                                        (289, 21, 81, 'Present'),
+                                                                                        (290, 21, 90, 'Present'),
+                                                                                        (291, 21, 99, 'Present'),
+                                                                                        (292, 21, 108, 'Present'),
+                                                                                        (293, 21, 117, 'Present'),
+                                                                                        (294, 21, 126, 'Present'),
+                                                                                        (295, 22, 9, 'Present'),
+                                                                                        (296, 22, 18, 'Present'),
+                                                                                        (297, 22, 27, 'Absent'),
+                                                                                        (298, 22, 36, 'Absent'),
+                                                                                        (299, 22, 45, 'Present'),
+                                                                                        (300, 22, 54, 'Present'),
+                                                                                        (301, 22, 63, 'Present'),
+                                                                                        (302, 22, 72, 'Present'),
+                                                                                        (303, 22, 81, 'Absent'),
+                                                                                        (304, 22, 90, 'Present'),
+                                                                                        (305, 22, 99, 'Absent'),
+                                                                                        (306, 22, 108, 'Absent'),
+                                                                                        (307, 22, 117, 'Present'),
+                                                                                        (308, 22, 126, 'Present'),
+                                                                                        (309, 23, 9, 'Present'),
+                                                                                        (310, 23, 18, 'Present'),
+                                                                                        (311, 23, 27, 'Present'),
+                                                                                        (312, 23, 36, 'Present'),
+                                                                                        (313, 23, 45, 'Present'),
+                                                                                        (314, 23, 54, 'Present'),
+                                                                                        (315, 23, 63, 'Present'),
+                                                                                        (316, 23, 72, 'Present'),
+                                                                                        (317, 23, 81, 'Absent'),
+                                                                                        (318, 23, 90, 'Absent'),
+                                                                                        (319, 23, 99, 'Absent'),
+                                                                                        (320, 23, 108, 'Absent'),
+                                                                                        (321, 23, 117, 'Present'),
+                                                                                        (322, 23, 126, 'Absent'),
+                                                                                        (323, 24, 9, 'Present'),
+                                                                                        (324, 24, 18, 'Present'),
+                                                                                        (325, 24, 27, 'Absent'),
+                                                                                        (326, 24, 36, 'Absent'),
+                                                                                        (327, 24, 45, 'Absent'),
+                                                                                        (328, 24, 54, 'Absent'),
+                                                                                        (329, 24, 63, 'Absent'),
+                                                                                        (330, 24, 72, 'Present'),
+                                                                                        (331, 24, 81, 'Absent'),
+                                                                                        (332, 24, 90, 'Present'),
+                                                                                        (333, 24, 99, 'Absent'),
+                                                                                        (334, 24, 108, 'Absent'),
+                                                                                        (335, 24, 117, 'Absent'),
+                                                                                        (336, 24, 126, 'Absent'),
+                                                                                        (337, 25, 9, 'Absent'),
+                                                                                        (338, 25, 18, 'Absent'),
+                                                                                        (339, 25, 27, 'Absent'),
+                                                                                        (340, 25, 36, 'Present'),
+                                                                                        (341, 25, 45, 'Present'),
+                                                                                        (342, 25, 54, 'Absent'),
+                                                                                        (343, 25, 63, 'Absent'),
+                                                                                        (344, 25, 72, 'Present'),
+                                                                                        (345, 25, 81, 'Present'),
+                                                                                        (346, 25, 90, 'Absent'),
+                                                                                        (347, 25, 99, 'Absent'),
+                                                                                        (348, 25, 108, 'Present'),
+                                                                                        (349, 25, 117, 'Present'),
+                                                                                        (350, 25, 126, 'Present'),
+                                                                                        (351, 26, 9, 'Absent'),
+                                                                                        (352, 26, 18, 'Present'),
+                                                                                        (353, 26, 27, 'Absent'),
+                                                                                        (354, 26, 36, 'Absent'),
+                                                                                        (355, 26, 45, 'Present'),
+                                                                                        (356, 26, 54, 'Present'),
+                                                                                        (357, 26, 63, 'Absent'),
+                                                                                        (358, 26, 72, 'Absent'),
+                                                                                        (359, 26, 81, 'Present'),
+                                                                                        (360, 26, 90, 'Present'),
+                                                                                        (361, 26, 99, 'Present'),
+                                                                                        (362, 26, 108, 'Present'),
+                                                                                        (363, 26, 117, 'Present'),
+                                                                                        (364, 26, 126, 'Present'),
+                                                                                        (365, 27, 1, 'Present'),
+                                                                                        (366, 27, 10, 'Present'),
+                                                                                        (367, 27, 19, 'Absent'),
+                                                                                        (368, 27, 28, 'Absent'),
+                                                                                        (369, 27, 37, 'Absent'),
+                                                                                        (370, 27, 46, 'Present'),
+                                                                                        (371, 27, 55, 'Present'),
+                                                                                        (372, 27, 64, 'Absent'),
+                                                                                        (373, 27, 73, 'Present'),
+                                                                                        (374, 27, 82, 'Absent'),
+                                                                                        (375, 27, 91, 'Absent'),
+                                                                                        (376, 27, 100, 'Present'),
+                                                                                        (377, 27, 109, 'Present'),
+                                                                                        (378, 27, 118, 'Present'),
+                                                                                        (379, 28, 1, 'Absent'),
+                                                                                        (380, 28, 10, 'Present'),
+                                                                                        (381, 28, 19, 'Present'),
+                                                                                        (382, 28, 28, 'Absent'),
+                                                                                        (383, 28, 37, 'Present'),
+                                                                                        (384, 28, 46, 'Present'),
+                                                                                        (385, 28, 55, 'Absent'),
+                                                                                        (386, 28, 64, 'Absent'),
+                                                                                        (387, 28, 73, 'Absent'),
+                                                                                        (388, 28, 82, 'Present'),
+                                                                                        (389, 28, 91, 'Present'),
+                                                                                        (390, 28, 100, 'Absent'),
+                                                                                        (391, 28, 109, 'Absent'),
+                                                                                        (392, 28, 118, 'Present'),
+                                                                                        (393, 29, 1, 'Present'),
+                                                                                        (394, 29, 10, 'Absent'),
+                                                                                        (395, 29, 19, 'Present'),
+                                                                                        (396, 29, 28, 'Absent'),
+                                                                                        (397, 29, 37, 'Absent'),
+                                                                                        (398, 29, 46, 'Present'),
+                                                                                        (399, 29, 55, 'Absent'),
+                                                                                        (400, 29, 64, 'Absent'),
+                                                                                        (401, 29, 73, 'Absent'),
+                                                                                        (402, 29, 82, 'Absent'),
+                                                                                        (403, 29, 91, 'Absent'),
+                                                                                        (404, 29, 100, 'Present'),
+                                                                                        (405, 29, 109, 'Absent'),
+                                                                                        (406, 29, 118, 'Absent'),
+                                                                                        (407, 30, 1, 'Present'),
+                                                                                        (408, 30, 10, 'Present'),
+                                                                                        (409, 30, 19, 'Present'),
+                                                                                        (410, 30, 28, 'Present'),
+                                                                                        (411, 30, 37, 'Present'),
+                                                                                        (412, 30, 46, 'Present'),
+                                                                                        (413, 30, 55, 'Present'),
+                                                                                        (414, 30, 64, 'Present'),
+                                                                                        (415, 30, 73, 'Present'),
+                                                                                        (416, 30, 82, 'Present'),
+                                                                                        (417, 30, 91, 'Present'),
+                                                                                        (418, 30, 100, 'Present'),
+                                                                                        (419, 30, 109, 'Absent'),
+                                                                                        (420, 30, 118, 'Present'),
+                                                                                        (421, 31, 1, 'Present'),
+                                                                                        (422, 31, 10, 'Present'),
+                                                                                        (423, 31, 19, 'Present'),
+                                                                                        (424, 31, 28, 'Absent'),
+                                                                                        (425, 31, 37, 'Present'),
+                                                                                        (426, 31, 46, 'Present'),
+                                                                                        (427, 31, 55, 'Present'),
+                                                                                        (428, 31, 64, 'Present'),
+                                                                                        (429, 31, 73, 'Present'),
+                                                                                        (430, 31, 82, 'Present'),
+                                                                                        (431, 31, 91, 'Present'),
+                                                                                        (432, 31, 100, 'Present'),
+                                                                                        (433, 31, 109, 'Present'),
+                                                                                        (434, 31, 118, 'Absent'),
+                                                                                        (435, 32, 1, 'Absent'),
+                                                                                        (436, 32, 10, 'Present'),
+                                                                                        (437, 32, 19, 'Present'),
+                                                                                        (438, 32, 28, 'Present'),
+                                                                                        (439, 32, 37, 'Present'),
+                                                                                        (440, 32, 46, 'Present'),
+                                                                                        (441, 32, 55, 'Present'),
+                                                                                        (442, 32, 64, 'Present'),
+                                                                                        (443, 32, 73, 'Present'),
+                                                                                        (444, 32, 82, 'Absent'),
+                                                                                        (445, 32, 91, 'Present'),
+                                                                                        (446, 32, 100, 'Present'),
+                                                                                        (447, 32, 109, 'Present'),
+                                                                                        (448, 32, 118, 'Present'),
+                                                                                        (449, 33, 1, 'Present'),
+                                                                                        (450, 33, 10, 'Absent'),
+                                                                                        (451, 33, 19, 'Present'),
+                                                                                        (452, 33, 28, 'Present'),
+                                                                                        (453, 33, 37, 'Present'),
+                                                                                        (454, 33, 46, 'Present'),
+                                                                                        (455, 33, 55, 'Present'),
+                                                                                        (456, 33, 64, 'Present'),
+                                                                                        (457, 33, 73, 'Present'),
+                                                                                        (458, 33, 82, 'Present'),
+                                                                                        (459, 33, 91, 'Present'),
+                                                                                        (460, 33, 100, 'Present'),
+                                                                                        (461, 33, 109, 'Present'),
+                                                                                        (462, 33, 118, 'Present'),
+                                                                                        (463, 34, 1, 'Present'),
+                                                                                        (464, 34, 10, 'Present'),
+                                                                                        (465, 34, 19, 'Present'),
+                                                                                        (466, 34, 28, 'Present'),
+                                                                                        (467, 34, 37, 'Present'),
+                                                                                        (468, 34, 46, 'Present'),
+                                                                                        (469, 34, 55, 'Present'),
+                                                                                        (470, 34, 64, 'Present'),
+                                                                                        (471, 34, 73, 'Absent'),
+                                                                                        (472, 34, 82, 'Present'),
+                                                                                        (473, 34, 91, 'Present'),
+                                                                                        (474, 34, 100, 'Present'),
+                                                                                        (475, 34, 109, 'Present'),
+                                                                                        (476, 34, 118, 'Present'),
+                                                                                        (477, 35, 1, 'Present'),
+                                                                                        (478, 35, 10, 'Present'),
+                                                                                        (479, 35, 19, 'Present'),
+                                                                                        (480, 35, 28, 'Present'),
+                                                                                        (481, 35, 37, 'Present'),
+                                                                                        (482, 35, 46, 'Present'),
+                                                                                        (483, 35, 55, 'Present'),
+                                                                                        (484, 35, 64, 'Present'),
+                                                                                        (485, 35, 73, 'Present'),
+                                                                                        (486, 35, 82, 'Present'),
+                                                                                        (487, 35, 91, 'Present'),
+                                                                                        (488, 35, 100, 'Present'),
+                                                                                        (489, 35, 109, 'Present'),
+                                                                                        (490, 35, 118, 'Present'),
+                                                                                        (491, 36, 1, 'Present'),
+                                                                                        (492, 36, 10, 'Present'),
+                                                                                        (493, 36, 19, 'Absent'),
+                                                                                        (494, 36, 28, 'Present'),
+                                                                                        (495, 36, 37, 'Present'),
+                                                                                        (496, 36, 46, 'Present'),
+                                                                                        (497, 36, 55, 'Present'),
+                                                                                        (498, 36, 64, 'Present'),
+                                                                                        (499, 36, 73, 'Present'),
+                                                                                        (500, 36, 82, 'Absent'),
+                                                                                        (501, 36, 91, 'Present'),
+                                                                                        (502, 36, 100, 'Present'),
+                                                                                        (503, 36, 109, 'Present'),
+                                                                                        (504, 36, 118, 'Present'),
+                                                                                        (505, 37, 1, 'Present'),
+                                                                                        (506, 37, 10, 'Present'),
+                                                                                        (507, 37, 19, 'Present'),
+                                                                                        (508, 37, 28, 'Present'),
+                                                                                        (509, 37, 37, 'Present'),
+                                                                                        (510, 37, 46, 'Present'),
+                                                                                        (511, 37, 55, 'Present'),
+                                                                                        (512, 37, 64, 'Present'),
+                                                                                        (513, 37, 73, 'Present'),
+                                                                                        (514, 37, 82, 'Present'),
+                                                                                        (515, 37, 91, 'Present'),
+                                                                                        (516, 37, 100, 'Present'),
+                                                                                        (517, 37, 109, 'Present'),
+                                                                                        (518, 37, 118, 'Present'),
+                                                                                        (519, 38, 1, 'Present'),
+                                                                                        (520, 38, 10, 'Present'),
+                                                                                        (521, 38, 19, 'Present'),
+                                                                                        (522, 38, 28, 'Present'),
+                                                                                        (523, 38, 37, 'Present'),
+                                                                                        (524, 38, 46, 'Present'),
+                                                                                        (525, 38, 55, 'Present'),
+                                                                                        (526, 38, 64, 'Present'),
+                                                                                        (527, 38, 73, 'Present'),
+                                                                                        (528, 38, 82, 'Present'),
+                                                                                        (529, 38, 91, 'Absent'),
+                                                                                        (530, 38, 100, 'Present'),
+                                                                                        (531, 38, 109, 'Present'),
+                                                                                        (532, 38, 118, 'Present'),
+                                                                                        (533, 39, 1, 'Present'),
+                                                                                        (534, 39, 10, 'Present'),
+                                                                                        (535, 39, 19, 'Present'),
+                                                                                        (536, 39, 28, 'Present'),
+                                                                                        (537, 39, 37, 'Absent'),
+                                                                                        (538, 39, 46, 'Present'),
+                                                                                        (539, 39, 55, 'Present'),
+                                                                                        (540, 39, 64, 'Present'),
+                                                                                        (541, 39, 73, 'Present'),
+                                                                                        (542, 39, 82, 'Present'),
+                                                                                        (543, 39, 91, 'Present'),
+                                                                                        (544, 39, 100, 'Present'),
+                                                                                        (545, 39, 109, 'Present'),
+                                                                                        (546, 39, 118, 'Present'),
+                                                                                        (547, 40, 1, 'Present'),
+                                                                                        (548, 40, 10, 'Present'),
+                                                                                        (549, 40, 19, 'Present'),
+                                                                                        (550, 40, 28, 'Present'),
+                                                                                        (551, 40, 37, 'Present'),
+                                                                                        (552, 40, 46, 'Present'),
+                                                                                        (553, 40, 55, 'Absent'),
+                                                                                        (554, 40, 64, 'Present'),
+                                                                                        (555, 40, 73, 'Absent'),
+                                                                                        (556, 40, 82, 'Present'),
+                                                                                        (557, 40, 91, 'Present'),
+                                                                                        (558, 40, 100, 'Present'),
+                                                                                        (559, 40, 109, 'Present'),
+                                                                                        (560, 40, 118, 'Present'),
+                                                                                        (561, 41, 1, 'Present'),
+                                                                                        (562, 41, 10, 'Present'),
+                                                                                        (563, 41, 19, 'Absent'),
+                                                                                        (564, 41, 28, 'Present'),
+                                                                                        (565, 41, 37, 'Present'),
+                                                                                        (566, 41, 46, 'Present'),
+                                                                                        (567, 41, 55, 'Present'),
+                                                                                        (568, 41, 64, 'Present'),
+                                                                                        (569, 41, 73, 'Absent'),
+                                                                                        (570, 41, 82, 'Present'),
+                                                                                        (571, 41, 91, 'Absent'),
+                                                                                        (572, 41, 100, 'Present'),
+                                                                                        (573, 41, 109, 'Present'),
+                                                                                        (574, 41, 118, 'Present'),
+                                                                                        (575, 42, 1, 'Present'),
+                                                                                        (576, 42, 10, 'Absent'),
+                                                                                        (577, 42, 19, 'Present'),
+                                                                                        (578, 42, 28, 'Present'),
+                                                                                        (579, 42, 37, 'Present'),
+                                                                                        (580, 42, 46, 'Absent'),
+                                                                                        (581, 42, 55, 'Present'),
+                                                                                        (582, 42, 64, 'Present'),
+                                                                                        (583, 42, 73, 'Absent'),
+                                                                                        (584, 42, 82, 'Present'),
+                                                                                        (585, 42, 91, 'Present'),
+                                                                                        (586, 42, 100, 'Present'),
+                                                                                        (587, 42, 109, 'Present'),
+                                                                                        (588, 42, 118, 'Present'),
+                                                                                        (589, 43, 1, 'Absent'),
+                                                                                        (590, 43, 10, 'Absent'),
+                                                                                        (591, 43, 19, 'Present'),
+                                                                                        (592, 43, 28, 'Absent'),
+                                                                                        (593, 43, 37, 'Absent'),
+                                                                                        (594, 43, 46, 'Absent'),
+                                                                                        (595, 43, 55, 'Absent'),
+                                                                                        (596, 43, 64, 'Absent'),
+                                                                                        (597, 43, 73, 'Absent'),
+                                                                                        (598, 43, 82, 'Absent'),
+                                                                                        (599, 43, 91, 'Absent'),
+                                                                                        (600, 43, 100, 'Absent'),
+                                                                                        (601, 43, 109, 'Absent'),
+                                                                                        (602, 43, 118, 'Absent'),
+                                                                                        (603, 44, 1, 'Absent'),
+                                                                                        (604, 44, 10, 'Present'),
+                                                                                        (605, 44, 19, 'Absent'),
+                                                                                        (606, 44, 28, 'Present'),
+                                                                                        (607, 44, 37, 'Absent'),
+                                                                                        (608, 44, 46, 'Absent'),
+                                                                                        (609, 44, 55, 'Present'),
+                                                                                        (610, 44, 64, 'Absent'),
+                                                                                        (611, 44, 73, 'Present'),
+                                                                                        (612, 44, 82, 'Absent'),
+                                                                                        (613, 44, 91, 'Present'),
+                                                                                        (614, 44, 100, 'Absent'),
+                                                                                        (615, 44, 109, 'Present'),
+                                                                                        (616, 44, 118, 'Present'),
+                                                                                        (617, 45, 1, 'Present'),
+                                                                                        (618, 45, 10, 'Absent'),
+                                                                                        (619, 45, 19, 'Absent'),
+                                                                                        (620, 45, 28, 'Absent'),
+                                                                                        (621, 45, 37, 'Present'),
+                                                                                        (622, 45, 46, 'Absent'),
+                                                                                        (623, 45, 55, 'Present'),
+                                                                                        (624, 45, 64, 'Absent'),
+                                                                                        (625, 45, 73, 'Present'),
+                                                                                        (626, 45, 82, 'Absent'),
+                                                                                        (627, 45, 91, 'Present'),
+                                                                                        (628, 45, 100, 'Present'),
+                                                                                        (629, 45, 109, 'Present'),
+                                                                                        (630, 45, 118, 'Absent'),
+                                                                                        (631, 46, 6, 'Present'),
+                                                                                        (632, 46, 14, 'Absent'),
+                                                                                        (633, 46, 24, 'Absent'),
+                                                                                        (634, 46, 32, 'Absent'),
+                                                                                        (635, 46, 42, 'Absent'),
+                                                                                        (636, 46, 50, 'Absent'),
+                                                                                        (637, 46, 60, 'Present'),
+                                                                                        (638, 46, 68, 'Absent'),
+                                                                                        (639, 46, 78, 'Present'),
+                                                                                        (640, 46, 86, 'Absent'),
+                                                                                        (641, 46, 96, 'Present'),
+                                                                                        (642, 46, 104, 'Present'),
+                                                                                        (643, 46, 114, 'Present'),
+                                                                                        (644, 46, 122, 'Present'),
+                                                                                        (645, 47, 6, 'Present'),
+                                                                                        (646, 47, 14, 'Present'),
+                                                                                        (647, 47, 24, 'Absent'),
+                                                                                        (648, 47, 32, 'Present'),
+                                                                                        (649, 47, 42, 'Present'),
+                                                                                        (650, 47, 50, 'Absent'),
+                                                                                        (651, 47, 60, 'Absent'),
+                                                                                        (652, 47, 68, 'Present'),
+                                                                                        (653, 47, 78, 'Present'),
+                                                                                        (654, 47, 86, 'Absent'),
+                                                                                        (655, 47, 96, 'Present'),
+                                                                                        (656, 47, 104, 'Present'),
+                                                                                        (657, 47, 114, 'Absent'),
+                                                                                        (658, 47, 122, 'Present'),
+                                                                                        (659, 48, 6, 'Absent'),
+                                                                                        (660, 48, 14, 'Absent'),
+                                                                                        (661, 48, 24, 'Present'),
+                                                                                        (662, 48, 32, 'Absent'),
+                                                                                        (663, 48, 42, 'Absent'),
+                                                                                        (664, 48, 50, 'Present'),
+                                                                                        (665, 48, 60, 'Present'),
+                                                                                        (666, 48, 68, 'Absent'),
+                                                                                        (667, 48, 78, 'Present'),
+                                                                                        (668, 48, 86, 'Absent'),
+                                                                                        (669, 48, 96, 'Absent'),
+                                                                                        (670, 48, 104, 'Absent'),
+                                                                                        (671, 48, 114, 'Absent'),
+                                                                                        (672, 48, 122, 'Absent'),
+                                                                                        (673, 49, 6, 'Present'),
+                                                                                        (674, 49, 14, 'Present'),
+                                                                                        (675, 49, 24, 'Present'),
+                                                                                        (676, 49, 32, 'Present'),
+                                                                                        (677, 49, 42, 'Present'),
+                                                                                        (678, 49, 50, 'Present'),
+                                                                                        (679, 49, 60, 'Absent'),
+                                                                                        (680, 49, 68, 'Present'),
+                                                                                        (681, 49, 78, 'Present'),
+                                                                                        (682, 49, 86, 'Present'),
+                                                                                        (683, 49, 96, 'Present'),
+                                                                                        (684, 49, 104, 'Present'),
+                                                                                        (685, 49, 114, 'Present'),
+                                                                                        (686, 49, 122, 'Absent'),
+                                                                                        (687, 50, 6, 'Absent'),
+                                                                                        (688, 50, 14, 'Present'),
+                                                                                        (689, 50, 24, 'Present'),
+                                                                                        (690, 50, 32, 'Present'),
+                                                                                        (691, 50, 42, 'Absent'),
+                                                                                        (692, 50, 50, 'Present'),
+                                                                                        (693, 50, 60, 'Present'),
+                                                                                        (694, 50, 68, 'Present'),
+                                                                                        (695, 50, 78, 'Present'),
+                                                                                        (696, 50, 86, 'Present'),
+                                                                                        (697, 50, 96, 'Present'),
+                                                                                        (698, 50, 104, 'Present'),
+                                                                                        (699, 50, 114, 'Present'),
+                                                                                        (700, 50, 122, 'Present'),
+                                                                                        (701, 51, 6, 'Present'),
+                                                                                        (702, 51, 14, 'Present'),
+                                                                                        (703, 51, 24, 'Present'),
+                                                                                        (704, 51, 32, 'Present'),
+                                                                                        (705, 51, 42, 'Present'),
+                                                                                        (706, 51, 50, 'Present'),
+                                                                                        (707, 51, 60, 'Present'),
+                                                                                        (708, 51, 68, 'Present'),
+                                                                                        (709, 51, 78, 'Present'),
+                                                                                        (710, 51, 86, 'Present'),
+                                                                                        (711, 51, 96, 'Present'),
+                                                                                        (712, 51, 104, 'Absent'),
+                                                                                        (713, 51, 114, 'Absent'),
+                                                                                        (714, 51, 122, 'Present'),
+                                                                                        (715, 52, 6, 'Absent'),
+                                                                                        (716, 52, 14, 'Present'),
+                                                                                        (717, 52, 24, 'Present'),
+                                                                                        (718, 52, 32, 'Present'),
+                                                                                        (719, 52, 42, 'Present'),
+                                                                                        (720, 52, 50, 'Present'),
+                                                                                        (721, 52, 60, 'Present'),
+                                                                                        (722, 52, 68, 'Present'),
+                                                                                        (723, 52, 78, 'Present'),
+                                                                                        (724, 52, 86, 'Present'),
+                                                                                        (725, 52, 96, 'Present'),
+                                                                                        (726, 52, 104, 'Present'),
+                                                                                        (727, 52, 114, 'Present'),
+                                                                                        (728, 52, 122, 'Present'),
+                                                                                        (729, 53, 6, 'Present'),
+                                                                                        (730, 53, 14, 'Present'),
+                                                                                        (731, 53, 24, 'Present'),
+                                                                                        (732, 53, 32, 'Present'),
+                                                                                        (733, 53, 42, 'Present'),
+                                                                                        (734, 53, 50, 'Present'),
+                                                                                        (735, 53, 60, 'Present'),
+                                                                                        (736, 53, 68, 'Present'),
+                                                                                        (737, 53, 78, 'Present'),
+                                                                                        (738, 53, 86, 'Present'),
+                                                                                        (739, 53, 96, 'Absent'),
+                                                                                        (740, 53, 104, 'Present'),
+                                                                                        (741, 53, 114, 'Absent'),
+                                                                                        (742, 53, 122, 'Present'),
+                                                                                        (743, 54, 6, 'Present'),
+                                                                                        (744, 54, 14, 'Present'),
+                                                                                        (745, 54, 24, 'Absent'),
+                                                                                        (746, 54, 32, 'Present'),
+                                                                                        (747, 54, 42, 'Present'),
+                                                                                        (748, 54, 50, 'Present'),
+                                                                                        (749, 54, 60, 'Present'),
+                                                                                        (750, 54, 68, 'Absent'),
+                                                                                        (751, 54, 78, 'Present'),
+                                                                                        (752, 54, 86, 'Present'),
+                                                                                        (753, 54, 96, 'Present'),
+                                                                                        (754, 54, 104, 'Present'),
+                                                                                        (755, 54, 114, 'Present'),
+                                                                                        (756, 54, 122, 'Present'),
+                                                                                        (757, 55, 6, 'Present'),
+                                                                                        (758, 55, 14, 'Present'),
+                                                                                        (759, 55, 24, 'Absent'),
+                                                                                        (760, 55, 32, 'Present'),
+                                                                                        (761, 55, 42, 'Present'),
+                                                                                        (762, 55, 50, 'Present'),
+                                                                                        (763, 55, 60, 'Present'),
+                                                                                        (764, 55, 68, 'Present'),
+                                                                                        (765, 55, 78, 'Present'),
+                                                                                        (766, 55, 86, 'Present'),
+                                                                                        (767, 55, 96, 'Present'),
+                                                                                        (768, 55, 104, 'Present'),
+                                                                                        (769, 55, 114, 'Present'),
+                                                                                        (770, 55, 122, 'Present'),
+                                                                                        (771, 56, 6, 'Present'),
+                                                                                        (772, 56, 14, 'Present'),
+                                                                                        (773, 56, 24, 'Present'),
+                                                                                        (774, 56, 32, 'Present'),
+                                                                                        (775, 56, 42, 'Present'),
+                                                                                        (776, 56, 50, 'Present'),
+                                                                                        (777, 56, 60, 'Present'),
+                                                                                        (778, 56, 68, 'Present'),
+                                                                                        (779, 56, 78, 'Present'),
+                                                                                        (780, 56, 86, 'Present'),
+                                                                                        (781, 56, 96, 'Present'),
+                                                                                        (782, 56, 104, 'Absent'),
+                                                                                        (783, 56, 114, 'Present'),
+                                                                                        (784, 56, 122, 'Present'),
+                                                                                        (785, 57, 6, 'Present'),
+                                                                                        (786, 57, 14, 'Present'),
+                                                                                        (787, 57, 24, 'Present'),
+                                                                                        (788, 57, 32, 'Present'),
+                                                                                        (789, 57, 42, 'Present'),
+                                                                                        (790, 57, 50, 'Present'),
+                                                                                        (791, 57, 60, 'Present'),
+                                                                                        (792, 57, 68, 'Present'),
+                                                                                        (793, 57, 78, 'Present'),
+                                                                                        (794, 57, 86, 'Present'),
+                                                                                        (795, 57, 96, 'Present'),
+                                                                                        (796, 57, 104, 'Present'),
+                                                                                        (797, 57, 114, 'Present'),
+                                                                                        (798, 57, 122, 'Present'),
+                                                                                        (799, 58, 6, 'Present'),
+                                                                                        (800, 58, 14, 'Present'),
+                                                                                        (801, 58, 24, 'Present'),
+                                                                                        (802, 58, 32, 'Present'),
+                                                                                        (803, 58, 42, 'Present'),
+                                                                                        (804, 58, 50, 'Present'),
+                                                                                        (805, 58, 60, 'Absent'),
+                                                                                        (806, 58, 68, 'Present'),
+                                                                                        (807, 58, 78, 'Present'),
+                                                                                        (808, 58, 86, 'Present'),
+                                                                                        (809, 58, 96, 'Present'),
+                                                                                        (810, 58, 104, 'Present'),
+                                                                                        (811, 58, 114, 'Present'),
+                                                                                        (812, 58, 122, 'Present'),
+                                                                                        (813, 59, 6, 'Present'),
+                                                                                        (814, 59, 14, 'Present'),
+                                                                                        (815, 59, 24, 'Present'),
+                                                                                        (816, 59, 32, 'Present'),
+                                                                                        (817, 59, 42, 'Present'),
+                                                                                        (818, 59, 50, 'Present'),
+                                                                                        (819, 59, 60, 'Absent'),
+                                                                                        (820, 59, 68, 'Present'),
+                                                                                        (821, 59, 78, 'Present'),
+                                                                                        (822, 59, 86, 'Absent'),
+                                                                                        (823, 59, 96, 'Present'),
+                                                                                        (824, 59, 104, 'Present'),
+                                                                                        (825, 59, 114, 'Present'),
+                                                                                        (826, 59, 122, 'Present'),
+                                                                                        (827, 60, 6, 'Present'),
+                                                                                        (828, 60, 14, 'Present'),
+                                                                                        (829, 60, 24, 'Present'),
+                                                                                        (830, 60, 32, 'Present'),
+                                                                                        (831, 60, 42, 'Present'),
+                                                                                        (832, 60, 50, 'Present'),
+                                                                                        (833, 60, 60, 'Present'),
+                                                                                        (834, 60, 68, 'Absent'),
+                                                                                        (835, 60, 78, 'Present'),
+                                                                                        (836, 60, 86, 'Present'),
+                                                                                        (837, 60, 96, 'Present'),
+                                                                                        (838, 60, 104, 'Present'),
+                                                                                        (839, 60, 114, 'Present'),
+                                                                                        (840, 60, 122, 'Present'),
+                                                                                        (841, 61, 6, 'Present'),
+                                                                                        (842, 61, 14, 'Present'),
+                                                                                        (843, 61, 24, 'Absent'),
+                                                                                        (844, 61, 32, 'Present'),
+                                                                                        (845, 61, 42, 'Present'),
+                                                                                        (846, 61, 50, 'Absent'),
+                                                                                        (847, 61, 60, 'Present'),
+                                                                                        (848, 61, 68, 'Absent'),
+                                                                                        (849, 61, 78, 'Present'),
+                                                                                        (850, 61, 86, 'Present'),
+                                                                                        (851, 61, 96, 'Absent'),
+                                                                                        (852, 61, 104, 'Absent'),
+                                                                                        (853, 61, 114, 'Present'),
+                                                                                        (854, 61, 122, 'Present'),
+                                                                                        (855, 62, 6, 'Present'),
+                                                                                        (856, 62, 14, 'Present'),
+                                                                                        (857, 62, 24, 'Absent'),
+                                                                                        (858, 62, 32, 'Absent'),
+                                                                                        (859, 62, 42, 'Present'),
+                                                                                        (860, 62, 50, 'Present'),
+                                                                                        (861, 62, 60, 'Present'),
+                                                                                        (862, 62, 68, 'Present'),
+                                                                                        (863, 62, 78, 'Present'),
+                                                                                        (864, 62, 86, 'Present'),
+                                                                                        (865, 62, 96, 'Present'),
+                                                                                        (866, 62, 104, 'Present'),
+                                                                                        (867, 62, 114, 'Present'),
+                                                                                        (868, 62, 122, 'Absent'),
+                                                                                        (869, 63, 6, 'Absent'),
+                                                                                        (870, 63, 14, 'Present'),
+                                                                                        (871, 63, 24, 'Absent'),
+                                                                                        (872, 63, 32, 'Present'),
+                                                                                        (873, 63, 42, 'Present'),
+                                                                                        (874, 63, 50, 'Present'),
+                                                                                        (875, 63, 60, 'Present'),
+                                                                                        (876, 63, 68, 'Absent'),
+                                                                                        (877, 63, 78, 'Absent'),
+                                                                                        (878, 63, 86, 'Present'),
+                                                                                        (879, 63, 96, 'Absent'),
+                                                                                        (880, 63, 104, 'Absent'),
+                                                                                        (881, 63, 114, 'Absent'),
+                                                                                        (882, 63, 122, 'Absent'),
+                                                                                        (883, 64, 6, 'Absent'),
+                                                                                        (884, 64, 14, 'Absent'),
+                                                                                        (885, 64, 24, 'Present'),
+                                                                                        (886, 64, 32, 'Absent'),
+                                                                                        (887, 64, 42, 'Absent'),
+                                                                                        (888, 64, 50, 'Absent'),
+                                                                                        (889, 64, 60, 'Present'),
+                                                                                        (890, 64, 68, 'Present'),
+                                                                                        (891, 64, 78, 'Present'),
+                                                                                        (892, 64, 86, 'Absent'),
+                                                                                        (893, 64, 96, 'Present'),
+                                                                                        (894, 64, 104, 'Absent'),
+                                                                                        (895, 64, 114, 'Present'),
+                                                                                        (896, 64, 122, 'Present'),
+                                                                                        (897, 65, 6, 'Absent'),
+                                                                                        (898, 65, 14, 'Present'),
+                                                                                        (899, 65, 24, 'Present'),
+                                                                                        (900, 65, 32, 'Absent'),
+                                                                                        (901, 65, 42, 'Absent'),
+                                                                                        (902, 65, 50, 'Present'),
+                                                                                        (903, 65, 60, 'Absent'),
+                                                                                        (904, 65, 68, 'Present'),
+                                                                                        (905, 65, 78, 'Absent'),
+                                                                                        (906, 65, 86, 'Absent'),
+                                                                                        (907, 65, 96, 'Present'),
+                                                                                        (908, 65, 104, 'Absent'),
+                                                                                        (909, 65, 114, 'Absent'),
+                                                                                        (910, 65, 122, 'Present'),
+                                                                                        (911, 66, 7, 'Absent'),
+                                                                                        (912, 66, 15, 'Absent'),
+                                                                                        (913, 66, 25, 'Absent'),
+                                                                                        (914, 66, 33, 'Absent'),
+                                                                                        (915, 66, 43, 'Present'),
+                                                                                        (916, 66, 51, 'Present'),
+                                                                                        (917, 66, 61, 'Present'),
+                                                                                        (918, 66, 69, 'Present'),
+                                                                                        (919, 66, 79, 'Present'),
+                                                                                        (920, 66, 87, 'Absent'),
+                                                                                        (921, 66, 97, 'Absent'),
+                                                                                        (922, 66, 105, 'Present'),
+                                                                                        (923, 66, 115, 'Present'),
+                                                                                        (924, 66, 123, 'Present'),
+                                                                                        (925, 67, 7, 'Present'),
+                                                                                        (926, 67, 15, 'Present'),
+                                                                                        (927, 67, 25, 'Present'),
+                                                                                        (928, 67, 33, 'Present'),
+                                                                                        (929, 67, 43, 'Present'),
+                                                                                        (930, 67, 51, 'Absent'),
+                                                                                        (931, 67, 61, 'Present'),
+                                                                                        (932, 67, 69, 'Absent'),
+                                                                                        (933, 67, 79, 'Present'),
+                                                                                        (934, 67, 87, 'Present'),
+                                                                                        (935, 67, 97, 'Absent'),
+                                                                                        (936, 67, 105, 'Absent'),
+                                                                                        (937, 67, 115, 'Absent'),
+                                                                                        (938, 67, 123, 'Absent'),
+                                                                                        (939, 68, 7, 'Present'),
+                                                                                        (940, 68, 15, 'Present'),
+                                                                                        (941, 68, 25, 'Absent'),
+                                                                                        (942, 68, 33, 'Absent'),
+                                                                                        (943, 68, 43, 'Present'),
+                                                                                        (944, 68, 51, 'Absent'),
+                                                                                        (945, 68, 61, 'Present'),
+                                                                                        (946, 68, 69, 'Absent'),
+                                                                                        (947, 68, 79, 'Absent'),
+                                                                                        (948, 68, 87, 'Present'),
+                                                                                        (949, 68, 97, 'Present'),
+                                                                                        (950, 68, 105, 'Absent'),
+                                                                                        (951, 68, 115, 'Absent'),
+                                                                                        (952, 68, 123, 'Absent'),
+                                                                                        (953, 69, 7, 'Present'),
+                                                                                        (954, 69, 15, 'Present'),
+                                                                                        (955, 69, 25, 'Present'),
+                                                                                        (956, 69, 33, 'Present'),
+                                                                                        (957, 69, 43, 'Absent'),
+                                                                                        (958, 69, 51, 'Absent'),
+                                                                                        (959, 69, 61, 'Present'),
+                                                                                        (960, 69, 69, 'Present'),
+                                                                                        (961, 69, 79, 'Present'),
+                                                                                        (962, 69, 87, 'Present'),
+                                                                                        (963, 69, 97, 'Present'),
+                                                                                        (964, 69, 105, 'Present'),
+                                                                                        (965, 69, 115, 'Present'),
+                                                                                        (966, 69, 123, 'Present'),
+                                                                                        (967, 70, 7, 'Absent'),
+                                                                                        (968, 70, 15, 'Present'),
+                                                                                        (969, 70, 25, 'Present'),
+                                                                                        (970, 70, 33, 'Present'),
+                                                                                        (971, 70, 43, 'Present'),
+                                                                                        (972, 70, 51, 'Present'),
+                                                                                        (973, 70, 61, 'Present'),
+                                                                                        (974, 70, 69, 'Present'),
+                                                                                        (975, 70, 79, 'Present'),
+                                                                                        (976, 70, 87, 'Present'),
+                                                                                        (977, 70, 97, 'Present'),
+                                                                                        (978, 70, 105, 'Absent'),
+                                                                                        (979, 70, 115, 'Present'),
+                                                                                        (980, 70, 123, 'Present'),
+                                                                                        (981, 71, 7, 'Present'),
+                                                                                        (982, 71, 15, 'Present'),
+                                                                                        (983, 71, 25, 'Absent'),
+                                                                                        (984, 71, 33, 'Present'),
+                                                                                        (985, 71, 43, 'Present'),
+                                                                                        (986, 71, 51, 'Present'),
+                                                                                        (987, 71, 61, 'Present'),
+                                                                                        (988, 71, 69, 'Absent'),
+                                                                                        (989, 71, 79, 'Present'),
+                                                                                        (990, 71, 87, 'Present'),
+                                                                                        (991, 71, 97, 'Present'),
+                                                                                        (992, 71, 105, 'Present'),
+                                                                                        (993, 71, 115, 'Present'),
+                                                                                        (994, 71, 123, 'Present'),
+                                                                                        (995, 72, 7, 'Present'),
+                                                                                        (996, 72, 15, 'Present'),
+                                                                                        (997, 72, 25, 'Absent'),
+                                                                                        (998, 72, 33, 'Present'),
+                                                                                        (999, 72, 43, 'Present'),
+                                                                                        (1000, 72, 51, 'Present'),
+                                                                                        (1001, 72, 61, 'Present'),
+                                                                                        (1002, 72, 69, 'Present'),
+                                                                                        (1003, 72, 79, 'Present'),
+                                                                                        (1004, 72, 87, 'Present'),
+                                                                                        (1005, 72, 97, 'Present'),
+                                                                                        (1006, 72, 105, 'Present'),
+                                                                                        (1007, 72, 115, 'Present'),
+                                                                                        (1008, 72, 123, 'Present'),
+                                                                                        (1009, 73, 7, 'Present'),
+                                                                                        (1010, 73, 15, 'Present'),
+                                                                                        (1011, 73, 25, 'Present'),
+                                                                                        (1012, 73, 33, 'Present'),
+                                                                                        (1013, 73, 43, 'Present'),
+                                                                                        (1014, 73, 51, 'Present'),
+                                                                                        (1015, 73, 61, 'Present'),
+                                                                                        (1016, 73, 69, 'Present'),
+                                                                                        (1017, 73, 79, 'Present'),
+                                                                                        (1018, 73, 87, 'Present'),
+                                                                                        (1019, 73, 97, 'Present'),
+                                                                                        (1020, 73, 105, 'Present'),
+                                                                                        (1021, 73, 115, 'Absent'),
+                                                                                        (1022, 73, 123, 'Present'),
+                                                                                        (1023, 74, 7, 'Present'),
+                                                                                        (1024, 74, 15, 'Present'),
+                                                                                        (1025, 74, 25, 'Present'),
+                                                                                        (1026, 74, 33, 'Present'),
+                                                                                        (1027, 74, 43, 'Present'),
+                                                                                        (1028, 74, 51, 'Present'),
+                                                                                        (1029, 74, 61, 'Present'),
+                                                                                        (1030, 74, 69, 'Present'),
+                                                                                        (1031, 74, 79, 'Present'),
+                                                                                        (1032, 74, 87, 'Present'),
+                                                                                        (1033, 74, 97, 'Present'),
+                                                                                        (1034, 74, 105, 'Present'),
+                                                                                        (1035, 74, 115, 'Present'),
+                                                                                        (1036, 74, 123, 'Present'),
+                                                                                        (1037, 75, 7, 'Present'),
+                                                                                        (1038, 75, 15, 'Present'),
+                                                                                        (1039, 75, 25, 'Present'),
+                                                                                        (1040, 75, 33, 'Present'),
+                                                                                        (1041, 75, 43, 'Present'),
+                                                                                        (1042, 75, 51, 'Present'),
+                                                                                        (1043, 75, 61, 'Absent'),
+                                                                                        (1044, 75, 69, 'Absent'),
+                                                                                        (1045, 75, 79, 'Present'),
+                                                                                        (1046, 75, 87, 'Present'),
+                                                                                        (1047, 75, 97, 'Present'),
+                                                                                        (1048, 75, 105, 'Present'),
+                                                                                        (1049, 75, 115, 'Present'),
+                                                                                        (1050, 75, 123, 'Present'),
+                                                                                        (1051, 76, 7, 'Present'),
+                                                                                        (1052, 76, 15, 'Present'),
+                                                                                        (1053, 76, 25, 'Present'),
+                                                                                        (1054, 76, 33, 'Present'),
+                                                                                        (1055, 76, 43, 'Present'),
+                                                                                        (1056, 76, 51, 'Present'),
+                                                                                        (1057, 76, 61, 'Present'),
+                                                                                        (1058, 76, 69, 'Present'),
+                                                                                        (1059, 76, 79, 'Present'),
+                                                                                        (1060, 76, 87, 'Present'),
+                                                                                        (1061, 76, 97, 'Present'),
+                                                                                        (1062, 76, 105, 'Present'),
+                                                                                        (1063, 76, 115, 'Present'),
+                                                                                        (1064, 76, 123, 'Present'),
+                                                                                        (1065, 77, 7, 'Present'),
+                                                                                        (1066, 77, 15, 'Present'),
+                                                                                        (1067, 77, 25, 'Present'),
+                                                                                        (1068, 77, 33, 'Present'),
+                                                                                        (1069, 77, 43, 'Present'),
+                                                                                        (1070, 77, 51, 'Present'),
+                                                                                        (1071, 77, 61, 'Present'),
+                                                                                        (1072, 77, 69, 'Present'),
+                                                                                        (1073, 77, 79, 'Present'),
+                                                                                        (1074, 77, 87, 'Present'),
+                                                                                        (1075, 77, 97, 'Absent'),
+                                                                                        (1076, 77, 105, 'Present'),
+                                                                                        (1077, 77, 115, 'Present'),
+                                                                                        (1078, 77, 123, 'Present'),
+                                                                                        (1079, 78, 7, 'Present'),
+                                                                                        (1080, 78, 15, 'Present'),
+                                                                                        (1081, 78, 25, 'Present'),
+                                                                                        (1082, 78, 33, 'Present'),
+                                                                                        (1083, 78, 43, 'Present'),
+                                                                                        (1084, 78, 51, 'Present'),
+                                                                                        (1085, 78, 61, 'Present'),
+                                                                                        (1086, 78, 69, 'Present'),
+                                                                                        (1087, 78, 79, 'Present'),
+                                                                                        (1088, 78, 87, 'Present'),
+                                                                                        (1089, 78, 97, 'Present'),
+                                                                                        (1090, 78, 105, 'Present'),
+                                                                                        (1091, 78, 115, 'Present'),
+                                                                                        (1092, 78, 123, 'Present'),
+                                                                                        (1093, 79, 7, 'Present'),
+                                                                                        (1094, 79, 15, 'Present'),
+                                                                                        (1095, 79, 25, 'Present'),
+                                                                                        (1096, 79, 33, 'Present'),
+                                                                                        (1097, 79, 43, 'Present'),
+                                                                                        (1098, 79, 51, 'Present'),
+                                                                                        (1099, 79, 61, 'Present'),
+                                                                                        (1100, 79, 69, 'Present'),
+                                                                                        (1101, 79, 79, 'Absent'),
+                                                                                        (1102, 79, 87, 'Present'),
+                                                                                        (1103, 79, 97, 'Present'),
+                                                                                        (1104, 79, 105, 'Present'),
+                                                                                        (1105, 79, 115, 'Present'),
+                                                                                        (1106, 79, 123, 'Present'),
+                                                                                        (1107, 80, 7, 'Present'),
+                                                                                        (1108, 80, 15, 'Present'),
+                                                                                        (1109, 80, 25, 'Present'),
+                                                                                        (1110, 80, 33, 'Present'),
+                                                                                        (1111, 80, 43, 'Present'),
+                                                                                        (1112, 80, 51, 'Present'),
+                                                                                        (1113, 80, 61, 'Absent'),
+                                                                                        (1114, 80, 69, 'Present'),
+                                                                                        (1115, 80, 79, 'Present'),
+                                                                                        (1116, 80, 87, 'Present'),
+                                                                                        (1117, 80, 97, 'Present'),
+                                                                                        (1118, 80, 105, 'Present'),
+                                                                                        (1119, 80, 115, 'Present'),
+                                                                                        (1120, 80, 123, 'Absent'),
+                                                                                        (1121, 81, 7, 'Present'),
+                                                                                        (1122, 81, 15, 'Present'),
+                                                                                        (1123, 81, 25, 'Present'),
+                                                                                        (1124, 81, 33, 'Present'),
+                                                                                        (1125, 81, 43, 'Present'),
+                                                                                        (1126, 81, 51, 'Present'),
+                                                                                        (1127, 81, 61, 'Present'),
+                                                                                        (1128, 81, 69, 'Absent'),
+                                                                                        (1129, 81, 79, 'Absent'),
+                                                                                        (1130, 81, 87, 'Present'),
+                                                                                        (1131, 81, 97, 'Present'),
+                                                                                        (1132, 81, 105, 'Present'),
+                                                                                        (1133, 81, 115, 'Present'),
+                                                                                        (1134, 81, 123, 'Absent'),
+                                                                                        (1135, 82, 7, 'Present'),
+                                                                                        (1136, 82, 15, 'Present'),
+                                                                                        (1137, 82, 25, 'Present'),
+                                                                                        (1138, 82, 33, 'Absent'),
+                                                                                        (1139, 82, 43, 'Absent'),
+                                                                                        (1140, 82, 51, 'Present'),
+                                                                                        (1141, 82, 61, 'Present'),
+                                                                                        (1142, 82, 69, 'Present'),
+                                                                                        (1143, 82, 79, 'Present'),
+                                                                                        (1144, 82, 87, 'Present'),
+                                                                                        (1145, 82, 97, 'Present'),
+                                                                                        (1146, 82, 105, 'Absent'),
+                                                                                        (1147, 82, 115, 'Absent'),
+                                                                                        (1148, 82, 123, 'Absent'),
+                                                                                        (1149, 83, 7, 'Absent'),
+                                                                                        (1150, 83, 15, 'Absent'),
+                                                                                        (1151, 83, 25, 'Absent'),
+                                                                                        (1152, 83, 33, 'Absent'),
+                                                                                        (1153, 83, 43, 'Absent'),
+                                                                                        (1154, 83, 51, 'Absent'),
+                                                                                        (1155, 83, 61, 'Absent'),
+                                                                                        (1156, 83, 69, 'Present'),
+                                                                                        (1157, 83, 79, 'Present'),
+                                                                                        (1158, 83, 87, 'Present'),
+                                                                                        (1159, 83, 97, 'Absent'),
+                                                                                        (1160, 83, 105, 'Absent'),
+                                                                                        (1161, 83, 115, 'Absent'),
+                                                                                        (1162, 83, 123, 'Absent'),
+                                                                                        (1163, 84, 7, 'Absent'),
+                                                                                        (1164, 84, 15, 'Present'),
+                                                                                        (1165, 84, 25, 'Present'),
+                                                                                        (1166, 84, 33, 'Present'),
+                                                                                        (1167, 84, 43, 'Absent'),
+                                                                                        (1168, 84, 51, 'Present'),
+                                                                                        (1169, 84, 61, 'Absent'),
+                                                                                        (1170, 84, 69, 'Present'),
+                                                                                        (1171, 84, 79, 'Absent'),
+                                                                                        (1172, 84, 87, 'Absent'),
+                                                                                        (1173, 84, 97, 'Absent'),
+                                                                                        (1174, 84, 105, 'Present'),
+                                                                                        (1175, 84, 115, 'Absent'),
+                                                                                        (1176, 84, 123, 'Present'),
+                                                                                        (1177, 85, 7, 'Absent'),
+                                                                                        (1178, 85, 15, 'Absent'),
+                                                                                        (1179, 85, 25, 'Present'),
+                                                                                        (1180, 85, 33, 'Present'),
+                                                                                        (1181, 85, 43, 'Absent'),
+                                                                                        (1182, 85, 51, 'Present'),
+                                                                                        (1183, 85, 61, 'Present'),
+                                                                                        (1184, 85, 69, 'Present'),
+                                                                                        (1185, 85, 79, 'Present'),
+                                                                                        (1186, 85, 87, 'Absent'),
+                                                                                        (1187, 85, 97, 'Present'),
+                                                                                        (1188, 85, 105, 'Present'),
+                                                                                        (1189, 85, 115, 'Present'),
+                                                                                        (1190, 85, 123, 'Absent'),
+                                                                                        (1191, 86, 2, 'Absent'),
+                                                                                        (1192, 86, 11, 'Present'),
+                                                                                        (1193, 86, 20, 'Present'),
+                                                                                        (1194, 86, 29, 'Absent'),
+                                                                                        (1195, 86, 38, 'Present'),
+                                                                                        (1196, 86, 47, 'Present'),
+                                                                                        (1197, 86, 56, 'Absent'),
+                                                                                        (1198, 86, 65, 'Present'),
+                                                                                        (1199, 86, 74, 'Absent'),
+                                                                                        (1200, 86, 83, 'Present'),
+                                                                                        (1201, 86, 92, 'Present'),
+                                                                                        (1202, 86, 101, 'Present'),
+                                                                                        (1203, 86, 110, 'Present'),
+                                                                                        (1204, 86, 119, 'Present'),
+                                                                                        (1205, 87, 2, 'Absent'),
+                                                                                        (1206, 87, 11, 'Absent'),
+                                                                                        (1207, 87, 20, 'Absent'),
+                                                                                        (1208, 87, 29, 'Present'),
+                                                                                        (1209, 87, 38, 'Absent'),
+                                                                                        (1210, 87, 47, 'Present'),
+                                                                                        (1211, 87, 56, 'Absent'),
+                                                                                        (1212, 87, 65, 'Present'),
+                                                                                        (1213, 87, 74, 'Present'),
+                                                                                        (1214, 87, 83, 'Present'),
+                                                                                        (1215, 87, 92, 'Absent'),
+                                                                                        (1216, 87, 101, 'Present'),
+                                                                                        (1217, 87, 110, 'Absent'),
+                                                                                        (1218, 87, 119, 'Absent'),
+                                                                                        (1219, 88, 2, 'Absent'),
+                                                                                        (1220, 88, 11, 'Present'),
+                                                                                        (1221, 88, 20, 'Present'),
+                                                                                        (1222, 88, 29, 'Present'),
+                                                                                        (1223, 88, 38, 'Absent'),
+                                                                                        (1224, 88, 47, 'Present'),
+                                                                                        (1225, 88, 56, 'Absent'),
+                                                                                        (1226, 88, 65, 'Absent'),
+                                                                                        (1227, 88, 74, 'Absent'),
+                                                                                        (1228, 88, 83, 'Present'),
+                                                                                        (1229, 88, 92, 'Present'),
+                                                                                        (1230, 88, 101, 'Absent'),
+                                                                                        (1231, 88, 110, 'Present'),
+                                                                                        (1232, 88, 119, 'Present'),
+                                                                                        (1233, 89, 2, 'Present'),
+                                                                                        (1234, 89, 11, 'Absent'),
+                                                                                        (1235, 89, 20, 'Present'),
+                                                                                        (1236, 89, 29, 'Present'),
+                                                                                        (1237, 89, 38, 'Present'),
+                                                                                        (1238, 89, 47, 'Present'),
+                                                                                        (1239, 89, 56, 'Present'),
+                                                                                        (1240, 89, 65, 'Absent'),
+                                                                                        (1241, 89, 74, 'Present'),
+                                                                                        (1242, 89, 83, 'Present'),
+                                                                                        (1243, 89, 92, 'Present'),
+                                                                                        (1244, 89, 101, 'Present'),
+                                                                                        (1245, 89, 110, 'Present'),
+                                                                                        (1246, 89, 119, 'Present'),
+                                                                                        (1247, 90, 2, 'Present'),
+                                                                                        (1248, 90, 11, 'Present'),
+                                                                                        (1249, 90, 20, 'Present'),
+                                                                                        (1250, 90, 29, 'Present'),
+                                                                                        (1251, 90, 38, 'Present'),
+                                                                                        (1252, 90, 47, 'Present'),
+                                                                                        (1253, 90, 56, 'Present'),
+                                                                                        (1254, 90, 65, 'Present'),
+                                                                                        (1255, 90, 74, 'Present'),
+                                                                                        (1256, 90, 83, 'Present'),
+                                                                                        (1257, 90, 92, 'Present'),
+                                                                                        (1258, 90, 101, 'Present'),
+                                                                                        (1259, 90, 110, 'Absent'),
+                                                                                        (1260, 90, 119, 'Present'),
+                                                                                        (1261, 91, 2, 'Present'),
+                                                                                        (1262, 91, 11, 'Present'),
+                                                                                        (1263, 91, 20, 'Present'),
+                                                                                        (1264, 91, 29, 'Absent'),
+                                                                                        (1265, 91, 38, 'Present'),
+                                                                                        (1266, 91, 47, 'Present'),
+                                                                                        (1267, 91, 56, 'Present'),
+                                                                                        (1268, 91, 65, 'Present'),
+                                                                                        (1269, 91, 74, 'Present'),
+                                                                                        (1270, 91, 83, 'Absent'),
+                                                                                        (1271, 91, 92, 'Present'),
+                                                                                        (1272, 91, 101, 'Present'),
+                                                                                        (1273, 91, 110, 'Present'),
+                                                                                        (1274, 91, 119, 'Present'),
+                                                                                        (1275, 92, 2, 'Present'),
+                                                                                        (1276, 92, 11, 'Absent'),
+                                                                                        (1277, 92, 20, 'Present'),
+                                                                                        (1278, 92, 29, 'Present'),
+                                                                                        (1279, 92, 38, 'Present'),
+                                                                                        (1280, 92, 47, 'Present'),
+                                                                                        (1281, 92, 56, 'Present'),
+                                                                                        (1282, 92, 65, 'Present'),
+                                                                                        (1283, 92, 74, 'Present'),
+                                                                                        (1284, 92, 83, 'Present'),
+                                                                                        (1285, 92, 92, 'Present'),
+                                                                                        (1286, 92, 101, 'Present'),
+                                                                                        (1287, 92, 110, 'Present'),
+                                                                                        (1288, 92, 119, 'Absent'),
+                                                                                        (1289, 93, 2, 'Present'),
+                                                                                        (1290, 93, 11, 'Present'),
+                                                                                        (1291, 93, 20, 'Present'),
+                                                                                        (1292, 93, 29, 'Present'),
+                                                                                        (1293, 93, 38, 'Present'),
+                                                                                        (1294, 93, 47, 'Present'),
+                                                                                        (1295, 93, 56, 'Present'),
+                                                                                        (1296, 93, 65, 'Present'),
+                                                                                        (1297, 93, 74, 'Present'),
+                                                                                        (1298, 93, 83, 'Absent'),
+                                                                                        (1299, 93, 92, 'Present'),
+                                                                                        (1300, 93, 101, 'Absent'),
+                                                                                        (1301, 93, 110, 'Present'),
+                                                                                        (1302, 93, 119, 'Present'),
+                                                                                        (1303, 94, 2, 'Present'),
+                                                                                        (1304, 94, 11, 'Present'),
+                                                                                        (1305, 94, 20, 'Present'),
+                                                                                        (1306, 94, 29, 'Present'),
+                                                                                        (1307, 94, 38, 'Present'),
+                                                                                        (1308, 94, 47, 'Absent'),
+                                                                                        (1309, 94, 56, 'Present'),
+                                                                                        (1310, 94, 65, 'Present'),
+                                                                                        (1311, 94, 74, 'Present'),
+                                                                                        (1312, 94, 83, 'Present'),
+                                                                                        (1313, 94, 92, 'Present'),
+                                                                                        (1314, 94, 101, 'Present'),
+                                                                                        (1315, 94, 110, 'Present'),
+                                                                                        (1316, 94, 119, 'Present'),
+                                                                                        (1317, 95, 2, 'Present'),
+                                                                                        (1318, 95, 11, 'Present'),
+                                                                                        (1319, 95, 20, 'Present'),
+                                                                                        (1320, 95, 29, 'Present'),
+                                                                                        (1321, 95, 38, 'Present'),
+                                                                                        (1322, 95, 47, 'Present'),
+                                                                                        (1323, 95, 56, 'Present'),
+                                                                                        (1324, 95, 65, 'Present'),
+                                                                                        (1325, 95, 74, 'Present'),
+                                                                                        (1326, 95, 83, 'Present'),
+                                                                                        (1327, 95, 92, 'Present'),
+                                                                                        (1328, 95, 101, 'Present'),
+                                                                                        (1329, 95, 110, 'Present'),
+                                                                                        (1330, 95, 119, 'Present'),
+                                                                                        (1331, 96, 2, 'Absent'),
+                                                                                        (1332, 96, 11, 'Present'),
+                                                                                        (1333, 96, 20, 'Absent'),
+                                                                                        (1334, 96, 29, 'Present'),
+                                                                                        (1335, 96, 38, 'Present'),
+                                                                                        (1336, 96, 47, 'Present'),
+                                                                                        (1337, 96, 56, 'Present'),
+                                                                                        (1338, 96, 65, 'Present'),
+                                                                                        (1339, 96, 74, 'Present'),
+                                                                                        (1340, 96, 83, 'Present'),
+                                                                                        (1341, 96, 92, 'Present'),
+                                                                                        (1342, 96, 101, 'Present'),
+                                                                                        (1343, 96, 110, 'Present'),
+                                                                                        (1344, 96, 119, 'Present'),
+                                                                                        (1345, 97, 2, 'Present'),
+                                                                                        (1346, 97, 11, 'Present'),
+                                                                                        (1347, 97, 20, 'Present'),
+                                                                                        (1348, 97, 29, 'Present'),
+                                                                                        (1349, 97, 38, 'Present'),
+                                                                                        (1350, 97, 47, 'Present'),
+                                                                                        (1351, 97, 56, 'Present'),
+                                                                                        (1352, 97, 65, 'Present'),
+                                                                                        (1353, 97, 74, 'Present'),
+                                                                                        (1354, 97, 83, 'Present'),
+                                                                                        (1355, 97, 92, 'Present'),
+                                                                                        (1356, 97, 101, 'Present'),
+                                                                                        (1357, 97, 110, 'Present'),
+                                                                                        (1358, 97, 119, 'Present'),
+                                                                                        (1359, 98, 2, 'Present'),
+                                                                                        (1360, 98, 11, 'Present'),
+                                                                                        (1361, 98, 20, 'Present'),
+                                                                                        (1362, 98, 29, 'Absent'),
+                                                                                        (1363, 98, 38, 'Present'),
+                                                                                        (1364, 98, 47, 'Present'),
+                                                                                        (1365, 98, 56, 'Present'),
+                                                                                        (1366, 98, 65, 'Present'),
+                                                                                        (1367, 98, 74, 'Present'),
+                                                                                        (1368, 98, 83, 'Present'),
+                                                                                        (1369, 98, 92, 'Absent'),
+                                                                                        (1370, 98, 101, 'Present'),
+                                                                                        (1371, 98, 110, 'Present'),
+                                                                                        (1372, 98, 119, 'Present'),
+                                                                                        (1373, 99, 2, 'Present'),
+                                                                                        (1374, 99, 11, 'Present'),
+                                                                                        (1375, 99, 20, 'Present'),
+                                                                                        (1376, 99, 29, 'Present'),
+                                                                                        (1377, 99, 38, 'Present'),
+                                                                                        (1378, 99, 47, 'Present'),
+                                                                                        (1379, 99, 56, 'Present'),
+                                                                                        (1380, 99, 65, 'Absent'),
+                                                                                        (1381, 99, 74, 'Present'),
+                                                                                        (1382, 99, 83, 'Present'),
+                                                                                        (1383, 99, 92, 'Present'),
+                                                                                        (1384, 99, 101, 'Present'),
+                                                                                        (1385, 99, 110, 'Present'),
+                                                                                        (1386, 99, 119, 'Present'),
+                                                                                        (1387, 100, 2, 'Present'),
+                                                                                        (1388, 100, 11, 'Present'),
+                                                                                        (1389, 100, 20, 'Present'),
+                                                                                        (1390, 100, 29, 'Present'),
+                                                                                        (1391, 100, 38, 'Present'),
+                                                                                        (1392, 100, 47, 'Present'),
+                                                                                        (1393, 100, 56, 'Present'),
+                                                                                        (1394, 100, 65, 'Present'),
+                                                                                        (1395, 100, 74, 'Present'),
+                                                                                        (1396, 100, 83, 'Absent'),
+                                                                                        (1397, 100, 92, 'Absent'),
+                                                                                        (1398, 100, 101, 'Absent'),
+                                                                                        (1399, 100, 110, 'Present'),
+                                                                                        (1400, 100, 119, 'Present'),
+                                                                                        (1401, 101, 2, 'Present'),
+                                                                                        (1402, 101, 11, 'Present'),
+                                                                                        (1403, 101, 20, 'Present'),
+                                                                                        (1404, 101, 29, 'Absent'),
+                                                                                        (1405, 101, 38, 'Present'),
+                                                                                        (1406, 101, 47, 'Absent'),
+                                                                                        (1407, 101, 56, 'Absent'),
+                                                                                        (1408, 101, 65, 'Present'),
+                                                                                        (1409, 101, 74, 'Present'),
+                                                                                        (1410, 101, 83, 'Absent'),
+                                                                                        (1411, 101, 92, 'Present'),
+                                                                                        (1412, 101, 101, 'Absent'),
+                                                                                        (1413, 101, 110, 'Absent'),
+                                                                                        (1414, 101, 119, 'Present'),
+                                                                                        (1415, 102, 2, 'Absent'),
+                                                                                        (1416, 102, 11, 'Absent'),
+                                                                                        (1417, 102, 20, 'Absent'),
+                                                                                        (1418, 102, 29, 'Absent'),
+                                                                                        (1419, 102, 38, 'Absent'),
+                                                                                        (1420, 102, 47, 'Absent'),
+                                                                                        (1421, 102, 56, 'Absent'),
+                                                                                        (1422, 102, 65, 'Absent'),
+                                                                                        (1423, 102, 74, 'Present'),
+                                                                                        (1424, 102, 83, 'Present'),
+                                                                                        (1425, 102, 92, 'Present'),
+                                                                                        (1426, 102, 101, 'Absent'),
+                                                                                        (1427, 102, 110, 'Absent'),
+                                                                                        (1428, 102, 119, 'Present'),
+                                                                                        (1429, 103, 2, 'Absent'),
+                                                                                        (1430, 103, 11, 'Absent'),
+                                                                                        (1431, 103, 20, 'Present'),
+                                                                                        (1432, 103, 29, 'Present'),
+                                                                                        (1433, 103, 38, 'Present'),
+                                                                                        (1434, 103, 47, 'Present'),
+                                                                                        (1435, 103, 56, 'Absent'),
+                                                                                        (1436, 103, 65, 'Absent'),
+                                                                                        (1437, 103, 74, 'Present'),
+                                                                                        (1438, 103, 83, 'Present'),
+                                                                                        (1439, 103, 92, 'Absent'),
+                                                                                        (1440, 103, 101, 'Absent'),
+                                                                                        (1441, 103, 110, 'Present'),
+                                                                                        (1442, 103, 119, 'Present'),
+                                                                                        (1443, 104, 2, 'Present'),
+                                                                                        (1444, 104, 11, 'Present'),
+                                                                                        (1445, 104, 20, 'Absent'),
+                                                                                        (1446, 104, 29, 'Present'),
+                                                                                        (1447, 104, 38, 'Absent'),
+                                                                                        (1448, 104, 47, 'Present'),
+                                                                                        (1449, 104, 56, 'Absent'),
+                                                                                        (1450, 104, 65, 'Absent'),
+                                                                                        (1451, 104, 74, 'Absent'),
+                                                                                        (1452, 104, 83, 'Absent'),
+                                                                                        (1453, 104, 92, 'Present'),
+                                                                                        (1454, 104, 101, 'Present'),
+                                                                                        (1455, 104, 110, 'Present'),
+                                                                                        (1456, 104, 119, 'Present'),
+                                                                                        (1457, 105, 3, 'Present'),
+                                                                                        (1458, 105, 12, 'Absent'),
+                                                                                        (1459, 105, 21, 'Present'),
+                                                                                        (1460, 105, 30, 'Absent'),
+                                                                                        (1461, 105, 39, 'Present'),
+                                                                                        (1462, 105, 48, 'Present'),
+                                                                                        (1463, 105, 57, 'Absent'),
+                                                                                        (1464, 105, 66, 'Present'),
+                                                                                        (1465, 105, 75, 'Present'),
+                                                                                        (1466, 105, 84, 'Present'),
+                                                                                        (1467, 105, 93, 'Present'),
+                                                                                        (1468, 105, 102, 'Present'),
+                                                                                        (1469, 105, 111, 'Present'),
+                                                                                        (1470, 105, 120, 'Absent'),
+                                                                                        (1471, 106, 3, 'Present'),
+                                                                                        (1472, 106, 12, 'Present'),
+                                                                                        (1473, 106, 21, 'Absent'),
+                                                                                        (1474, 106, 30, 'Present'),
+                                                                                        (1475, 106, 39, 'Present'),
+                                                                                        (1476, 106, 48, 'Present'),
+                                                                                        (1477, 106, 57, 'Present'),
+                                                                                        (1478, 106, 66, 'Absent'),
+                                                                                        (1479, 106, 75, 'Absent'),
+                                                                                        (1480, 106, 84, 'Absent'),
+                                                                                        (1481, 106, 93, 'Absent'),
+                                                                                        (1482, 106, 102, 'Absent'),
+                                                                                        (1483, 106, 111, 'Absent'),
+                                                                                        (1484, 106, 120, 'Present'),
+                                                                                        (1485, 107, 3, 'Absent'),
+                                                                                        (1486, 107, 12, 'Present'),
+                                                                                        (1487, 107, 21, 'Absent'),
+                                                                                        (1488, 107, 30, 'Present'),
+                                                                                        (1489, 107, 39, 'Absent'),
+                                                                                        (1490, 107, 48, 'Absent'),
+                                                                                        (1491, 107, 57, 'Absent'),
+                                                                                        (1492, 107, 66, 'Absent'),
+                                                                                        (1493, 107, 75, 'Absent'),
+                                                                                        (1494, 107, 84, 'Absent'),
+                                                                                        (1495, 107, 93, 'Present'),
+                                                                                        (1496, 107, 102, 'Absent'),
+                                                                                        (1497, 107, 111, 'Absent'),
+                                                                                        (1498, 107, 120, 'Absent'),
+                                                                                        (1499, 108, 3, 'Present'),
+                                                                                        (1500, 108, 12, 'Absent'),
+                                                                                        (1501, 108, 21, 'Present'),
+                                                                                        (1502, 108, 30, 'Absent'),
+                                                                                        (1503, 108, 39, 'Present'),
+                                                                                        (1504, 108, 48, 'Present'),
+                                                                                        (1505, 108, 57, 'Present'),
+                                                                                        (1506, 108, 66, 'Present'),
+                                                                                        (1507, 108, 75, 'Present'),
+                                                                                        (1508, 108, 84, 'Present'),
+                                                                                        (1509, 108, 93, 'Present'),
+                                                                                        (1510, 108, 102, 'Present'),
+                                                                                        (1511, 108, 111, 'Present'),
+                                                                                        (1512, 108, 120, 'Present'),
+                                                                                        (1513, 109, 3, 'Present'),
+                                                                                        (1514, 109, 12, 'Present'),
+                                                                                        (1515, 109, 21, 'Present'),
+                                                                                        (1516, 109, 30, 'Present'),
+                                                                                        (1517, 109, 39, 'Present'),
+                                                                                        (1518, 109, 48, 'Present'),
+                                                                                        (1519, 109, 57, 'Present'),
+                                                                                        (1520, 109, 66, 'Absent'),
+                                                                                        (1521, 109, 75, 'Present'),
+                                                                                        (1522, 109, 84, 'Present'),
+                                                                                        (1523, 109, 93, 'Present'),
+                                                                                        (1524, 109, 102, 'Absent'),
+                                                                                        (1525, 109, 111, 'Present'),
+                                                                                        (1526, 109, 120, 'Present'),
+                                                                                        (1527, 110, 3, 'Present'),
+                                                                                        (1528, 110, 12, 'Present'),
+                                                                                        (1529, 110, 21, 'Present'),
+                                                                                        (1530, 110, 30, 'Present'),
+                                                                                        (1531, 110, 39, 'Present'),
+                                                                                        (1532, 110, 48, 'Present'),
+                                                                                        (1533, 110, 57, 'Present'),
+                                                                                        (1534, 110, 66, 'Present'),
+                                                                                        (1535, 110, 75, 'Present'),
+                                                                                        (1536, 110, 84, 'Present'),
+                                                                                        (1537, 110, 93, 'Present'),
+                                                                                        (1538, 110, 102, 'Present'),
+                                                                                        (1539, 110, 111, 'Present'),
+                                                                                        (1540, 110, 120, 'Present'),
+                                                                                        (1541, 111, 3, 'Present'),
+                                                                                        (1542, 111, 12, 'Absent'),
+                                                                                        (1543, 111, 21, 'Present'),
+                                                                                        (1544, 111, 30, 'Present'),
+                                                                                        (1545, 111, 39, 'Present'),
+                                                                                        (1546, 111, 48, 'Present'),
+                                                                                        (1547, 111, 57, 'Present'),
+                                                                                        (1548, 111, 66, 'Present'),
+                                                                                        (1549, 111, 75, 'Present'),
+                                                                                        (1550, 111, 84, 'Present'),
+                                                                                        (1551, 111, 93, 'Present'),
+                                                                                        (1552, 111, 102, 'Present'),
+                                                                                        (1553, 111, 111, 'Absent'),
+                                                                                        (1554, 111, 120, 'Present'),
+                                                                                        (1555, 112, 3, 'Absent'),
+                                                                                        (1556, 112, 12, 'Present'),
+                                                                                        (1557, 112, 21, 'Present'),
+                                                                                        (1558, 112, 30, 'Present'),
+                                                                                        (1559, 112, 39, 'Present'),
+                                                                                        (1560, 112, 48, 'Present'),
+                                                                                        (1561, 112, 57, 'Present'),
+                                                                                        (1562, 112, 66, 'Present'),
+                                                                                        (1563, 112, 75, 'Present'),
+                                                                                        (1564, 112, 84, 'Present'),
+                                                                                        (1565, 112, 93, 'Present'),
+                                                                                        (1566, 112, 102, 'Present'),
+                                                                                        (1567, 112, 111, 'Present'),
+                                                                                        (1568, 112, 120, 'Present'),
+                                                                                        (1569, 113, 3, 'Present'),
+                                                                                        (1570, 113, 12, 'Present'),
+                                                                                        (1571, 113, 21, 'Present'),
+                                                                                        (1572, 113, 30, 'Present'),
+                                                                                        (1573, 113, 39, 'Absent'),
+                                                                                        (1574, 113, 48, 'Present'),
+                                                                                        (1575, 113, 57, 'Present'),
+                                                                                        (1576, 113, 66, 'Present'),
+                                                                                        (1577, 113, 75, 'Present'),
+                                                                                        (1578, 113, 84, 'Present'),
+                                                                                        (1579, 113, 93, 'Present'),
+                                                                                        (1580, 113, 102, 'Present'),
+                                                                                        (1581, 113, 111, 'Present'),
+                                                                                        (1582, 113, 120, 'Present'),
+                                                                                        (1583, 114, 3, 'Present'),
+                                                                                        (1584, 114, 12, 'Present'),
+                                                                                        (1585, 114, 21, 'Present'),
+                                                                                        (1586, 114, 30, 'Present'),
+                                                                                        (1587, 114, 39, 'Present'),
+                                                                                        (1588, 114, 48, 'Present'),
+                                                                                        (1589, 114, 57, 'Present'),
+                                                                                        (1590, 114, 66, 'Present'),
+                                                                                        (1591, 114, 75, 'Present'),
+                                                                                        (1592, 114, 84, 'Present'),
+                                                                                        (1593, 114, 93, 'Present'),
+                                                                                        (1594, 114, 102, 'Present'),
+                                                                                        (1595, 114, 111, 'Present'),
+                                                                                        (1596, 114, 120, 'Present'),
+                                                                                        (1597, 115, 3, 'Absent'),
+                                                                                        (1598, 115, 12, 'Present'),
+                                                                                        (1599, 115, 21, 'Present'),
+                                                                                        (1600, 115, 30, 'Present'),
+                                                                                        (1601, 115, 39, 'Present'),
+                                                                                        (1602, 115, 48, 'Present'),
+                                                                                        (1603, 115, 57, 'Present'),
+                                                                                        (1604, 115, 66, 'Present'),
+                                                                                        (1605, 115, 75, 'Present'),
+                                                                                        (1606, 115, 84, 'Present'),
+                                                                                        (1607, 115, 93, 'Present'),
+                                                                                        (1608, 115, 102, 'Present'),
+                                                                                        (1609, 115, 111, 'Present'),
+                                                                                        (1610, 115, 120, 'Present'),
+                                                                                        (1611, 116, 3, 'Present'),
+                                                                                        (1612, 116, 12, 'Present'),
+                                                                                        (1613, 116, 21, 'Present'),
+                                                                                        (1614, 116, 30, 'Absent'),
+                                                                                        (1615, 116, 39, 'Present'),
+                                                                                        (1616, 116, 48, 'Present'),
+                                                                                        (1617, 116, 57, 'Present'),
+                                                                                        (1618, 116, 66, 'Present'),
+                                                                                        (1619, 116, 75, 'Present'),
+                                                                                        (1620, 116, 84, 'Present'),
+                                                                                        (1621, 116, 93, 'Present'),
+                                                                                        (1622, 116, 102, 'Present'),
+                                                                                        (1623, 116, 111, 'Present'),
+                                                                                        (1624, 116, 120, 'Present'),
+                                                                                        (1625, 117, 3, 'Present'),
+                                                                                        (1626, 117, 12, 'Present'),
+                                                                                        (1627, 117, 21, 'Present'),
+                                                                                        (1628, 117, 30, 'Present'),
+                                                                                        (1629, 117, 39, 'Present'),
+                                                                                        (1630, 117, 48, 'Present'),
+                                                                                        (1631, 117, 57, 'Present'),
+                                                                                        (1632, 117, 66, 'Present'),
+                                                                                        (1633, 117, 75, 'Present'),
+                                                                                        (1634, 117, 84, 'Present'),
+                                                                                        (1635, 117, 93, 'Present'),
+                                                                                        (1636, 117, 102, 'Present'),
+                                                                                        (1637, 117, 111, 'Absent'),
+                                                                                        (1638, 117, 120, 'Present'),
+                                                                                        (1639, 118, 3, 'Present'),
+                                                                                        (1640, 118, 12, 'Absent'),
+                                                                                        (1641, 118, 21, 'Present'),
+                                                                                        (1642, 118, 30, 'Present'),
+                                                                                        (1643, 118, 39, 'Present'),
+                                                                                        (1644, 118, 48, 'Present'),
+                                                                                        (1645, 118, 57, 'Present'),
+                                                                                        (1646, 118, 66, 'Present'),
+                                                                                        (1647, 118, 75, 'Present'),
+                                                                                        (1648, 118, 84, 'Present'),
+                                                                                        (1649, 118, 93, 'Present'),
+                                                                                        (1650, 118, 102, 'Present'),
+                                                                                        (1651, 118, 111, 'Present'),
+                                                                                        (1652, 118, 120, 'Present'),
+                                                                                        (1653, 119, 3, 'Present'),
+                                                                                        (1654, 119, 12, 'Present'),
+                                                                                        (1655, 119, 21, 'Present'),
+                                                                                        (1656, 119, 30, 'Present'),
+                                                                                        (1657, 119, 39, 'Present'),
+                                                                                        (1658, 119, 48, 'Absent'),
+                                                                                        (1659, 119, 57, 'Present'),
+                                                                                        (1660, 119, 66, 'Present'),
+                                                                                        (1661, 119, 75, 'Present'),
+                                                                                        (1662, 119, 84, 'Absent'),
+                                                                                        (1663, 119, 93, 'Present'),
+                                                                                        (1664, 119, 102, 'Present'),
+                                                                                        (1665, 119, 111, 'Present'),
+                                                                                        (1666, 119, 120, 'Present'),
+                                                                                        (1667, 120, 3, 'Present'),
+                                                                                        (1668, 120, 12, 'Present'),
+                                                                                        (1669, 120, 21, 'Absent'),
+                                                                                        (1670, 120, 30, 'Present'),
+                                                                                        (1671, 120, 39, 'Present'),
+                                                                                        (1672, 120, 48, 'Present'),
+                                                                                        (1673, 120, 57, 'Present'),
+                                                                                        (1674, 120, 66, 'Absent'),
+                                                                                        (1675, 120, 75, 'Absent'),
+                                                                                        (1676, 120, 84, 'Absent'),
+                                                                                        (1677, 120, 93, 'Present'),
+                                                                                        (1678, 120, 102, 'Present'),
+                                                                                        (1679, 120, 111, 'Present'),
+                                                                                        (1680, 120, 120, 'Absent'),
+                                                                                        (1681, 121, 3, 'Absent'),
+                                                                                        (1682, 121, 12, 'Present'),
+                                                                                        (1683, 121, 21, 'Absent'),
+                                                                                        (1684, 121, 30, 'Present'),
+                                                                                        (1685, 121, 39, 'Present'),
+                                                                                        (1686, 121, 48, 'Present'),
+                                                                                        (1687, 121, 57, 'Present'),
+                                                                                        (1688, 121, 66, 'Present'),
+                                                                                        (1689, 121, 75, 'Present'),
+                                                                                        (1690, 121, 84, 'Present'),
+                                                                                        (1691, 121, 93, 'Absent'),
+                                                                                        (1692, 121, 102, 'Present'),
+                                                                                        (1693, 121, 111, 'Absent'),
+                                                                                        (1694, 121, 120, 'Absent'),
+                                                                                        (1695, 122, 3, 'Absent'),
+                                                                                        (1696, 122, 12, 'Absent'),
+                                                                                        (1697, 122, 21, 'Present'),
+                                                                                        (1698, 122, 30, 'Absent'),
+                                                                                        (1699, 122, 39, 'Present'),
+                                                                                        (1700, 122, 48, 'Present'),
+                                                                                        (1701, 122, 57, 'Absent'),
+                                                                                        (1702, 122, 66, 'Absent'),
+                                                                                        (1703, 122, 75, 'Present'),
+                                                                                        (1704, 122, 84, 'Absent'),
+                                                                                        (1705, 122, 93, 'Absent'),
+                                                                                        (1706, 122, 102, 'Absent'),
+                                                                                        (1707, 122, 111, 'Absent'),
+                                                                                        (1708, 122, 120, 'Present'),
+                                                                                        (1709, 123, 3, 'Present'),
+                                                                                        (1710, 123, 12, 'Absent'),
+                                                                                        (1711, 123, 21, 'Present'),
+                                                                                        (1712, 123, 30, 'Absent'),
+                                                                                        (1713, 123, 39, 'Absent'),
+                                                                                        (1714, 123, 48, 'Present'),
+                                                                                        (1715, 123, 57, 'Present'),
+                                                                                        (1716, 123, 66, 'Absent'),
+                                                                                        (1717, 123, 75, 'Present'),
+                                                                                        (1718, 123, 84, 'Present'),
+                                                                                        (1719, 123, 93, 'Present'),
+                                                                                        (1720, 123, 102, 'Absent'),
+                                                                                        (1721, 123, 111, 'Absent'),
+                                                                                        (1722, 123, 120, 'Present'),
+                                                                                        (1723, 124, 3, 'Absent'),
+                                                                                        (1724, 124, 12, 'Absent'),
+                                                                                        (1725, 124, 21, 'Absent'),
+                                                                                        (1726, 124, 30, 'Present'),
+                                                                                        (1727, 124, 39, 'Present'),
+                                                                                        (1728, 124, 48, 'Absent'),
+                                                                                        (1729, 124, 57, 'Present'),
+                                                                                        (1730, 124, 66, 'Absent'),
+                                                                                        (1731, 124, 75, 'Present'),
+                                                                                        (1732, 124, 84, 'Absent'),
+                                                                                        (1733, 124, 93, 'Absent'),
+                                                                                        (1734, 124, 102, 'Present'),
+                                                                                        (1735, 124, 111, 'Present'),
+                                                                                        (1736, 124, 120, 'Absent'),
+                                                                                        (1737, 125, 8, 'Absent'),
+                                                                                        (1738, 125, 17, 'Present'),
+                                                                                        (1739, 125, 26, 'Present'),
+                                                                                        (1740, 125, 35, 'Present'),
+                                                                                        (1741, 125, 44, 'Absent'),
+                                                                                        (1742, 125, 53, 'Present'),
+                                                                                        (1743, 125, 62, 'Present'),
+                                                                                        (1744, 125, 71, 'Present'),
+                                                                                        (1745, 125, 80, 'Absent'),
+                                                                                        (1746, 125, 89, 'Absent'),
+                                                                                        (1747, 125, 98, 'Present'),
+                                                                                        (1748, 125, 107, 'Present'),
+                                                                                        (1749, 125, 116, 'Present'),
+                                                                                        (1750, 125, 125, 'Present'),
+                                                                                        (1751, 126, 8, 'Present'),
+                                                                                        (1752, 126, 17, 'Present'),
+                                                                                        (1753, 126, 26, 'Absent'),
+                                                                                        (1754, 126, 35, 'Absent'),
+                                                                                        (1755, 126, 44, 'Present'),
+                                                                                        (1756, 126, 53, 'Present'),
+                                                                                        (1757, 126, 62, 'Present'),
+                                                                                        (1758, 126, 71, 'Present'),
+                                                                                        (1759, 126, 80, 'Present'),
+                                                                                        (1760, 126, 89, 'Absent'),
+                                                                                        (1761, 126, 98, 'Absent'),
+                                                                                        (1762, 126, 107, 'Absent'),
+                                                                                        (1763, 126, 116, 'Absent'),
+                                                                                        (1764, 126, 125, 'Absent'),
+                                                                                        (1765, 127, 8, 'Absent'),
+                                                                                        (1766, 127, 17, 'Present'),
+                                                                                        (1767, 127, 26, 'Present'),
+                                                                                        (1768, 127, 35, 'Absent'),
+                                                                                        (1769, 127, 44, 'Absent'),
+                                                                                        (1770, 127, 53, 'Absent'),
+                                                                                        (1771, 127, 62, 'Absent'),
+                                                                                        (1772, 127, 71, 'Absent'),
+                                                                                        (1773, 127, 80, 'Absent'),
+                                                                                        (1774, 127, 89, 'Present'),
+                                                                                        (1775, 127, 98, 'Absent'),
+                                                                                        (1776, 127, 107, 'Absent'),
+                                                                                        (1777, 127, 116, 'Absent'),
+                                                                                        (1778, 127, 125, 'Absent'),
+                                                                                        (1779, 128, 8, 'Present'),
+                                                                                        (1780, 128, 17, 'Present'),
+                                                                                        (1781, 128, 26, 'Present'),
+                                                                                        (1782, 128, 35, 'Absent'),
+                                                                                        (1783, 128, 44, 'Present'),
+                                                                                        (1784, 128, 53, 'Present'),
+                                                                                        (1785, 128, 62, 'Present'),
+                                                                                        (1786, 128, 71, 'Present'),
+                                                                                        (1787, 128, 80, 'Present'),
+                                                                                        (1788, 128, 89, 'Present'),
+                                                                                        (1789, 128, 98, 'Present'),
+                                                                                        (1790, 128, 107, 'Absent'),
+                                                                                        (1791, 128, 116, 'Present'),
+                                                                                        (1792, 128, 125, 'Present'),
+                                                                                        (1793, 129, 8, 'Present'),
+                                                                                        (1794, 129, 17, 'Present'),
+                                                                                        (1795, 129, 26, 'Present'),
+                                                                                        (1796, 129, 35, 'Present'),
+                                                                                        (1797, 129, 44, 'Present'),
+                                                                                        (1798, 129, 53, 'Present'),
+                                                                                        (1799, 129, 62, 'Present'),
+                                                                                        (1800, 129, 71, 'Absent'),
+                                                                                        (1801, 129, 80, 'Absent'),
+                                                                                        (1802, 129, 89, 'Present'),
+                                                                                        (1803, 129, 98, 'Present'),
+                                                                                        (1804, 129, 107, 'Present'),
+                                                                                        (1805, 129, 116, 'Present'),
+                                                                                        (1806, 129, 125, 'Present'),
+                                                                                        (1807, 130, 8, 'Present'),
+                                                                                        (1808, 130, 17, 'Present'),
+                                                                                        (1809, 130, 26, 'Present'),
+                                                                                        (1810, 130, 35, 'Absent'),
+                                                                                        (1811, 130, 44, 'Present'),
+                                                                                        (1812, 130, 53, 'Present'),
+                                                                                        (1813, 130, 62, 'Present'),
+                                                                                        (1814, 130, 71, 'Absent'),
+                                                                                        (1815, 130, 80, 'Present'),
+                                                                                        (1816, 130, 89, 'Present'),
+                                                                                        (1817, 130, 98, 'Present'),
+                                                                                        (1818, 130, 107, 'Present'),
+                                                                                        (1819, 130, 116, 'Present'),
+                                                                                        (1820, 130, 125, 'Present'),
+                                                                                        (1821, 131, 8, 'Present'),
+                                                                                        (1822, 131, 17, 'Present'),
+                                                                                        (1823, 131, 26, 'Present'),
+                                                                                        (1824, 131, 35, 'Present'),
+                                                                                        (1825, 131, 44, 'Absent'),
+                                                                                        (1826, 131, 53, 'Present'),
+                                                                                        (1827, 131, 62, 'Present'),
+                                                                                        (1828, 131, 71, 'Present'),
+                                                                                        (1829, 131, 80, 'Present'),
+                                                                                        (1830, 131, 89, 'Present'),
+                                                                                        (1831, 131, 98, 'Present'),
+                                                                                        (1832, 131, 107, 'Present'),
+                                                                                        (1833, 131, 116, 'Absent'),
+                                                                                        (1834, 131, 125, 'Present'),
+                                                                                        (1835, 132, 8, 'Present'),
+                                                                                        (1836, 132, 17, 'Present'),
+                                                                                        (1837, 132, 26, 'Present'),
+                                                                                        (1838, 132, 35, 'Present'),
+                                                                                        (1839, 132, 44, 'Present'),
+                                                                                        (1840, 132, 53, 'Present'),
+                                                                                        (1841, 132, 62, 'Present'),
+                                                                                        (1842, 132, 71, 'Absent'),
+                                                                                        (1843, 132, 80, 'Present'),
+                                                                                        (1844, 132, 89, 'Present'),
+                                                                                        (1845, 132, 98, 'Present'),
+                                                                                        (1846, 132, 107, 'Present'),
+                                                                                        (1847, 132, 116, 'Present'),
+                                                                                        (1848, 132, 125, 'Present'),
+                                                                                        (1849, 133, 8, 'Present'),
+                                                                                        (1850, 133, 17, 'Present'),
+                                                                                        (1851, 133, 26, 'Absent'),
+                                                                                        (1852, 133, 35, 'Present'),
+                                                                                        (1853, 133, 44, 'Present'),
+                                                                                        (1854, 133, 53, 'Present'),
+                                                                                        (1855, 133, 62, 'Present'),
+                                                                                        (1856, 133, 71, 'Absent'),
+                                                                                        (1857, 133, 80, 'Present'),
+                                                                                        (1858, 133, 89, 'Present'),
+                                                                                        (1859, 133, 98, 'Present'),
+                                                                                        (1860, 133, 107, 'Present'),
+                                                                                        (1861, 133, 116, 'Present'),
+                                                                                        (1862, 133, 125, 'Present'),
+                                                                                        (1863, 134, 8, 'Present'),
+                                                                                        (1864, 134, 17, 'Present'),
+                                                                                        (1865, 134, 26, 'Present'),
+                                                                                        (1866, 134, 35, 'Present'),
+                                                                                        (1867, 134, 44, 'Present'),
+                                                                                        (1868, 134, 53, 'Present'),
+                                                                                        (1869, 134, 62, 'Present'),
+                                                                                        (1870, 134, 71, 'Present'),
+                                                                                        (1871, 134, 80, 'Present'),
+                                                                                        (1872, 134, 89, 'Present'),
+                                                                                        (1873, 134, 98, 'Absent'),
+                                                                                        (1874, 134, 107, 'Present'),
+                                                                                        (1875, 134, 116, 'Present'),
+                                                                                        (1876, 134, 125, 'Absent'),
+                                                                                        (1877, 135, 8, 'Present'),
+                                                                                        (1878, 135, 17, 'Present'),
+                                                                                        (1879, 135, 26, 'Present'),
+                                                                                        (1880, 135, 35, 'Present'),
+                                                                                        (1881, 135, 44, 'Present'),
+                                                                                        (1882, 135, 53, 'Present'),
+                                                                                        (1883, 135, 62, 'Present'),
+                                                                                        (1884, 135, 71, 'Present'),
+                                                                                        (1885, 135, 80, 'Present'),
+                                                                                        (1886, 135, 89, 'Present'),
+                                                                                        (1887, 135, 98, 'Present'),
+                                                                                        (1888, 135, 107, 'Present'),
+                                                                                        (1889, 135, 116, 'Present'),
+                                                                                        (1890, 135, 125, 'Present'),
+                                                                                        (1891, 136, 8, 'Present'),
+                                                                                        (1892, 136, 17, 'Present'),
+                                                                                        (1893, 136, 26, 'Present'),
+                                                                                        (1894, 136, 35, 'Present'),
+                                                                                        (1895, 136, 44, 'Present'),
+                                                                                        (1896, 136, 53, 'Present'),
+                                                                                        (1897, 136, 62, 'Present'),
+                                                                                        (1898, 136, 71, 'Present'),
+                                                                                        (1899, 136, 80, 'Present'),
+                                                                                        (1900, 136, 89, 'Present'),
+                                                                                        (1901, 136, 98, 'Present'),
+                                                                                        (1902, 136, 107, 'Present'),
+                                                                                        (1903, 136, 116, 'Present'),
+                                                                                        (1904, 136, 125, 'Present'),
+                                                                                        (1905, 137, 8, 'Present'),
+                                                                                        (1906, 137, 17, 'Present'),
+                                                                                        (1907, 137, 26, 'Absent'),
+                                                                                        (1908, 137, 35, 'Present'),
+                                                                                        (1909, 137, 44, 'Present'),
+                                                                                        (1910, 137, 53, 'Present'),
+                                                                                        (1911, 137, 62, 'Present'),
+                                                                                        (1912, 137, 71, 'Present'),
+                                                                                        (1913, 137, 80, 'Present'),
+                                                                                        (1914, 137, 89, 'Absent'),
+                                                                                        (1915, 137, 98, 'Present'),
+                                                                                        (1916, 137, 107, 'Present'),
+                                                                                        (1917, 137, 116, 'Present'),
+                                                                                        (1918, 137, 125, 'Present'),
+                                                                                        (1919, 138, 8, 'Absent'),
+                                                                                        (1920, 138, 17, 'Present'),
+                                                                                        (1921, 138, 26, 'Present'),
+                                                                                        (1922, 138, 35, 'Present'),
+                                                                                        (1923, 138, 44, 'Present'),
+                                                                                        (1924, 138, 53, 'Present'),
+                                                                                        (1925, 138, 62, 'Present'),
+                                                                                        (1926, 138, 71, 'Present'),
+                                                                                        (1927, 138, 80, 'Present'),
+                                                                                        (1928, 138, 89, 'Present'),
+                                                                                        (1929, 138, 98, 'Present'),
+                                                                                        (1930, 138, 107, 'Present'),
+                                                                                        (1931, 138, 116, 'Present'),
+                                                                                        (1932, 138, 125, 'Present'),
+                                                                                        (1933, 139, 8, 'Present'),
+                                                                                        (1934, 139, 17, 'Absent'),
+                                                                                        (1935, 139, 26, 'Absent'),
+                                                                                        (1936, 139, 35, 'Absent'),
+                                                                                        (1937, 139, 44, 'Present'),
+                                                                                        (1938, 139, 53, 'Absent'),
+                                                                                        (1939, 139, 62, 'Absent'),
+                                                                                        (1940, 139, 71, 'Present'),
+                                                                                        (1941, 139, 80, 'Present'),
+                                                                                        (1942, 139, 89, 'Present'),
+                                                                                        (1943, 139, 98, 'Present'),
+                                                                                        (1944, 139, 107, 'Present'),
+                                                                                        (1945, 139, 116, 'Present'),
+                                                                                        (1946, 139, 125, 'Present'),
+                                                                                        (1947, 140, 8, 'Present'),
+                                                                                        (1948, 140, 17, 'Absent'),
+                                                                                        (1949, 140, 26, 'Absent'),
+                                                                                        (1950, 140, 35, 'Present'),
+                                                                                        (1951, 140, 44, 'Present'),
+                                                                                        (1952, 140, 53, 'Absent'),
+                                                                                        (1953, 140, 62, 'Present'),
+                                                                                        (1954, 140, 71, 'Present'),
+                                                                                        (1955, 140, 80, 'Absent'),
+                                                                                        (1956, 140, 89, 'Present'),
+                                                                                        (1957, 140, 98, 'Present'),
+                                                                                        (1958, 140, 107, 'Present'),
+                                                                                        (1959, 140, 116, 'Present'),
+                                                                                        (1960, 140, 125, 'Present'),
+                                                                                        (1961, 141, 8, 'Absent'),
+                                                                                        (1962, 141, 17, 'Absent'),
+                                                                                        (1963, 141, 26, 'Absent'),
+                                                                                        (1964, 141, 35, 'Absent'),
+                                                                                        (1965, 141, 44, 'Absent'),
+                                                                                        (1966, 141, 53, 'Absent'),
+                                                                                        (1967, 141, 62, 'Absent'),
+                                                                                        (1968, 141, 71, 'Present'),
+                                                                                        (1969, 141, 80, 'Absent'),
+                                                                                        (1970, 141, 89, 'Absent'),
+                                                                                        (1971, 141, 98, 'Absent'),
+                                                                                        (1972, 141, 107, 'Present'),
+                                                                                        (1973, 141, 116, 'Absent'),
+                                                                                        (1974, 141, 125, 'Absent'),
+                                                                                        (1975, 142, 8, 'Present'),
+                                                                                        (1976, 142, 17, 'Present'),
+                                                                                        (1977, 142, 26, 'Absent'),
+                                                                                        (1978, 142, 35, 'Absent'),
+                                                                                        (1979, 142, 44, 'Present'),
+                                                                                        (1980, 142, 53, 'Present'),
+                                                                                        (1981, 142, 62, 'Absent'),
+                                                                                        (1982, 142, 71, 'Present'),
+                                                                                        (1983, 142, 80, 'Absent'),
+                                                                                        (1984, 142, 89, 'Present'),
+                                                                                        (1985, 142, 98, 'Absent'),
+                                                                                        (1986, 142, 107, 'Absent'),
+                                                                                        (1987, 142, 116, 'Present'),
+                                                                                        (1988, 142, 125, 'Present'),
+                                                                                        (1989, 143, 8, 'Present'),
+                                                                                        (1990, 143, 17, 'Absent'),
+                                                                                        (1991, 143, 26, 'Absent'),
+                                                                                        (1992, 143, 35, 'Present'),
+                                                                                        (1993, 143, 44, 'Absent'),
+                                                                                        (1994, 143, 53, 'Absent'),
+                                                                                        (1995, 143, 62, 'Absent'),
+                                                                                        (1996, 143, 71, 'Absent'),
+                                                                                        (1997, 143, 80, 'Present'),
+                                                                                        (1998, 143, 89, 'Present'),
+                                                                                        (1999, 143, 98, 'Present'),
+                                                                                        (2000, 143, 107, 'Absent'),
+                                                                                        (2001, 143, 116, 'Absent'),
+                                                                                        (2002, 143, 125, 'Present'),
+                                                                                        (2003, 144, 4, 'Absent'),
+                                                                                        (2004, 144, 16, 'Absent'),
+                                                                                        (2005, 144, 22, 'Present'),
+                                                                                        (2006, 144, 34, 'Present'),
+                                                                                        (2007, 144, 40, 'Present'),
+                                                                                        (2008, 144, 52, 'Present'),
+                                                                                        (2009, 144, 58, 'Present'),
+                                                                                        (2010, 144, 70, 'Present'),
+                                                                                        (2011, 144, 76, 'Present'),
+                                                                                        (2012, 144, 88, 'Present'),
+                                                                                        (2013, 144, 94, 'Absent'),
+                                                                                        (2014, 144, 106, 'Absent'),
+                                                                                        (2015, 144, 112, 'Present'),
+                                                                                        (2016, 144, 124, 'Present'),
+                                                                                        (2017, 145, 4, 'Absent'),
+                                                                                        (2018, 145, 16, 'Absent'),
+                                                                                        (2019, 145, 22, 'Present'),
+                                                                                        (2020, 145, 34, 'Absent'),
+                                                                                        (2021, 145, 40, 'Absent'),
+                                                                                        (2022, 145, 52, 'Present'),
+                                                                                        (2023, 145, 58, 'Absent'),
+                                                                                        (2024, 145, 70, 'Absent'),
+                                                                                        (2025, 145, 76, 'Present'),
+                                                                                        (2026, 145, 88, 'Present'),
+                                                                                        (2027, 145, 94, 'Absent'),
+                                                                                        (2028, 145, 106, 'Absent');
+INSERT INTO `attendance` (`attendance_id`, `enrollment_id`, `session_id`, `status`) VALUES
+                                                                                        (2029, 145, 112, 'Present'),
+                                                                                        (2030, 145, 124, 'Absent'),
+                                                                                        (2031, 146, 4, 'Absent'),
+                                                                                        (2032, 146, 16, 'Present'),
+                                                                                        (2033, 146, 22, 'Present'),
+                                                                                        (2034, 146, 34, 'Present'),
+                                                                                        (2035, 146, 40, 'Absent'),
+                                                                                        (2036, 146, 52, 'Absent'),
+                                                                                        (2037, 146, 58, 'Absent'),
+                                                                                        (2038, 146, 70, 'Absent'),
+                                                                                        (2039, 146, 76, 'Absent'),
+                                                                                        (2040, 146, 88, 'Present'),
+                                                                                        (2041, 146, 94, 'Absent'),
+                                                                                        (2042, 146, 106, 'Present'),
+                                                                                        (2043, 146, 112, 'Absent'),
+                                                                                        (2044, 146, 124, 'Absent'),
+                                                                                        (2045, 147, 4, 'Present'),
+                                                                                        (2046, 147, 16, 'Present'),
+                                                                                        (2047, 147, 22, 'Present'),
+                                                                                        (2048, 147, 34, 'Present'),
+                                                                                        (2049, 147, 40, 'Present'),
+                                                                                        (2050, 147, 52, 'Absent'),
+                                                                                        (2051, 147, 58, 'Present'),
+                                                                                        (2052, 147, 70, 'Present'),
+                                                                                        (2053, 147, 76, 'Present'),
+                                                                                        (2054, 147, 88, 'Present'),
+                                                                                        (2055, 147, 94, 'Present'),
+                                                                                        (2056, 147, 106, 'Absent'),
+                                                                                        (2057, 147, 112, 'Present'),
+                                                                                        (2058, 147, 124, 'Present'),
+                                                                                        (2059, 148, 4, 'Present'),
+                                                                                        (2060, 148, 16, 'Present'),
+                                                                                        (2061, 148, 22, 'Present'),
+                                                                                        (2062, 148, 34, 'Present'),
+                                                                                        (2063, 148, 40, 'Present'),
+                                                                                        (2064, 148, 52, 'Present'),
+                                                                                        (2065, 148, 58, 'Present'),
+                                                                                        (2066, 148, 70, 'Present'),
+                                                                                        (2067, 148, 76, 'Present'),
+                                                                                        (2068, 148, 88, 'Present'),
+                                                                                        (2069, 148, 94, 'Present'),
+                                                                                        (2070, 148, 106, 'Present'),
+                                                                                        (2071, 148, 112, 'Present'),
+                                                                                        (2072, 148, 124, 'Absent'),
+                                                                                        (2073, 149, 4, 'Absent'),
+                                                                                        (2074, 149, 16, 'Absent'),
+                                                                                        (2075, 149, 22, 'Present'),
+                                                                                        (2076, 149, 34, 'Present'),
+                                                                                        (2077, 149, 40, 'Present'),
+                                                                                        (2078, 149, 52, 'Present'),
+                                                                                        (2079, 149, 58, 'Present'),
+                                                                                        (2080, 149, 70, 'Present'),
+                                                                                        (2081, 149, 76, 'Present'),
+                                                                                        (2082, 149, 88, 'Present'),
+                                                                                        (2083, 149, 94, 'Present'),
+                                                                                        (2084, 149, 106, 'Present'),
+                                                                                        (2085, 149, 112, 'Present'),
+                                                                                        (2086, 149, 124, 'Present'),
+                                                                                        (2087, 150, 4, 'Present'),
+                                                                                        (2088, 150, 16, 'Absent'),
+                                                                                        (2089, 150, 22, 'Present'),
+                                                                                        (2090, 150, 34, 'Present'),
+                                                                                        (2091, 150, 40, 'Present'),
+                                                                                        (2092, 150, 52, 'Present'),
+                                                                                        (2093, 150, 58, 'Present'),
+                                                                                        (2094, 150, 70, 'Present'),
+                                                                                        (2095, 150, 76, 'Present'),
+                                                                                        (2096, 150, 88, 'Present'),
+                                                                                        (2097, 150, 94, 'Present'),
+                                                                                        (2098, 150, 106, 'Present'),
+                                                                                        (2099, 150, 112, 'Present'),
+                                                                                        (2100, 150, 124, 'Present'),
+                                                                                        (2101, 151, 4, 'Present'),
+                                                                                        (2102, 151, 16, 'Present'),
+                                                                                        (2103, 151, 22, 'Present'),
+                                                                                        (2104, 151, 34, 'Present'),
+                                                                                        (2105, 151, 40, 'Absent'),
+                                                                                        (2106, 151, 52, 'Present'),
+                                                                                        (2107, 151, 58, 'Present'),
+                                                                                        (2108, 151, 70, 'Present'),
+                                                                                        (2109, 151, 76, 'Present'),
+                                                                                        (2110, 151, 88, 'Present'),
+                                                                                        (2111, 151, 94, 'Present'),
+                                                                                        (2112, 151, 106, 'Present'),
+                                                                                        (2113, 151, 112, 'Present'),
+                                                                                        (2114, 151, 124, 'Present'),
+                                                                                        (2115, 152, 4, 'Present'),
+                                                                                        (2116, 152, 16, 'Present'),
+                                                                                        (2117, 152, 22, 'Present'),
+                                                                                        (2118, 152, 34, 'Present'),
+                                                                                        (2119, 152, 40, 'Present'),
+                                                                                        (2120, 152, 52, 'Present'),
+                                                                                        (2121, 152, 58, 'Present'),
+                                                                                        (2122, 152, 70, 'Present'),
+                                                                                        (2123, 152, 76, 'Present'),
+                                                                                        (2124, 152, 88, 'Present'),
+                                                                                        (2125, 152, 94, 'Present'),
+                                                                                        (2126, 152, 106, 'Present'),
+                                                                                        (2127, 152, 112, 'Present'),
+                                                                                        (2128, 152, 124, 'Present'),
+                                                                                        (2129, 153, 4, 'Present'),
+                                                                                        (2130, 153, 16, 'Present'),
+                                                                                        (2131, 153, 22, 'Present'),
+                                                                                        (2132, 153, 34, 'Present'),
+                                                                                        (2133, 153, 40, 'Present'),
+                                                                                        (2134, 153, 52, 'Absent'),
+                                                                                        (2135, 153, 58, 'Present'),
+                                                                                        (2136, 153, 70, 'Present'),
+                                                                                        (2137, 153, 76, 'Present'),
+                                                                                        (2138, 153, 88, 'Present'),
+                                                                                        (2139, 153, 94, 'Present'),
+                                                                                        (2140, 153, 106, 'Present'),
+                                                                                        (2141, 153, 112, 'Present'),
+                                                                                        (2142, 153, 124, 'Present'),
+                                                                                        (2143, 154, 4, 'Present'),
+                                                                                        (2144, 154, 16, 'Present'),
+                                                                                        (2145, 154, 22, 'Present'),
+                                                                                        (2146, 154, 34, 'Present'),
+                                                                                        (2147, 154, 40, 'Present'),
+                                                                                        (2148, 154, 52, 'Present'),
+                                                                                        (2149, 154, 58, 'Present'),
+                                                                                        (2150, 154, 70, 'Present'),
+                                                                                        (2151, 154, 76, 'Absent'),
+                                                                                        (2152, 154, 88, 'Present'),
+                                                                                        (2153, 154, 94, 'Absent'),
+                                                                                        (2154, 154, 106, 'Present'),
+                                                                                        (2155, 154, 112, 'Present'),
+                                                                                        (2156, 154, 124, 'Present'),
+                                                                                        (2157, 155, 4, 'Present'),
+                                                                                        (2158, 155, 16, 'Present'),
+                                                                                        (2159, 155, 22, 'Present'),
+                                                                                        (2160, 155, 34, 'Present'),
+                                                                                        (2161, 155, 40, 'Present'),
+                                                                                        (2162, 155, 52, 'Present'),
+                                                                                        (2163, 155, 58, 'Present'),
+                                                                                        (2164, 155, 70, 'Present'),
+                                                                                        (2165, 155, 76, 'Present'),
+                                                                                        (2166, 155, 88, 'Present'),
+                                                                                        (2167, 155, 94, 'Present'),
+                                                                                        (2168, 155, 106, 'Present'),
+                                                                                        (2169, 155, 112, 'Absent'),
+                                                                                        (2170, 155, 124, 'Present'),
+                                                                                        (2171, 156, 4, 'Absent'),
+                                                                                        (2172, 156, 16, 'Absent'),
+                                                                                        (2173, 156, 22, 'Present'),
+                                                                                        (2174, 156, 34, 'Present'),
+                                                                                        (2175, 156, 40, 'Present'),
+                                                                                        (2176, 156, 52, 'Present'),
+                                                                                        (2177, 156, 58, 'Present'),
+                                                                                        (2178, 156, 70, 'Present'),
+                                                                                        (2179, 156, 76, 'Absent'),
+                                                                                        (2180, 156, 88, 'Present'),
+                                                                                        (2181, 156, 94, 'Absent'),
+                                                                                        (2182, 156, 106, 'Present'),
+                                                                                        (2183, 156, 112, 'Present'),
+                                                                                        (2184, 156, 124, 'Present'),
+                                                                                        (2185, 157, 4, 'Present'),
+                                                                                        (2186, 157, 16, 'Present'),
+                                                                                        (2187, 157, 22, 'Present'),
+                                                                                        (2188, 157, 34, 'Present'),
+                                                                                        (2189, 157, 40, 'Absent'),
+                                                                                        (2190, 157, 52, 'Absent'),
+                                                                                        (2191, 157, 58, 'Present'),
+                                                                                        (2192, 157, 70, 'Present'),
+                                                                                        (2193, 157, 76, 'Absent'),
+                                                                                        (2194, 157, 88, 'Present'),
+                                                                                        (2195, 157, 94, 'Present'),
+                                                                                        (2196, 157, 106, 'Absent'),
+                                                                                        (2197, 157, 112, 'Present'),
+                                                                                        (2198, 157, 124, 'Absent'),
+                                                                                        (2199, 158, 4, 'Absent'),
+                                                                                        (2200, 158, 16, 'Absent'),
+                                                                                        (2201, 158, 22, 'Absent'),
+                                                                                        (2202, 158, 34, 'Present'),
+                                                                                        (2203, 158, 40, 'Absent'),
+                                                                                        (2204, 158, 52, 'Absent'),
+                                                                                        (2205, 158, 58, 'Absent'),
+                                                                                        (2206, 158, 70, 'Absent'),
+                                                                                        (2207, 158, 76, 'Absent'),
+                                                                                        (2208, 158, 88, 'Absent'),
+                                                                                        (2209, 158, 94, 'Present'),
+                                                                                        (2210, 158, 106, 'Absent'),
+                                                                                        (2211, 158, 112, 'Absent'),
+                                                                                        (2212, 158, 124, 'Absent'),
+                                                                                        (2213, 159, 4, 'Present'),
+                                                                                        (2214, 159, 16, 'Absent'),
+                                                                                        (2215, 159, 22, 'Present'),
+                                                                                        (2216, 159, 34, 'Present'),
+                                                                                        (2217, 159, 40, 'Present'),
+                                                                                        (2218, 159, 52, 'Present'),
+                                                                                        (2219, 159, 58, 'Present'),
+                                                                                        (2220, 159, 70, 'Present'),
+                                                                                        (2221, 159, 76, 'Present'),
+                                                                                        (2222, 159, 88, 'Absent'),
+                                                                                        (2223, 159, 94, 'Absent'),
+                                                                                        (2224, 159, 106, 'Present'),
+                                                                                        (2225, 159, 112, 'Absent'),
+                                                                                        (2226, 159, 124, 'Present'),
+                                                                                        (2227, 160, 4, 'Present'),
+                                                                                        (2228, 160, 16, 'Absent'),
+                                                                                        (2229, 160, 22, 'Absent'),
+                                                                                        (2230, 160, 34, 'Present'),
+                                                                                        (2231, 160, 40, 'Absent'),
+                                                                                        (2232, 160, 52, 'Present'),
+                                                                                        (2233, 160, 58, 'Present'),
+                                                                                        (2234, 160, 70, 'Absent'),
+                                                                                        (2235, 160, 76, 'Absent'),
+                                                                                        (2236, 160, 88, 'Absent'),
+                                                                                        (2237, 160, 94, 'Present'),
+                                                                                        (2238, 160, 106, 'Present'),
+                                                                                        (2239, 160, 112, 'Present'),
+                                                                                        (2240, 160, 124, 'Absent'),
+                                                                                        (2241, 161, 5, 'Present'),
+                                                                                        (2242, 161, 13, 'Present'),
+                                                                                        (2243, 161, 23, 'Absent'),
+                                                                                        (2244, 161, 31, 'Absent'),
+                                                                                        (2245, 161, 41, 'Absent'),
+                                                                                        (2246, 161, 49, 'Present'),
+                                                                                        (2247, 161, 59, 'Present'),
+                                                                                        (2248, 161, 67, 'Absent'),
+                                                                                        (2249, 161, 77, 'Present'),
+                                                                                        (2250, 161, 85, 'Present'),
+                                                                                        (2251, 161, 95, 'Present'),
+                                                                                        (2252, 161, 103, 'Present'),
+                                                                                        (2253, 161, 113, 'Absent'),
+                                                                                        (2254, 161, 121, 'Absent'),
+                                                                                        (2255, 162, 5, 'Present'),
+                                                                                        (2256, 162, 13, 'Present'),
+                                                                                        (2257, 162, 23, 'Present'),
+                                                                                        (2258, 162, 31, 'Present'),
+                                                                                        (2259, 162, 41, 'Present'),
+                                                                                        (2260, 162, 49, 'Absent'),
+                                                                                        (2261, 162, 59, 'Present'),
+                                                                                        (2262, 162, 67, 'Absent'),
+                                                                                        (2263, 162, 77, 'Absent'),
+                                                                                        (2264, 162, 85, 'Absent'),
+                                                                                        (2265, 162, 95, 'Present'),
+                                                                                        (2266, 162, 103, 'Present'),
+                                                                                        (2267, 162, 113, 'Present'),
+                                                                                        (2268, 162, 121, 'Absent'),
+                                                                                        (2269, 163, 5, 'Present'),
+                                                                                        (2270, 163, 13, 'Present'),
+                                                                                        (2271, 163, 23, 'Absent'),
+                                                                                        (2272, 163, 31, 'Absent'),
+                                                                                        (2273, 163, 41, 'Absent'),
+                                                                                        (2274, 163, 49, 'Absent'),
+                                                                                        (2275, 163, 59, 'Present'),
+                                                                                        (2276, 163, 67, 'Present'),
+                                                                                        (2277, 163, 77, 'Present'),
+                                                                                        (2278, 163, 85, 'Absent'),
+                                                                                        (2279, 163, 95, 'Present'),
+                                                                                        (2280, 163, 103, 'Absent'),
+                                                                                        (2281, 163, 113, 'Present'),
+                                                                                        (2282, 163, 121, 'Absent'),
+                                                                                        (2283, 164, 5, 'Present'),
+                                                                                        (2284, 164, 13, 'Present'),
+                                                                                        (2285, 164, 23, 'Present'),
+                                                                                        (2286, 164, 31, 'Present'),
+                                                                                        (2287, 164, 41, 'Absent'),
+                                                                                        (2288, 164, 49, 'Absent'),
+                                                                                        (2289, 164, 59, 'Present'),
+                                                                                        (2290, 164, 67, 'Present'),
+                                                                                        (2291, 164, 77, 'Present'),
+                                                                                        (2292, 164, 85, 'Present'),
+                                                                                        (2293, 164, 95, 'Present'),
+                                                                                        (2294, 164, 103, 'Present'),
+                                                                                        (2295, 164, 113, 'Present'),
+                                                                                        (2296, 164, 121, 'Present'),
+                                                                                        (2297, 165, 5, 'Present'),
+                                                                                        (2298, 165, 13, 'Present'),
+                                                                                        (2299, 165, 23, 'Present'),
+                                                                                        (2300, 165, 31, 'Present'),
+                                                                                        (2301, 165, 41, 'Present'),
+                                                                                        (2302, 165, 49, 'Present'),
+                                                                                        (2303, 165, 59, 'Present'),
+                                                                                        (2304, 165, 67, 'Absent'),
+                                                                                        (2305, 165, 77, 'Present'),
+                                                                                        (2306, 165, 85, 'Present'),
+                                                                                        (2307, 165, 95, 'Absent'),
+                                                                                        (2308, 165, 103, 'Present'),
+                                                                                        (2309, 165, 113, 'Present'),
+                                                                                        (2310, 165, 121, 'Present'),
+                                                                                        (2311, 166, 5, 'Present'),
+                                                                                        (2312, 166, 13, 'Present'),
+                                                                                        (2313, 166, 23, 'Present'),
+                                                                                        (2314, 166, 31, 'Present'),
+                                                                                        (2315, 166, 41, 'Present'),
+                                                                                        (2316, 166, 49, 'Present'),
+                                                                                        (2317, 166, 59, 'Absent'),
+                                                                                        (2318, 166, 67, 'Present'),
+                                                                                        (2319, 166, 77, 'Present'),
+                                                                                        (2320, 166, 85, 'Present'),
+                                                                                        (2321, 166, 95, 'Present'),
+                                                                                        (2322, 166, 103, 'Absent'),
+                                                                                        (2323, 166, 113, 'Present'),
+                                                                                        (2324, 166, 121, 'Present'),
+                                                                                        (2325, 167, 5, 'Present'),
+                                                                                        (2326, 167, 13, 'Present'),
+                                                                                        (2327, 167, 23, 'Present'),
+                                                                                        (2328, 167, 31, 'Present'),
+                                                                                        (2329, 167, 41, 'Present'),
+                                                                                        (2330, 167, 49, 'Present'),
+                                                                                        (2331, 167, 59, 'Absent'),
+                                                                                        (2332, 167, 67, 'Present'),
+                                                                                        (2333, 167, 77, 'Present'),
+                                                                                        (2334, 167, 85, 'Absent'),
+                                                                                        (2335, 167, 95, 'Present'),
+                                                                                        (2336, 167, 103, 'Present'),
+                                                                                        (2337, 167, 113, 'Present'),
+                                                                                        (2338, 167, 121, 'Present'),
+                                                                                        (2339, 168, 5, 'Present'),
+                                                                                        (2340, 168, 13, 'Present'),
+                                                                                        (2341, 168, 23, 'Present'),
+                                                                                        (2342, 168, 31, 'Present'),
+                                                                                        (2343, 168, 41, 'Present'),
+                                                                                        (2344, 168, 49, 'Present'),
+                                                                                        (2345, 168, 59, 'Present'),
+                                                                                        (2346, 168, 67, 'Present'),
+                                                                                        (2347, 168, 77, 'Absent'),
+                                                                                        (2348, 168, 85, 'Absent'),
+                                                                                        (2349, 168, 95, 'Present'),
+                                                                                        (2350, 168, 103, 'Present'),
+                                                                                        (2351, 168, 113, 'Present'),
+                                                                                        (2352, 168, 121, 'Present'),
+                                                                                        (2353, 169, 5, 'Present'),
+                                                                                        (2354, 169, 13, 'Present'),
+                                                                                        (2355, 169, 23, 'Present'),
+                                                                                        (2356, 169, 31, 'Present'),
+                                                                                        (2357, 169, 41, 'Present'),
+                                                                                        (2358, 169, 49, 'Present'),
+                                                                                        (2359, 169, 59, 'Present'),
+                                                                                        (2360, 169, 67, 'Present'),
+                                                                                        (2361, 169, 77, 'Present'),
+                                                                                        (2362, 169, 85, 'Present'),
+                                                                                        (2363, 169, 95, 'Present'),
+                                                                                        (2364, 169, 103, 'Absent'),
+                                                                                        (2365, 169, 113, 'Present'),
+                                                                                        (2366, 169, 121, 'Present'),
+                                                                                        (2367, 170, 5, 'Present'),
+                                                                                        (2368, 170, 13, 'Present'),
+                                                                                        (2369, 170, 23, 'Present'),
+                                                                                        (2370, 170, 31, 'Absent'),
+                                                                                        (2371, 170, 41, 'Present'),
+                                                                                        (2372, 170, 49, 'Present'),
+                                                                                        (2373, 170, 59, 'Present'),
+                                                                                        (2374, 170, 67, 'Present'),
+                                                                                        (2375, 170, 77, 'Present'),
+                                                                                        (2376, 170, 85, 'Present'),
+                                                                                        (2377, 170, 95, 'Present'),
+                                                                                        (2378, 170, 103, 'Present'),
+                                                                                        (2379, 170, 113, 'Present'),
+                                                                                        (2380, 170, 121, 'Present'),
+                                                                                        (2381, 171, 5, 'Present'),
+                                                                                        (2382, 171, 13, 'Present'),
+                                                                                        (2383, 171, 23, 'Present'),
+                                                                                        (2384, 171, 31, 'Present'),
+                                                                                        (2385, 171, 41, 'Present'),
+                                                                                        (2386, 171, 49, 'Present'),
+                                                                                        (2387, 171, 59, 'Present'),
+                                                                                        (2388, 171, 67, 'Present'),
+                                                                                        (2389, 171, 77, 'Present'),
+                                                                                        (2390, 171, 85, 'Present'),
+                                                                                        (2391, 171, 95, 'Present'),
+                                                                                        (2392, 171, 103, 'Present'),
+                                                                                        (2393, 171, 113, 'Present'),
+                                                                                        (2394, 171, 121, 'Absent'),
+                                                                                        (2395, 172, 5, 'Present'),
+                                                                                        (2396, 172, 13, 'Present'),
+                                                                                        (2397, 172, 23, 'Present'),
+                                                                                        (2398, 172, 31, 'Present'),
+                                                                                        (2399, 172, 41, 'Present'),
+                                                                                        (2400, 172, 49, 'Present'),
+                                                                                        (2401, 172, 59, 'Present'),
+                                                                                        (2402, 172, 67, 'Present'),
+                                                                                        (2403, 172, 77, 'Absent'),
+                                                                                        (2404, 172, 85, 'Present'),
+                                                                                        (2405, 172, 95, 'Present'),
+                                                                                        (2406, 172, 103, 'Present'),
+                                                                                        (2407, 172, 113, 'Present'),
+                                                                                        (2408, 172, 121, 'Present'),
+                                                                                        (2409, 173, 5, 'Present'),
+                                                                                        (2410, 173, 13, 'Present'),
+                                                                                        (2411, 173, 23, 'Present'),
+                                                                                        (2412, 173, 31, 'Present'),
+                                                                                        (2413, 173, 41, 'Present'),
+                                                                                        (2414, 173, 49, 'Present'),
+                                                                                        (2415, 173, 59, 'Present'),
+                                                                                        (2416, 173, 67, 'Present'),
+                                                                                        (2417, 173, 77, 'Present'),
+                                                                                        (2418, 173, 85, 'Present'),
+                                                                                        (2419, 173, 95, 'Present'),
+                                                                                        (2420, 173, 103, 'Present'),
+                                                                                        (2421, 173, 113, 'Present'),
+                                                                                        (2422, 173, 121, 'Present'),
+                                                                                        (2423, 174, 5, 'Present'),
+                                                                                        (2424, 174, 13, 'Present'),
+                                                                                        (2425, 174, 23, 'Present'),
+                                                                                        (2426, 174, 31, 'Present'),
+                                                                                        (2427, 174, 41, 'Present'),
+                                                                                        (2428, 174, 49, 'Present'),
+                                                                                        (2429, 174, 59, 'Present'),
+                                                                                        (2430, 174, 67, 'Absent'),
+                                                                                        (2431, 174, 77, 'Present'),
+                                                                                        (2432, 174, 85, 'Present'),
+                                                                                        (2433, 174, 95, 'Present'),
+                                                                                        (2434, 174, 103, 'Present'),
+                                                                                        (2435, 174, 113, 'Present'),
+                                                                                        (2436, 174, 121, 'Absent'),
+                                                                                        (2437, 175, 5, 'Present'),
+                                                                                        (2438, 175, 13, 'Present'),
+                                                                                        (2439, 175, 23, 'Present'),
+                                                                                        (2440, 175, 31, 'Present'),
+                                                                                        (2441, 175, 41, 'Present'),
+                                                                                        (2442, 175, 49, 'Present'),
+                                                                                        (2443, 175, 59, 'Present'),
+                                                                                        (2444, 175, 67, 'Present'),
+                                                                                        (2445, 175, 77, 'Present'),
+                                                                                        (2446, 175, 85, 'Absent'),
+                                                                                        (2447, 175, 95, 'Present'),
+                                                                                        (2448, 175, 103, 'Present'),
+                                                                                        (2449, 175, 113, 'Present'),
+                                                                                        (2450, 175, 121, 'Present'),
+                                                                                        (2451, 176, 5, 'Absent'),
+                                                                                        (2452, 176, 13, 'Absent'),
+                                                                                        (2453, 176, 23, 'Present'),
+                                                                                        (2454, 176, 31, 'Present'),
+                                                                                        (2455, 176, 41, 'Present'),
+                                                                                        (2456, 176, 49, 'Present'),
+                                                                                        (2457, 176, 59, 'Present'),
+                                                                                        (2458, 176, 67, 'Present'),
+                                                                                        (2459, 176, 77, 'Present'),
+                                                                                        (2460, 176, 85, 'Present'),
+                                                                                        (2461, 176, 95, 'Absent'),
+                                                                                        (2462, 176, 103, 'Present'),
+                                                                                        (2463, 176, 113, 'Absent'),
+                                                                                        (2464, 176, 121, 'Present'),
+                                                                                        (2465, 177, 5, 'Absent'),
+                                                                                        (2466, 177, 13, 'Present'),
+                                                                                        (2467, 177, 23, 'Present'),
+                                                                                        (2468, 177, 31, 'Absent'),
+                                                                                        (2469, 177, 41, 'Present'),
+                                                                                        (2470, 177, 49, 'Present'),
+                                                                                        (2471, 177, 59, 'Present'),
+                                                                                        (2472, 177, 67, 'Present'),
+                                                                                        (2473, 177, 77, 'Present'),
+                                                                                        (2474, 177, 85, 'Present'),
+                                                                                        (2475, 177, 95, 'Present'),
+                                                                                        (2476, 177, 103, 'Present'),
+                                                                                        (2477, 177, 113, 'Present'),
+                                                                                        (2478, 177, 121, 'Absent'),
+                                                                                        (2479, 178, 5, 'Present'),
+                                                                                        (2480, 178, 13, 'Absent'),
+                                                                                        (2481, 178, 23, 'Present'),
+                                                                                        (2482, 178, 31, 'Absent'),
+                                                                                        (2483, 178, 41, 'Absent'),
+                                                                                        (2484, 178, 49, 'Present'),
+                                                                                        (2485, 178, 59, 'Present'),
+                                                                                        (2486, 178, 67, 'Absent'),
+                                                                                        (2487, 178, 77, 'Absent'),
+                                                                                        (2488, 178, 85, 'Absent'),
+                                                                                        (2489, 178, 95, 'Absent'),
+                                                                                        (2490, 178, 103, 'Absent'),
+                                                                                        (2491, 178, 113, 'Absent'),
+                                                                                        (2492, 178, 121, 'Absent'),
+                                                                                        (2493, 179, 5, 'Absent'),
+                                                                                        (2494, 179, 13, 'Present'),
+                                                                                        (2495, 179, 23, 'Absent'),
+                                                                                        (2496, 179, 31, 'Present'),
+                                                                                        (2497, 179, 41, 'Present'),
+                                                                                        (2498, 179, 49, 'Present'),
+                                                                                        (2499, 179, 59, 'Absent'),
+                                                                                        (2500, 179, 67, 'Present'),
+                                                                                        (2501, 179, 77, 'Present'),
+                                                                                        (2502, 179, 85, 'Absent'),
+                                                                                        (2503, 179, 95, 'Present'),
+                                                                                        (2504, 179, 103, 'Present'),
+                                                                                        (2505, 179, 113, 'Present'),
+                                                                                        (2506, 179, 121, 'Present'),
+                                                                                        (2507, 180, 5, 'Present'),
+                                                                                        (2508, 180, 13, 'Absent'),
+                                                                                        (2509, 180, 23, 'Present'),
+                                                                                        (2510, 180, 31, 'Present'),
+                                                                                        (2511, 180, 41, 'Absent'),
+                                                                                        (2512, 180, 49, 'Present'),
+                                                                                        (2513, 180, 59, 'Absent'),
+                                                                                        (2514, 180, 67, 'Present'),
+                                                                                        (2515, 180, 77, 'Absent'),
+                                                                                        (2516, 180, 85, 'Absent'),
+                                                                                        (2517, 180, 95, 'Present'),
+                                                                                        (2518, 180, 103, 'Present'),
+                                                                                        (2519, 180, 113, 'Present'),
+                                                                                        (2520, 180, 121, 'Present');
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `batch`
 --
 
-DROP TABLE IF EXISTS `batch`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `batch` (
-                         `batch_id` int NOT NULL AUTO_INCREMENT,
-                         `batch_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-                         `academic_year` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-                         PRIMARY KEY (`batch_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                         `batch_id` int(11) NOT NULL,
+                         `batch_name` varchar(50) NOT NULL,
+                         `academic_year` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `batch`
 --
 
-LOCK TABLES `batch` WRITE;
-/*!40000 ALTER TABLE `batch` DISABLE KEYS */;
-INSERT INTO `batch` VALUES (1,'ICT Batch 2023','2023/2024'),(2,'ICT Batch 2024','2024/2025'),(3,'CS Batch 2024','2024/2025');
-/*!40000 ALTER TABLE `batch` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `batch` (`batch_id`, `batch_name`, `academic_year`) VALUES
+                                                                    (1, 'ICT Batch 2022', '2022/2023'),
+                                                                    (2, 'ICT Batch 2023', '2023/2024');
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `ca_evaluation`
 --
 
-DROP TABLE IF EXISTS `ca_evaluation`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ca_evaluation` (
-                                 `evaluation_id` int NOT NULL AUTO_INCREMENT,
-                                 `enrollment_id` int NOT NULL,
+                                 `evaluation_id` int(11) NOT NULL,
+                                 `enrollment_id` int(11) NOT NULL,
                                  `total_quiz_marks` decimal(5,2) DEFAULT NULL,
-                                 `CA_status` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
-                                 `eligibility` tinyint(1) DEFAULT '1',
+                                 `CA_status` varchar(30) DEFAULT NULL,
+                                 `eligibility` tinyint(1) DEFAULT 1,
                                  `quiz1_marks` decimal(5,2) DEFAULT NULL,
                                  `quiz2_marks` decimal(5,2) DEFAULT NULL,
                                  `quiz_marks` decimal(5,2) DEFAULT NULL,
                                  `assignment1_marks` decimal(5,2) DEFAULT NULL,
                                  `assignment2_marks` decimal(5,2) DEFAULT NULL,
                                  `mid_exam_marks` decimal(5,2) DEFAULT NULL,
-                                 `total_CA_marks` decimal(5,2) DEFAULT NULL,
-                                 PRIMARY KEY (`evaluation_id`),
-                                 UNIQUE KEY `uq_ca_enrollment` (`enrollment_id`),
-                                 CONSTRAINT `fk_ca_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollment` (`enrollment_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                                 `total_CA_marks` decimal(5,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `ca_evaluation`
 --
 
-LOCK TABLES `ca_evaluation` WRITE;
-/*!40000 ALTER TABLE `ca_evaluation` DISABLE KEYS */;
-INSERT INTO `ca_evaluation` VALUES (1,1,17.00,'Completed',1,8.00,9.00,17.00,18.00,17.00,22.00,74.00),(2,3,15.00,'Completed',1,7.00,8.00,15.00,16.00,18.00,20.00,69.00),(3,5,12.00,'In Progress',1,6.00,6.00,12.00,15.00,14.00,18.00,59.00);
-/*!40000 ALTER TABLE `ca_evaluation` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `ca_evaluation` (`evaluation_id`, `enrollment_id`, `total_quiz_marks`, `CA_status`, `eligibility`, `quiz1_marks`, `quiz2_marks`, `quiz_marks`, `assignment1_marks`, `assignment2_marks`, `mid_exam_marks`, `total_CA_marks`) VALUES
+                                                                                                                                                                                                                                             (1, 1, 95.50, 'Completed', 1, 99.00, 92.00, 95.50, 95.00, 86.00, 87.00, 90.10),
+                                                                                                                                                                                                                                             (2, 2, 90.00, 'Completed', 1, 92.00, 88.00, 90.00, 100.00, 93.00, 95.00, 94.60),
+                                                                                                                                                                                                                                             (3, 3, 89.00, 'Completed', 1, 94.00, 84.00, 89.00, 92.00, 88.00, 91.00, 90.20),
+                                                                                                                                                                                                                                             (4, 4, 93.00, 'Completed', 1, 98.00, 88.00, 93.00, 88.00, 89.00, 100.00, 94.00),
+                                                                                                                                                                                                                                             (5, 5, 83.50, 'Completed', 1, 80.00, 87.00, 83.50, 76.00, 87.00, 85.00, 83.30),
+                                                                                                                                                                                                                                             (6, 6, 62.50, 'Completed', 1, 62.00, 63.00, 62.50, 59.00, 72.00, 71.00, 67.10),
+                                                                                                                                                                                                                                             (7, 7, 63.00, 'Completed', 1, 67.00, 59.00, 63.00, 75.00, 60.00, 74.00, 69.20),
+                                                                                                                                                                                                                                             (8, 8, 22.50, 'Failed CA', 0, 20.00, 25.00, 22.50, 31.00, 24.00, 21.00, 23.90),
+                                                                                                                                                                                                                                             (9, 9, 52.00, 'Completed', 0, 54.00, 50.00, 52.00, 52.00, 39.00, 47.00, 47.40),
+                                                                                                                                                                                                                                             (10, 10, 22.50, 'Failed CA', 0, 26.00, 19.00, 22.50, 25.00, 18.00, 27.00, 23.90),
+                                                                                                                                                                                                                                             (11, 11, 92.00, 'Completed', 1, 89.00, 95.00, 92.00, 100.00, 89.00, 90.00, 92.20),
+                                                                                                                                                                                                                                             (12, 12, 89.00, 'Completed', 1, 85.00, 93.00, 89.00, 81.00, 77.00, 93.00, 86.60),
+                                                                                                                                                                                                                                             (13, 13, 80.00, 'Completed', 1, 82.00, 78.00, 80.00, 72.00, 86.00, 87.00, 82.40),
+                                                                                                                                                                                                                                             (14, 14, 61.00, 'Completed', 1, 62.00, 60.00, 61.00, 66.00, 67.00, 56.00, 61.20),
+                                                                                                                                                                                                                                             (15, 15, 62.00, 'Completed', 1, 62.00, 62.00, 62.00, 65.00, 72.00, 59.00, 63.40),
+                                                                                                                                                                                                                                             (16, 16, 43.50, 'Completed', 1, 42.00, 45.00, 43.50, 40.00, 38.00, 41.00, 40.70),
+                                                                                                                                                                                                                                             (17, 17, 42.00, 'Completed', 1, 48.00, 36.00, 42.00, 44.00, 36.00, 48.00, 43.60),
+                                                                                                                                                                                                                                             (18, 18, 30.00, 'Failed CA', 0, 30.00, 30.00, 30.00, 33.00, 27.00, 33.00, 31.20),
+                                                                                                                                                                                                                                             (19, 19, 36.50, 'Failed CA', 0, 40.00, 33.00, 36.50, 30.00, 44.00, 34.00, 35.70),
+                                                                                                                                                                                                                                             (20, 20, 66.50, 'Completed', 1, 66.00, 67.00, 66.50, 69.00, 66.00, 66.00, 66.70),
+                                                                                                                                                                                                                                             (21, 21, 47.00, 'Medical Concession', 1, 43.00, 51.00, 47.00, 53.00, 56.00, 55.00, 53.20),
+                                                                                                                                                                                                                                             (22, 22, 52.50, 'Completed', 0, 48.00, 57.00, 52.50, 48.00, 43.00, 51.00, 49.10),
+                                                                                                                                                                                                                                             (23, 23, 39.50, 'Failed CA', 0, 46.00, 33.00, 39.50, 34.00, 37.00, 39.00, 37.70),
+                                                                                                                                                                                                                                             (24, 24, 75.00, 'Completed', 0, 82.00, 68.00, 75.00, 71.00, 79.00, 74.00, 74.60),
+                                                                                                                                                                                                                                             (25, 25, 53.00, 'Completed', 0, 49.00, 57.00, 53.00, 53.00, 53.00, 49.00, 51.40),
+                                                                                                                                                                                                                                             (26, 26, 66.50, 'Completed', 0, 66.00, 67.00, 66.50, 70.00, 68.00, 66.00, 67.30),
+                                                                                                                                                                                                                                             (27, 27, 40.50, 'Completed', 0, 46.00, 35.00, 40.50, 39.00, 39.00, 43.00, 40.90),
+                                                                                                                                                                                                                                             (28, 28, 29.50, 'Failed CA', 0, 26.00, 33.00, 29.50, 17.00, 23.00, 23.00, 23.10),
+                                                                                                                                                                                                                                             (29, 29, 25.50, 'Failed CA', 0, 25.00, 26.00, 25.50, 31.00, 34.00, 22.00, 26.90),
+                                                                                                                                                                                                                                             (30, 30, 98.50, 'Completed', 1, 100.00, 97.00, 98.50, 100.00, 99.00, 93.00, 96.70),
+                                                                                                                                                                                                                                             (31, 31, 82.50, 'Completed', 1, 79.00, 86.00, 82.50, 81.00, 80.00, 86.00, 83.10),
+                                                                                                                                                                                                                                             (32, 32, 69.50, 'Completed', 1, 62.00, 77.00, 69.50, 75.00, 66.00, 66.00, 68.50),
+                                                                                                                                                                                                                                             (33, 33, 76.50, 'Completed', 1, 79.00, 74.00, 76.50, 64.00, 65.00, 68.00, 68.30),
+                                                                                                                                                                                                                                             (34, 34, 70.00, 'Completed', 1, 64.00, 76.00, 70.00, 70.00, 77.00, 76.00, 73.80),
+                                                                                                                                                                                                                                             (35, 35, 47.00, 'Completed', 1, 47.00, 47.00, 47.00, 40.00, 50.00, 50.00, 47.40),
+                                                                                                                                                                                                                                             (36, 36, 39.00, 'Failed CA', 0, 39.00, 39.00, 39.00, 39.00, 39.00, 39.00, 39.00),
+                                                                                                                                                                                                                                             (37, 37, 35.00, 'Failed CA', 0, 37.00, 33.00, 35.00, 38.00, 34.00, 33.00, 34.60),
+                                                                                                                                                                                                                                             (38, 38, 36.00, 'Failed CA', 0, 32.00, 40.00, 36.00, 37.00, 32.00, 36.00, 35.40),
+                                                                                                                                                                                                                                             (39, 39, 66.00, 'Completed', 1, 71.00, 61.00, 66.00, 64.00, 76.00, 64.00, 66.80),
+                                                                                                                                                                                                                                             (40, 40, 65.50, 'Completed', 1, 68.00, 63.00, 65.50, 61.00, 69.00, 54.00, 60.70),
+                                                                                                                                                                                                                                             (41, 41, 68.50, 'Completed', 0, 63.00, 74.00, 68.50, 78.00, 74.00, 75.00, 74.10),
+                                                                                                                                                                                                                                             (42, 42, 57.50, 'Completed', 0, 55.00, 60.00, 57.50, 47.00, 50.00, 51.00, 51.30),
+                                                                                                                                                                                                                                             (43, 43, 70.00, 'Completed', 0, 74.00, 66.00, 70.00, 67.00, 66.00, 66.00, 67.00),
+                                                                                                                                                                                                                                             (44, 44, 58.00, 'Completed', 0, 58.00, 58.00, 58.00, 61.00, 51.00, 58.00, 57.20),
+                                                                                                                                                                                                                                             (45, 45, 60.50, 'Completed', 0, 66.00, 55.00, 60.50, 61.00, 57.00, 69.00, 63.30),
+                                                                                                                                                                                                                                             (46, 46, 36.50, 'Failed CA', 0, 34.00, 39.00, 36.50, 25.00, 28.00, 32.00, 30.70),
+                                                                                                                                                                                                                                             (47, 47, 17.00, 'Failed CA', 0, 16.00, 18.00, 17.00, 22.00, 20.00, 28.00, 23.00),
+                                                                                                                                                                                                                                             (48, 48, 33.50, 'Failed CA', 0, 33.00, 34.00, 33.50, 37.00, 34.00, 23.00, 30.10),
+                                                                                                                                                                                                                                             (49, 49, 97.00, 'Completed', 1, 99.00, 95.00, 97.00, 98.00, 88.00, 92.00, 93.40),
+                                                                                                                                                                                                                                             (50, 50, 96.00, 'Completed', 1, 97.00, 95.00, 96.00, 95.00, 91.00, 93.00, 93.60),
+                                                                                                                                                                                                                                             (51, 51, 79.50, 'Completed', 1, 82.00, 77.00, 79.50, 75.00, 79.00, 85.00, 80.70),
+                                                                                                                                                                                                                                             (52, 52, 73.00, 'Completed', 1, 74.00, 72.00, 73.00, 72.00, 76.00, 77.00, 75.00),
+                                                                                                                                                                                                                                             (53, 53, 63.00, 'Completed', 1, 68.00, 58.00, 63.00, 63.00, 58.00, 67.00, 63.60),
+                                                                                                                                                                                                                                             (54, 54, 62.50, 'Completed', 1, 59.00, 66.00, 62.50, 67.00, 56.00, 68.00, 64.30),
+                                                                                                                                                                                                                                             (55, 55, 60.50, 'Completed', 1, 63.00, 58.00, 60.50, 66.00, 57.00, 64.00, 62.30),
+                                                                                                                                                                                                                                             (56, 56, 47.50, 'Completed', 1, 47.00, 48.00, 47.50, 54.00, 46.00, 56.00, 51.90),
+                                                                                                                                                                                                                                             (57, 57, 33.00, 'Failed CA', 0, 38.00, 28.00, 33.00, 43.00, 37.00, 36.00, 37.00),
+                                                                                                                                                                                                                                             (58, 58, 42.50, 'Completed', 1, 41.00, 44.00, 42.50, 45.00, 47.00, 35.00, 40.90),
+                                                                                                                                                                                                                                             (59, 59, 62.50, 'Completed', 1, 58.00, 67.00, 62.50, 71.00, 73.00, 68.00, 68.50),
+                                                                                                                                                                                                                                             (60, 60, 68.00, 'Pending Medical', 1, 62.00, 74.00, 68.00, 65.00, 75.00, 66.00, 68.00),
+                                                                                                                                                                                                                                             (61, 61, 59.00, 'Completed', 0, 60.00, 58.00, 59.00, 54.00, 48.00, 44.00, 49.80),
+                                                                                                                                                                                                                                             (62, 62, 42.00, 'Completed', 0, 41.00, 43.00, 42.00, 36.00, 44.00, 40.00, 40.40),
+                                                                                                                                                                                                                                             (63, 63, 54.00, 'Completed', 0, 49.00, 59.00, 54.00, 53.00, 60.00, 63.00, 58.60),
+                                                                                                                                                                                                                                             (64, 64, 75.00, 'Completed', 0, 79.00, 71.00, 75.00, 74.00, 84.00, 74.00, 76.20),
+                                                                                                                                                                                                                                             (65, 65, 62.50, 'Completed', 0, 57.00, 68.00, 62.50, 57.00, 64.00, 66.00, 63.10),
+                                                                                                                                                                                                                                             (66, 66, 36.00, 'Failed CA', 0, 36.00, 36.00, 36.00, 39.00, 33.00, 40.00, 37.60),
+                                                                                                                                                                                                                                             (67, 67, 38.00, 'Failed CA', 0, 37.00, 39.00, 38.00, 37.00, 44.00, 31.00, 36.20),
+                                                                                                                                                                                                                                             (68, 68, 25.50, 'Failed CA', 0, 26.00, 25.00, 25.50, 23.00, 25.00, 24.00, 24.30),
+                                                                                                                                                                                                                                             (69, 69, 94.00, 'Completed', 1, 94.00, 94.00, 94.00, 88.00, 86.00, 91.00, 90.00),
+                                                                                                                                                                                                                                             (70, 70, 90.00, 'Completed', 1, 91.00, 89.00, 90.00, 83.00, 96.00, 86.00, 88.20),
+                                                                                                                                                                                                                                             (71, 71, 81.00, 'Completed', 1, 77.00, 85.00, 81.00, 85.00, 88.00, 87.00, 85.60),
+                                                                                                                                                                                                                                             (72, 72, 90.00, 'Completed', 1, 92.00, 88.00, 90.00, 84.00, 91.00, 86.00, 87.40),
+                                                                                                                                                                                                                                             (73, 73, 76.00, 'Completed', 1, 77.00, 75.00, 76.00, 77.00, 76.00, 69.00, 73.40),
+                                                                                                                                                                                                                                             (74, 74, 65.00, 'Completed', 1, 58.00, 72.00, 65.00, 66.00, 64.00, 63.00, 64.20),
+                                                                                                                                                                                                                                             (75, 75, 51.00, 'Completed', 1, 52.00, 50.00, 51.00, 58.00, 47.00, 52.00, 52.00),
+                                                                                                                                                                                                                                             (76, 76, 55.00, 'Completed', 1, 51.00, 59.00, 55.00, 59.00, 53.00, 55.00, 55.40),
+                                                                                                                                                                                                                                             (77, 77, 46.50, 'Completed', 1, 48.00, 45.00, 46.50, 39.00, 54.00, 55.00, 49.90),
+                                                                                                                                                                                                                                             (78, 78, 48.50, 'Completed', 1, 46.00, 51.00, 48.50, 51.00, 46.00, 44.00, 46.70),
+                                                                                                                                                                                                                                             (79, 79, 80.50, 'Pending Medical', 1, 79.00, 82.00, 80.50, 78.00, 74.00, 77.00, 77.30),
+                                                                                                                                                                                                                                             (80, 80, 70.00, 'Completed', 1, 70.00, 70.00, 70.00, 81.00, 75.00, 75.00, 75.20),
+                                                                                                                                                                                                                                             (81, 81, 65.50, 'Completed', 0, 72.00, 59.00, 65.50, 70.00, 70.00, 65.00, 67.10),
+                                                                                                                                                                                                                                             (82, 82, 45.50, 'Completed', 0, 41.00, 50.00, 45.50, 43.00, 49.00, 40.00, 43.50),
+                                                                                                                                                                                                                                             (83, 83, 75.00, 'Completed', 0, 79.00, 71.00, 75.00, 64.00, 66.00, 63.00, 66.20),
+                                                                                                                                                                                                                                             (84, 84, 49.00, 'Completed', 0, 46.00, 52.00, 49.00, 58.00, 44.00, 51.00, 50.60),
+                                                                                                                                                                                                                                             (85, 85, 49.50, 'Completed', 0, 50.00, 49.00, 49.50, 49.00, 57.00, 53.00, 52.30),
+                                                                                                                                                                                                                                             (86, 86, 26.00, 'Failed CA', 0, 27.00, 25.00, 26.00, 38.00, 38.00, 37.00, 35.20),
+                                                                                                                                                                                                                                             (87, 87, 48.00, 'Completed', 0, 41.00, 55.00, 48.00, 46.00, 44.00, 47.00, 46.40),
+                                                                                                                                                                                                                                             (88, 88, 41.00, 'Failed CA', 0, 48.00, 34.00, 41.00, 37.00, 41.00, 36.00, 38.20),
+                                                                                                                                                                                                                                             (89, 89, 93.50, 'Completed', 1, 90.00, 97.00, 93.50, 95.00, 93.00, 95.00, 94.30),
+                                                                                                                                                                                                                                             (90, 90, 83.00, 'Completed', 1, 84.00, 82.00, 83.00, 70.00, 69.00, 70.00, 72.40),
+                                                                                                                                                                                                                                             (91, 91, 81.00, 'Completed', 1, 88.00, 74.00, 81.00, 85.00, 89.00, 83.00, 84.20),
+                                                                                                                                                                                                                                             (92, 92, 67.00, 'Completed', 1, 69.00, 65.00, 67.00, 62.00, 57.00, 67.00, 64.00),
+                                                                                                                                                                                                                                             (93, 93, 65.50, 'Completed', 1, 70.00, 61.00, 65.50, 61.00, 65.00, 64.00, 63.90),
+                                                                                                                                                                                                                                             (94, 94, 41.50, 'Completed', 1, 39.00, 44.00, 41.50, 38.00, 50.00, 50.00, 45.90),
+                                                                                                                                                                                                                                             (95, 95, 37.00, 'Completed', 1, 32.00, 42.00, 37.00, 32.00, 41.00, 47.00, 40.80),
+                                                                                                                                                                                                                                             (96, 96, 43.00, 'Completed', 1, 35.00, 51.00, 43.00, 39.00, 36.00, 41.00, 40.00),
+                                                                                                                                                                                                                                             (97, 97, 36.00, 'Failed CA', 0, 32.00, 40.00, 36.00, 27.00, 38.00, 35.00, 34.20),
+                                                                                                                                                                                                                                             (98, 98, 66.00, 'Completed', 1, 61.00, 71.00, 66.00, 76.00, 75.00, 74.00, 73.00),
+                                                                                                                                                                                                                                             (99, 99, 75.00, 'Completed', 1, 76.00, 74.00, 75.00, 75.00, 71.00, 63.00, 69.40),
+                                                                                                                                                                                                                                             (100, 100, 51.50, 'Completed', 0, 53.00, 50.00, 51.50, 47.00, 51.00, 48.00, 49.10),
+                                                                                                                                                                                                                                             (101, 101, 54.00, 'Completed', 0, 56.00, 52.00, 54.00, 46.00, 56.00, 45.00, 49.20),
+                                                                                                                                                                                                                                             (102, 102, 56.00, 'Completed', 0, 58.00, 54.00, 56.00, 54.00, 48.00, 55.00, 53.60),
+                                                                                                                                                                                                                                             (103, 103, 67.00, 'Completed', 0, 69.00, 65.00, 67.00, 72.00, 65.00, 63.00, 66.00),
+                                                                                                                                                                                                                                             (104, 104, 61.00, 'Completed', 0, 62.00, 60.00, 61.00, 54.00, 67.00, 53.00, 57.60),
+                                                                                                                                                                                                                                             (105, 105, 36.00, 'Failed CA', 0, 37.00, 35.00, 36.00, 37.00, 26.00, 37.00, 34.60),
+                                                                                                                                                                                                                                             (106, 106, 30.00, 'Failed CA', 0, 28.00, 32.00, 30.00, 25.00, 34.00, 21.00, 26.20),
+                                                                                                                                                                                                                                             (107, 107, 44.00, 'Completed', 0, 44.00, 44.00, 44.00, 43.00, 42.00, 42.00, 42.60),
+                                                                                                                                                                                                                                             (108, 108, 90.00, 'Completed', 1, 98.00, 82.00, 90.00, 91.00, 96.00, 98.00, 94.60),
+                                                                                                                                                                                                                                             (109, 109, 94.50, 'Completed', 1, 89.00, 100.00, 94.50, 100.00, 100.00, 96.00, 97.30),
+                                                                                                                                                                                                                                             (110, 110, 78.00, 'Completed', 1, 80.00, 76.00, 78.00, 82.00, 80.00, 87.00, 82.80),
+                                                                                                                                                                                                                                             (111, 111, 80.00, 'Completed', 1, 76.00, 84.00, 80.00, 89.00, 81.00, 75.00, 80.00),
+                                                                                                                                                                                                                                             (112, 112, 63.00, 'Completed', 1, 67.00, 59.00, 63.00, 59.00, 69.00, 61.00, 62.60),
+                                                                                                                                                                                                                                             (113, 113, 76.00, 'Completed', 1, 74.00, 78.00, 76.00, 67.00, 68.00, 73.00, 71.40),
+                                                                                                                                                                                                                                             (114, 114, 45.00, 'Completed', 1, 48.00, 42.00, 45.00, 42.00, 44.00, 43.00, 43.40),
+                                                                                                                                                                                                                                             (115, 115, 53.00, 'Completed', 1, 57.00, 49.00, 53.00, 61.00, 54.00, 53.00, 54.80),
+                                                                                                                                                                                                                                             (116, 116, 47.00, 'Completed', 1, 42.00, 52.00, 47.00, 41.00, 41.00, 50.00, 45.80),
+                                                                                                                                                                                                                                             (117, 117, 28.50, 'Failed CA', 0, 28.00, 29.00, 28.50, 36.00, 30.00, 40.00, 34.90),
+                                                                                                                                                                                                                                             (118, 118, 85.00, 'Completed', 1, 90.00, 80.00, 85.00, 81.00, 85.00, 74.00, 79.80),
+                                                                                                                                                                                                                                             (119, 119, 68.50, 'Completed', 1, 71.00, 66.00, 68.50, 80.00, 80.00, 77.00, 76.50),
+                                                                                                                                                                                                                                             (120, 120, 68.50, 'Completed', 0, 71.00, 66.00, 68.50, 63.00, 64.00, 55.00, 61.10),
+                                                                                                                                                                                                                                             (121, 121, 47.50, 'Completed', 0, 44.00, 51.00, 47.50, 52.00, 55.00, 50.00, 50.90),
+                                                                                                                                                                                                                                             (122, 122, 51.50, 'Completed', 0, 55.00, 48.00, 51.50, 55.00, 58.00, 49.00, 52.50),
+                                                                                                                                                                                                                                             (123, 123, 46.00, 'Completed', 0, 49.00, 43.00, 46.00, 50.00, 49.00, 53.00, 50.20),
+                                                                                                                                                                                                                                             (124, 124, 61.00, 'Completed', 0, 62.00, 60.00, 61.00, 58.00, 58.00, 67.00, 62.20),
+                                                                                                                                                                                                                                             (125, 125, 46.00, 'Completed', 0, 45.00, 47.00, 46.00, 54.00, 57.00, 46.00, 49.80),
+                                                                                                                                                                                                                                             (126, 126, 49.00, 'Completed', 0, 45.00, 53.00, 49.00, 41.00, 53.00, 42.00, 45.40),
+                                                                                                                                                                                                                                             (127, 127, 34.50, 'Failed CA', 0, 32.00, 37.00, 34.50, 40.00, 32.00, 30.00, 33.30),
+                                                                                                                                                                                                                                             (128, 128, 92.00, 'Completed', 1, 86.00, 98.00, 92.00, 88.00, 99.00, 100.00, 95.80),
+                                                                                                                                                                                                                                             (129, 129, 82.00, 'Completed', 1, 80.00, 84.00, 82.00, 81.00, 90.00, 78.00, 81.80),
+                                                                                                                                                                                                                                             (130, 130, 78.00, 'Completed', 1, 80.00, 76.00, 78.00, 67.00, 78.00, 77.00, 75.40),
+                                                                                                                                                                                                                                             (131, 131, 71.00, 'Completed', 1, 76.00, 66.00, 71.00, 66.00, 77.00, 67.00, 69.60),
+                                                                                                                                                                                                                                             (132, 132, 63.50, 'Completed', 1, 60.00, 67.00, 63.50, 59.00, 61.00, 62.00, 61.50),
+                                                                                                                                                                                                                                             (133, 133, 61.50, 'Completed', 1, 55.00, 68.00, 61.50, 67.00, 65.00, 57.00, 61.50),
+                                                                                                                                                                                                                                             (134, 134, 55.50, 'Completed', 1, 50.00, 61.00, 55.50, 63.00, 52.00, 55.00, 56.10),
+                                                                                                                                                                                                                                             (135, 135, 37.00, 'Failed CA', 0, 36.00, 38.00, 37.00, 38.00, 36.00, 39.00, 37.80),
+                                                                                                                                                                                                                                             (136, 136, 27.50, 'Failed CA', 0, 25.00, 30.00, 27.50, 36.00, 27.00, 29.00, 29.70),
+                                                                                                                                                                                                                                             (137, 137, 84.00, 'Completed', 1, 88.00, 80.00, 84.00, 83.00, 91.00, 86.00, 86.00),
+                                                                                                                                                                                                                                             (138, 138, 58.00, 'Completed', 1, 56.00, 60.00, 58.00, 53.00, 61.00, 62.00, 59.20),
+                                                                                                                                                                                                                                             (139, 139, 49.50, 'Completed', 0, 52.00, 47.00, 49.50, 47.00, 50.00, 54.00, 50.90),
+                                                                                                                                                                                                                                             (140, 140, 44.00, 'Completed', 0, 38.00, 50.00, 44.00, 38.00, 44.00, 51.00, 45.60),
+                                                                                                                                                                                                                                             (141, 141, 67.00, 'Completed', 0, 62.00, 72.00, 67.00, 65.00, 73.00, 70.00, 69.00),
+                                                                                                                                                                                                                                             (142, 142, 52.00, 'Completed', 0, 53.00, 51.00, 52.00, 54.00, 56.00, 51.00, 52.80),
+                                                                                                                                                                                                                                             (143, 143, 47.00, 'Completed', 0, 47.00, 47.00, 47.00, 51.00, 43.00, 50.00, 48.20),
+                                                                                                                                                                                                                                             (144, 144, 38.50, 'Failed CA', 0, 39.00, 38.00, 38.50, 43.00, 31.00, 34.00, 36.10),
+                                                                                                                                                                                                                                             (145, 145, 25.00, 'Failed CA', 0, 24.00, 26.00, 25.00, 27.00, 16.00, 22.00, 22.40),
+                                                                                                                                                                                                                                             (146, 146, 31.50, 'Failed CA', 0, 28.00, 35.00, 31.50, 29.00, 22.00, 34.00, 30.10),
+                                                                                                                                                                                                                                             (147, 147, 68.00, 'Completed', 1, 68.00, 68.00, 68.00, 57.00, 68.00, 64.00, 64.20),
+                                                                                                                                                                                                                                             (148, 148, 67.50, 'Completed', 1, 67.00, 68.00, 67.50, 74.00, 77.00, 68.00, 70.90),
+                                                                                                                                                                                                                                             (149, 149, 47.50, 'Completed', 1, 43.00, 52.00, 47.50, 46.00, 48.00, 47.00, 47.10),
+                                                                                                                                                                                                                                             (150, 150, 40.50, 'Failed CA', 0, 36.00, 45.00, 40.50, 38.00, 37.00, 41.00, 39.50),
+                                                                                                                                                                                                                                             (151, 151, 40.00, 'Completed', 1, 40.00, 40.00, 40.00, 40.00, 40.00, 40.00, 40.00),
+                                                                                                                                                                                                                                             (152, 152, 38.50, 'Failed CA', 0, 40.00, 37.00, 38.50, 40.00, 40.00, 33.00, 36.90),
+                                                                                                                                                                                                                                             (153, 153, 42.00, 'Failed CA', 0, 45.00, 39.00, 42.00, 40.00, 35.00, 36.00, 37.80),
+                                                                                                                                                                                                                                             (154, 154, 71.00, 'Completed', 1, 71.00, 71.00, 71.00, 66.00, 75.00, 68.00, 69.60),
+                                                                                                                                                                                                                                             (155, 155, 64.00, 'Completed', 1, 67.00, 61.00, 64.00, 55.00, 57.00, 65.00, 61.20),
+                                                                                                                                                                                                                                             (156, 156, 68.00, 'Completed', 0, 64.00, 72.00, 68.00, 63.00, 72.00, 61.00, 65.00),
+                                                                                                                                                                                                                                             (157, 157, 58.00, 'Completed', 0, 58.00, 58.00, 58.00, 57.00, 48.00, 58.00, 55.80),
+                                                                                                                                                                                                                                             (158, 158, 59.00, 'Completed', 0, 55.00, 63.00, 59.00, 49.00, 54.00, 60.00, 56.40),
+                                                                                                                                                                                                                                             (159, 159, 55.00, 'Completed', 0, 53.00, 57.00, 55.00, 55.00, 59.00, 55.00, 55.80),
+                                                                                                                                                                                                                                             (160, 160, 55.50, 'Completed', 0, 49.00, 62.00, 55.50, 50.00, 56.00, 58.00, 55.50),
+                                                                                                                                                                                                                                             (161, 161, 55.50, 'Completed', 0, 60.00, 51.00, 55.50, 44.00, 44.00, 44.00, 46.30),
+                                                                                                                                                                                                                                             (162, 162, 26.00, 'Failed CA', 0, 34.00, 18.00, 26.00, 33.00, 20.00, 23.00, 25.00),
+                                                                                                                                                                                                                                             (163, 163, 34.00, 'Failed CA', 0, 35.00, 33.00, 34.00, 26.00, 28.00, 40.00, 33.60),
+                                                                                                                                                                                                                                             (164, 164, 95.50, 'Completed', 1, 100.00, 91.00, 95.50, 100.00, 100.00, 97.00, 97.90),
+                                                                                                                                                                                                                                             (165, 165, 86.00, 'Completed', 1, 83.00, 89.00, 86.00, 86.00, 88.00, 83.00, 85.20),
+                                                                                                                                                                                                                                             (166, 166, 79.00, 'Completed', 1, 78.00, 80.00, 79.00, 87.00, 93.00, 91.00, 88.20),
+                                                                                                                                                                                                                                             (167, 167, 76.50, 'Completed', 1, 77.00, 76.00, 76.50, 83.00, 74.00, 76.00, 77.10),
+                                                                                                                                                                                                                                             (168, 168, 55.00, 'Completed', 1, 56.00, 54.00, 55.00, 56.00, 66.00, 66.00, 61.80),
+                                                                                                                                                                                                                                             (169, 169, 59.00, 'Completed', 1, 59.00, 59.00, 59.00, 62.00, 71.00, 67.00, 65.20),
+                                                                                                                                                                                                                                             (170, 170, 58.50, 'Completed', 1, 60.00, 57.00, 58.50, 57.00, 56.00, 60.00, 58.30),
+                                                                                                                                                                                                                                             (171, 171, 54.50, 'Completed', 1, 50.00, 59.00, 54.50, 56.00, 47.00, 45.00, 49.50),
+                                                                                                                                                                                                                                             (172, 172, 52.00, 'Completed', 1, 54.00, 50.00, 52.00, 45.00, 55.00, 45.00, 48.40),
+                                                                                                                                                                                                                                             (173, 173, 32.00, 'Failed CA', 0, 38.00, 26.00, 32.00, 23.00, 32.00, 38.00, 32.60),
+                                                                                                                                                                                                                                             (174, 174, 80.00, 'Completed', 1, 79.00, 81.00, 80.00, 82.00, 76.00, 71.00, 76.00),
+                                                                                                                                                                                                                                             (175, 175, 61.50, 'Completed', 1, 64.00, 59.00, 61.50, 65.00, 54.00, 64.00, 61.70),
+                                                                                                                                                                                                                                             (176, 176, 62.00, 'Completed', 0, 65.00, 59.00, 62.00, 63.00, 53.00, 51.00, 56.00),
+                                                                                                                                                                                                                                             (177, 177, 47.00, 'Completed', 0, 46.00, 48.00, 47.00, 35.00, 40.00, 48.00, 43.60),
+                                                                                                                                                                                                                                             (178, 178, 68.00, 'Completed', 0, 65.00, 71.00, 68.00, 78.00, 70.00, 73.00, 72.40),
+                                                                                                                                                                                                                                             (179, 179, 48.00, 'Completed', 0, 52.00, 44.00, 48.00, 44.00, 58.00, 57.00, 52.80),
+                                                                                                                                                                                                                                             (180, 180, 62.00, 'Completed', 0, 56.00, 68.00, 62.00, 69.00, 62.00, 60.00, 62.60);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `course`
 --
 
-DROP TABLE IF EXISTS `course`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `course` (
-                          `course_id` int NOT NULL AUTO_INCREMENT,
-                          `course_code` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-                          `course_name` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
-                          `credit` int NOT NULL,
-                          `type` enum('Theory','Practical') COLLATE utf8mb4_general_ci NOT NULL,
-                          `lecturer_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                          `dept_id` int NOT NULL,
-                          PRIMARY KEY (`course_id`),
-                          UNIQUE KEY `uq_course_code` (`course_code`),
-                          KEY `idx_course_lecturer` (`lecturer_id`),
-                          KEY `idx_course_department` (`dept_id`),
-                          CONSTRAINT `fk_course_department` FOREIGN KEY (`dept_id`) REFERENCES `department` (`dept_id`) ON UPDATE CASCADE,
-                          CONSTRAINT `fk_course_lecturer` FOREIGN KEY (`lecturer_id`) REFERENCES `lecturer` (`lecturer_id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                          `course_id` int(11) NOT NULL,
+                          `course_code` varchar(20) NOT NULL,
+                          `course_name` varchar(150) NOT NULL,
+                          `credit` int(11) NOT NULL,
+                          `type` enum('Theory','Practical') NOT NULL,
+                          `lecturer_id` varchar(10) NOT NULL,
+                          `dept_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `course`
 --
 
-LOCK TABLES `course` WRITE;
-/*!40000 ALTER TABLE `course` DISABLE KEYS */;
-INSERT INTO `course` VALUES (1,'TCS2112','Business Economics',3,'Theory','L001',1),(2,'ICT2113','Data Structures and Algorithms',3,'Theory','L001',1),(3,'ICT2142','E-Business Systems',3,'Theory','L001',1),(4,'ENG2112','English III (ICT)',2,'Theory','L001',1),(5,'ICT2162','Management Information Systems',3,'Theory','L001',1),(6,'ICT2152','Object Oriented Analysis and Design',3,'Theory','L001',1),(7,'ICT2122','Object Oriented Programming',3,'Theory','L001',1),(8,'ICT2132','Object Oriented Programming Practicum',1,'Practical','L001',1),(9,'TCS2121','Soft Skills',2,'Practical','L001',1);
-/*!40000 ALTER TABLE `course` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `course` (`course_id`, `course_code`, `course_name`, `credit`, `type`, `lecturer_id`, `dept_id`) VALUES
+                                                                                                                 (1, 'TCS2112', 'Business Economics', 3, 'Theory', 'L005', 1),
+                                                                                                                 (2, 'ICT2113', 'Data Structures and Algorithms', 3, 'Theory', 'L002', 1),
+                                                                                                                 (3, 'ICT2142', 'E-Business Systems', 3, 'Theory', 'L003', 1),
+                                                                                                                 (4, 'ENG2112', 'English III (ICT)', 2, 'Theory', 'L004', 1),
+                                                                                                                 (5, 'ICT2162', 'Management Information Systems', 3, 'Theory', 'L003', 1),
+                                                                                                                 (6, 'ICT2152', 'Object Oriented Analysis and Design', 3, 'Theory', 'L002', 1),
+                                                                                                                 (7, 'ICT2122', 'Object Oriented Programming', 3, 'Theory', 'L001', 1),
+                                                                                                                 (8, 'ICT2132', 'Object Oriented Programming Practicum', 1, 'Practical', 'L001', 1),
+                                                                                                                 (9, 'TCS2121', 'Soft Skills', 2, 'Practical', 'L005', 1);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `course_material`
 --
 
-DROP TABLE IF EXISTS `course_material`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `course_material` (
-                                   `material_id` int NOT NULL AUTO_INCREMENT,
-                                   `lecturer_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                                   `course_id` int NOT NULL,
-                                   `material_title` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
-                                   `material_type` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-                                   `file_name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-                                   `file` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-                                   `uploaded_date` date NOT NULL,
-                                   PRIMARY KEY (`material_id`),
-                                   KEY `idx_material_lecturer` (`lecturer_id`),
-                                   KEY `idx_material_course` (`course_id`),
-                                   CONSTRAINT `fk_material_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                                   CONSTRAINT `fk_material_lecturer` FOREIGN KEY (`lecturer_id`) REFERENCES `lecturer` (`lecturer_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                                   `material_id` int(11) NOT NULL,
+                                   `lecturer_id` varchar(10) NOT NULL,
+                                   `course_id` int(11) NOT NULL,
+                                   `material_title` varchar(150) NOT NULL,
+                                   `material_type` varchar(50) NOT NULL,
+                                   `file_name` varchar(255) NOT NULL,
+                                   `file` varchar(255) NOT NULL,
+                                   `uploaded_date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `course_material`
 --
 
-LOCK TABLES `course_material` WRITE;
-/*!40000 ALTER TABLE `course_material` DISABLE KEYS */;
-INSERT INTO `course_material` VALUES (1,'L001',1,'OOP Introduction Slides','PDF','oop_intro.pdf','materials/oop_intro.pdf','2026-10-01'),(2,'L001',3,'Database Basics','PDF','database_basics.pdf','materials/database_basics.pdf','2026-10-02'),(3,'L002',2,'Data Structures Notes','PDF','data_structures.pdf','materials/data_structures.pdf','2026-10-03');
-/*!40000 ALTER TABLE `course_material` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `course_material` (`material_id`, `lecturer_id`, `course_id`, `material_title`, `material_type`, `file_name`, `file`, `uploaded_date`) VALUES
+                                                                                                                                                       (1, 'L001', 1, 'OOP Introduction Slides', 'PDF', 'oop_intro.pdf', 'materials/oop_intro.pdf', '2026-10-01'),
+                                                                                                                                                       (2, 'L001', 3, 'Database Basics', 'PDF', 'database_basics.pdf', 'materials/database_basics.pdf', '2026-10-02'),
+                                                                                                                                                       (3, 'L002', 2, 'Data Structures Notes', 'PDF', 'data_structures.pdf', 'materials/data_structures.pdf', '2026-10-03');
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `department`
 --
 
-DROP TABLE IF EXISTS `department`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `department` (
-                              `dept_id` int NOT NULL AUTO_INCREMENT,
-                              `dept_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-                              PRIMARY KEY (`dept_id`),
-                              UNIQUE KEY `uq_department_name` (`dept_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                              `dept_id` int(11) NOT NULL,
+                              `dept_name` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `department`
 --
 
-LOCK TABLES `department` WRITE;
-/*!40000 ALTER TABLE `department` DISABLE KEYS */;
-INSERT INTO `department` VALUES (2,'Computer Science'),(1,'Information Technology');
-/*!40000 ALTER TABLE `department` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `department` (`dept_id`, `dept_name`) VALUES
+    (1, 'Information Technology');
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `enrollment`
 --
 
-DROP TABLE IF EXISTS `enrollment`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `enrollment` (
-                              `enrollment_id` int NOT NULL AUTO_INCREMENT,
-                              `reg_no` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-                              `course_id` int NOT NULL,
+                              `enrollment_id` int(11) NOT NULL,
+                              `reg_no` varchar(20) NOT NULL,
+                              `course_id` int(11) NOT NULL,
                               `enroll_date` date NOT NULL,
-                              `status` enum('Enrolled','Completed','Dropped') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Enrolled',
-                              PRIMARY KEY (`enrollment_id`),
-                              UNIQUE KEY `uq_enrollment` (`reg_no`,`course_id`),
-                              KEY `idx_enrollment_reg_no` (`reg_no`),
-                              KEY `idx_enrollment_course` (`course_id`),
-                              CONSTRAINT `fk_enrollment_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                              CONSTRAINT `fk_enrollment_undergraduate` FOREIGN KEY (`reg_no`) REFERENCES `undergraduate` (`reg_no`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                              `status` enum('Enrolled','Completed','Dropped') NOT NULL DEFAULT 'Enrolled'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `enrollment`
 --
 
-LOCK TABLES `enrollment` WRITE;
-/*!40000 ALTER TABLE `enrollment` DISABLE KEYS */;
-INSERT INTO `enrollment` VALUES (1,'TG2000',1,'2026-09-01','Enrolled'),(2,'TG2000',2,'2026-09-01','Enrolled'),(3,'TG2001',1,'2026-09-01','Enrolled'),(4,'TG2001',3,'2026-09-01','Enrolled'),(5,'TG2002',1,'2026-09-02','Enrolled'),(6,'TG2003',4,'2026-09-02','Enrolled'),(7,'TG2004',5,'2026-09-02','Enrolled');
-/*!40000 ALTER TABLE `enrollment` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `enrollment` (`enrollment_id`, `reg_no`, `course_id`, `enroll_date`, `status`) VALUES
+                                                                                               (1, 'TG2000', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (2, 'TG2000', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (3, 'TG2001', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (4, 'TG2001', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (5, 'TG2002', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (6, 'TG2003', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (7, 'TG2004', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (8, 'TG2014', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (9, 'TG2015', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (10, 'TG2016', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (11, 'TG2000', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (12, 'TG2001', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (13, 'TG2002', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (14, 'TG2004', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (15, 'TG2005', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (16, 'TG2006', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (17, 'TG2007', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (18, 'TG2008', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (19, 'TG2009', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (20, 'TG2010', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (21, 'TG2011', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (22, 'TG2012', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (23, 'TG2013', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (24, 'TG2017', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (25, 'TG2018', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (26, 'TG2019', 4, '2026-08-03', 'Enrolled'),
+                                                                                               (27, 'TG2014', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (28, 'TG2015', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (29, 'TG2016', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (30, 'TG2001', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (31, 'TG2002', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (32, 'TG2003', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (33, 'TG2004', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (34, 'TG2005', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (35, 'TG2006', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (36, 'TG2007', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (37, 'TG2008', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (38, 'TG2009', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (39, 'TG2010', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (40, 'TG2011', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (41, 'TG2012', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (42, 'TG2013', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (43, 'TG2017', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (44, 'TG2018', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (45, 'TG2019', 2, '2026-08-03', 'Enrolled'),
+                                                                                               (46, 'TG2014', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (47, 'TG2015', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (48, 'TG2016', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (49, 'TG2000', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (50, 'TG2001', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (51, 'TG2002', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (52, 'TG2003', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (53, 'TG2004', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (54, 'TG2005', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (55, 'TG2006', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (56, 'TG2007', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (57, 'TG2008', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (58, 'TG2009', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (59, 'TG2010', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (60, 'TG2011', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (61, 'TG2012', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (62, 'TG2013', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (63, 'TG2017', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (64, 'TG2018', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (65, 'TG2019', 7, '2026-08-03', 'Enrolled'),
+                                                                                               (66, 'TG2014', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (67, 'TG2015', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (68, 'TG2016', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (69, 'TG2000', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (70, 'TG2001', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (71, 'TG2002', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (72, 'TG2003', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (73, 'TG2004', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (74, 'TG2005', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (75, 'TG2006', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (76, 'TG2007', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (77, 'TG2008', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (78, 'TG2009', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (79, 'TG2010', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (80, 'TG2011', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (81, 'TG2012', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (82, 'TG2013', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (83, 'TG2017', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (84, 'TG2018', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (85, 'TG2019', 8, '2026-08-03', 'Enrolled'),
+                                                                                               (86, 'TG2014', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (87, 'TG2015', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (88, 'TG2016', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (89, 'TG2000', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (90, 'TG2002', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (91, 'TG2003', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (92, 'TG2004', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (93, 'TG2005', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (94, 'TG2006', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (95, 'TG2007', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (96, 'TG2008', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (97, 'TG2009', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (98, 'TG2010', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (99, 'TG2011', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (100, 'TG2012', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (101, 'TG2013', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (102, 'TG2017', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (103, 'TG2018', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (104, 'TG2019', 3, '2026-08-03', 'Enrolled'),
+                                                                                               (105, 'TG2014', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (106, 'TG2015', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (107, 'TG2016', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (108, 'TG2000', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (109, 'TG2001', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (110, 'TG2002', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (111, 'TG2003', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (112, 'TG2004', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (113, 'TG2005', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (114, 'TG2006', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (115, 'TG2007', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (116, 'TG2008', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (117, 'TG2009', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (118, 'TG2010', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (119, 'TG2011', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (120, 'TG2012', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (121, 'TG2013', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (122, 'TG2017', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (123, 'TG2018', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (124, 'TG2019', 6, '2026-08-03', 'Enrolled'),
+                                                                                               (125, 'TG2014', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (126, 'TG2015', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (127, 'TG2016', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (128, 'TG2000', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (129, 'TG2001', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (130, 'TG2002', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (131, 'TG2003', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (132, 'TG2005', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (133, 'TG2006', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (134, 'TG2007', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (135, 'TG2008', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (136, 'TG2009', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (137, 'TG2010', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (138, 'TG2011', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (139, 'TG2012', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (140, 'TG2013', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (141, 'TG2017', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (142, 'TG2018', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (143, 'TG2019', 5, '2026-08-03', 'Enrolled'),
+                                                                                               (144, 'TG2014', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (145, 'TG2015', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (146, 'TG2016', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (147, 'TG2003', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (148, 'TG2004', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (149, 'TG2005', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (150, 'TG2006', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (151, 'TG2007', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (152, 'TG2008', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (153, 'TG2009', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (154, 'TG2010', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (155, 'TG2011', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (156, 'TG2012', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (157, 'TG2013', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (158, 'TG2017', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (159, 'TG2018', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (160, 'TG2019', 1, '2026-08-03', 'Enrolled'),
+                                                                                               (161, 'TG2014', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (162, 'TG2015', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (163, 'TG2016', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (164, 'TG2000', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (165, 'TG2001', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (166, 'TG2002', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (167, 'TG2003', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (168, 'TG2004', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (169, 'TG2005', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (170, 'TG2006', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (171, 'TG2007', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (172, 'TG2008', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (173, 'TG2009', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (174, 'TG2010', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (175, 'TG2011', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (176, 'TG2012', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (177, 'TG2013', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (178, 'TG2017', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (179, 'TG2018', 9, '2026-08-03', 'Enrolled'),
+                                                                                               (180, 'TG2019', 9, '2026-08-03', 'Enrolled');
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `lecturer`
 --
 
-DROP TABLE IF EXISTS `lecturer`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `lecturer` (
-                            `lecturer_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                            `user_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                            `dept_id` int NOT NULL,
-                            PRIMARY KEY (`lecturer_id`),
-                            UNIQUE KEY `uq_lecturer_user` (`user_id`),
-                            KEY `idx_lecturer_department` (`dept_id`),
-                            CONSTRAINT `fk_lecturer_department` FOREIGN KEY (`dept_id`) REFERENCES `department` (`dept_id`) ON UPDATE CASCADE,
-                            CONSTRAINT `fk_lecturer_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                            `lecturer_id` varchar(10) NOT NULL,
+                            `user_id` varchar(10) NOT NULL,
+                            `dept_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `lecturer`
 --
 
-LOCK TABLES `lecturer` WRITE;
-/*!40000 ALTER TABLE `lecturer` DISABLE KEYS */;
-INSERT INTO `lecturer` VALUES ('L001','L001',1),('L002','L002',2);
-/*!40000 ALTER TABLE `lecturer` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `lecturer` (`lecturer_id`, `user_id`, `dept_id`) VALUES
+                                                                 ('L001', 'L001', 1),
+                                                                 ('L002', 'L002', 1),
+                                                                 ('L003', 'L003', 1),
+                                                                 ('L004', 'L004', 1),
+                                                                 ('L005', 'L005', 1);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `mark`
 --
 
-DROP TABLE IF EXISTS `mark`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mark` (
-                        `mark_id` int NOT NULL AUTO_INCREMENT,
-                        `enrollment_id` int NOT NULL,
+                        `mark_id` int(11) NOT NULL,
+                        `enrollment_id` int(11) NOT NULL,
                         `end_exam_marks` decimal(5,2) DEFAULT NULL,
                         `total_CA_marks` decimal(5,2) DEFAULT NULL,
                         `total_marks` decimal(5,2) DEFAULT NULL,
-                        `grade` varchar(5) COLLATE utf8mb4_general_ci DEFAULT NULL,
-                        `grade_point` decimal(3,2) DEFAULT NULL,
-                        PRIMARY KEY (`mark_id`),
-                        UNIQUE KEY `uq_mark_enrollment` (`enrollment_id`),
-                        CONSTRAINT `fk_mark_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollment` (`enrollment_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                        `grade` varchar(5) DEFAULT NULL,
+                        `grade_point` decimal(3,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `mark`
 --
 
-LOCK TABLES `mark` WRITE;
-/*!40000 ALTER TABLE `mark` DISABLE KEYS */;
-INSERT INTO `mark` VALUES (1,1,18.00,74.00,92.00,'A+',4.00),(2,3,16.00,69.00,85.00,'A',4.00),(3,5,14.00,59.00,73.00,'B+',3.30);
-/*!40000 ALTER TABLE `mark` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `mark` (`mark_id`, `enrollment_id`, `end_exam_marks`, `total_CA_marks`, `total_marks`, `grade`, `grade_point`) VALUES
+                                                                                                                               (1, 1, 95.00, 90.10, 93.04, 'A+', 4.00),
+                                                                                                                               (2, 2, 92.00, 94.60, 93.04, 'A+', 4.00),
+                                                                                                                               (3, 3, 85.00, 90.20, 87.08, 'A+', 4.00),
+                                                                                                                               (4, 4, 82.00, 94.00, 86.80, 'A+', 4.00),
+                                                                                                                               (5, 5, 87.00, 83.30, 85.52, 'A+', 4.00),
+                                                                                                                               (6, 6, 80.00, 67.10, 74.84, 'A-', 3.70),
+                                                                                                                               (7, 7, 55.00, 69.20, 60.68, 'B', 3.00),
+                                                                                                                               (8, 8, 25.00, 23.90, 24.56, 'E', 0.00),
+                                                                                                                               (9, 9, 10.00, 47.40, 24.96, 'EE', 0.00),
+                                                                                                                               (10, 10, 24.00, 23.90, 23.96, 'E', 0.00),
+                                                                                                                               (11, 11, 94.00, 92.20, 93.28, 'A+', 4.00),
+                                                                                                                               (12, 12, 95.00, 86.60, 91.64, 'A+', 4.00),
+                                                                                                                               (13, 13, 73.00, 82.40, 76.76, 'A', 4.00),
+                                                                                                                               (14, 14, 56.00, 61.20, 58.08, 'B-', 2.70),
+                                                                                                                               (15, 15, 45.00, 63.40, 52.36, 'C+', 2.30),
+                                                                                                                               (16, 16, 47.00, 40.70, 44.48, 'C-', 1.70),
+                                                                                                                               (17, 17, 36.00, 43.60, 39.04, 'D', 1.30),
+                                                                                                                               (18, 18, 7.00, 31.20, 16.68, 'E', 0.00),
+                                                                                                                               (19, 19, 20.00, 35.70, 26.28, 'E', 0.00),
+                                                                                                                               (20, 20, 66.00, 66.70, 66.28, 'B+', 3.30),
+                                                                                                                               (21, 21, NULL, 53.20, NULL, 'MC', NULL),
+                                                                                                                               (22, 22, 32.00, 49.10, 38.84, 'EE', 0.00),
+                                                                                                                               (23, 23, 28.00, 37.70, 31.88, 'E', 0.00),
+                                                                                                                               (24, 24, 14.00, 74.60, 38.24, 'EE', 0.00),
+                                                                                                                               (25, 25, 28.00, 51.40, 37.36, 'EE', 0.00),
+                                                                                                                               (26, 26, 26.00, 67.30, 42.52, 'EE', 0.00),
+                                                                                                                               (27, 27, 26.00, 40.90, 31.96, 'EE', 0.00),
+                                                                                                                               (28, 28, 34.00, 23.10, 29.64, 'E', 0.00),
+                                                                                                                               (29, 29, 16.00, 26.90, 20.36, 'E', 0.00),
+                                                                                                                               (30, 30, 93.00, 96.70, 94.48, 'A+', 4.00),
+                                                                                                                               (31, 31, 76.00, 83.10, 78.84, 'A', 4.00),
+                                                                                                                               (32, 32, 78.00, 68.50, 74.20, 'A-', 3.70),
+                                                                                                                               (33, 33, 76.00, 68.30, 72.92, 'A-', 3.70),
+                                                                                                                               (34, 34, 62.00, 73.80, 66.72, 'B+', 3.30),
+                                                                                                                               (35, 35, 35.00, 47.40, 39.96, 'D', 1.30),
+                                                                                                                               (36, 36, 17.00, 39.00, 25.80, 'E', 0.00),
+                                                                                                                               (37, 37, 12.00, 34.60, 21.04, 'E', 0.00),
+                                                                                                                               (38, 38, 14.00, 35.40, 22.56, 'E', 0.00),
+                                                                                                                               (39, 39, 74.00, 66.80, 71.12, 'A-', 3.70),
+                                                                                                                               (40, 40, 69.00, 60.70, 65.68, 'B+', 3.30),
+                                                                                                                               (41, 41, 16.00, 74.10, 39.24, 'EE', 0.00),
+                                                                                                                               (42, 42, 6.00, 51.30, 24.12, 'EE', 0.00),
+                                                                                                                               (43, 43, 17.00, 67.00, 37.00, 'EE', 0.00),
+                                                                                                                               (44, 44, 29.00, 57.20, 40.28, 'EE', 0.00),
+                                                                                                                               (45, 45, 24.00, 63.30, 39.72, 'EE', 0.00),
+                                                                                                                               (46, 46, 25.00, 30.70, 27.28, 'E', 0.00),
+                                                                                                                               (47, 47, 23.00, 23.00, 23.00, 'E', 0.00),
+                                                                                                                               (48, 48, 15.00, 30.10, 21.04, 'E', 0.00),
+                                                                                                                               (49, 49, 90.00, 93.40, 91.36, 'A+', 4.00),
+                                                                                                                               (50, 50, 84.00, 93.60, 87.84, 'A+', 4.00),
+                                                                                                                               (51, 51, 72.00, 80.70, 75.48, 'A', 4.00),
+                                                                                                                               (52, 52, 72.00, 75.00, 73.20, 'A-', 3.70),
+                                                                                                                               (53, 53, 55.00, 63.60, 58.44, 'B-', 2.70),
+                                                                                                                               (54, 54, 58.00, 64.30, 60.52, 'B', 3.00),
+                                                                                                                               (55, 55, 41.00, 62.30, 49.52, 'C', 2.00),
+                                                                                                                               (56, 56, 41.00, 51.90, 45.36, 'C', 2.00),
+                                                                                                                               (57, 57, 6.00, 37.00, 18.40, 'E', 0.00),
+                                                                                                                               (58, 58, 24.00, 40.90, 30.76, 'EE', 0.00),
+                                                                                                                               (59, 59, 71.00, 68.50, 70.00, 'A-', 3.70),
+                                                                                                                               (60, 60, NULL, 68.00, NULL, 'WH', NULL),
+                                                                                                                               (61, 61, 27.00, 49.80, 36.12, 'EE', 0.00),
+                                                                                                                               (62, 62, 25.00, 40.40, 31.16, 'EE', 0.00),
+                                                                                                                               (63, 63, 17.00, 58.60, 33.64, 'EE', 0.00),
+                                                                                                                               (64, 64, 10.00, 76.20, 36.48, 'EE', 0.00),
+                                                                                                                               (65, 65, 29.00, 63.10, 42.64, 'EE', 0.00),
+                                                                                                                               (66, 66, 9.00, 37.60, 20.44, 'E', 0.00),
+                                                                                                                               (67, 67, 6.00, 36.20, 18.08, 'E', 0.00),
+                                                                                                                               (68, 68, 21.00, 24.30, 22.32, 'E', 0.00),
+                                                                                                                               (69, 69, 97.00, 90.00, 94.20, 'A+', 4.00),
+                                                                                                                               (70, 70, 92.00, 88.20, 90.48, 'A+', 4.00),
+                                                                                                                               (71, 71, 82.00, 85.60, 83.44, 'A', 4.00),
+                                                                                                                               (72, 72, 76.00, 87.40, 80.56, 'A', 4.00),
+                                                                                                                               (73, 73, 72.00, 73.40, 72.56, 'A-', 3.70),
+                                                                                                                               (74, 74, 55.00, 64.20, 58.68, 'B-', 2.70),
+                                                                                                                               (75, 75, 55.00, 52.00, 53.80, 'C+', 2.30),
+                                                                                                                               (76, 76, 33.00, 55.40, 41.96, 'EE', 0.00),
+                                                                                                                               (77, 77, 29.00, 49.90, 37.36, 'EE', 0.00),
+                                                                                                                               (78, 78, 43.00, 46.70, 44.48, 'C-', 1.70),
+                                                                                                                               (79, 79, NULL, 77.30, NULL, 'WH', NULL),
+                                                                                                                               (80, 80, 58.00, 75.20, 64.88, 'B', 3.00),
+                                                                                                                               (81, 81, 12.00, 67.10, 34.04, 'EE', 0.00),
+                                                                                                                               (82, 82, 28.00, 43.50, 34.20, 'EE', 0.00),
+                                                                                                                               (83, 83, 21.00, 66.20, 39.08, 'EE', 0.00),
+                                                                                                                               (84, 84, 6.00, 50.60, 23.84, 'EE', 0.00),
+                                                                                                                               (85, 85, 23.00, 52.30, 34.72, 'EE', 0.00),
+                                                                                                                               (86, 86, 25.00, 35.20, 29.08, 'E', 0.00),
+                                                                                                                               (87, 87, 33.00, 46.40, 38.36, 'EE', 0.00),
+                                                                                                                               (88, 88, 14.00, 38.20, 23.68, 'E', 0.00),
+                                                                                                                               (89, 89, 93.00, 94.30, 93.52, 'A+', 4.00),
+                                                                                                                               (90, 90, 79.00, 72.40, 76.36, 'A', 4.00),
+                                                                                                                               (91, 91, 77.00, 84.20, 79.88, 'A', 4.00),
+                                                                                                                               (92, 92, 71.00, 64.00, 68.20, 'B+', 3.30),
+                                                                                                                               (93, 93, 52.00, 63.90, 56.76, 'B-', 2.70),
+                                                                                                                               (94, 94, 49.00, 45.90, 47.76, 'C', 2.00),
+                                                                                                                               (95, 95, 41.00, 40.80, 40.92, 'C-', 1.70),
+                                                                                                                               (96, 96, 30.00, 40.00, 34.00, 'EE', 0.00),
+                                                                                                                               (97, 97, 27.00, 34.20, 29.88, 'E', 0.00),
+                                                                                                                               (98, 98, 76.00, 73.00, 74.80, 'A-', 3.70),
+                                                                                                                               (99, 99, 78.00, 69.40, 74.56, 'A-', 3.70),
+                                                                                                                               (100, 100, 23.00, 49.10, 33.44, 'EE', 0.00),
+                                                                                                                               (101, 101, 32.00, 49.20, 38.88, 'EE', 0.00),
+                                                                                                                               (102, 102, 28.00, 53.60, 38.24, 'EE', 0.00),
+                                                                                                                               (103, 103, 5.00, 66.00, 29.40, 'EE', 0.00),
+                                                                                                                               (104, 104, 9.00, 57.60, 28.44, 'EE', 0.00),
+                                                                                                                               (105, 105, 16.00, 34.60, 23.44, 'E', 0.00),
+                                                                                                                               (106, 106, 9.00, 26.20, 15.88, 'E', 0.00),
+                                                                                                                               (107, 107, 27.00, 42.60, 33.24, 'EE', 0.00),
+                                                                                                                               (108, 108, 93.00, 94.60, 93.64, 'A+', 4.00),
+                                                                                                                               (109, 109, 89.00, 97.30, 92.32, 'A+', 4.00),
+                                                                                                                               (110, 110, 76.00, 82.80, 78.72, 'A', 4.00),
+                                                                                                                               (111, 111, 75.00, 80.00, 77.00, 'A', 4.00),
+                                                                                                                               (112, 112, 77.00, 62.60, 71.24, 'A-', 3.70),
+                                                                                                                               (113, 113, 66.00, 71.40, 68.16, 'B+', 3.30),
+                                                                                                                               (114, 114, 46.00, 43.40, 44.96, 'C-', 1.70),
+                                                                                                                               (115, 115, 53.00, 54.80, 53.72, 'C+', 2.30),
+                                                                                                                               (116, 116, 45.00, 45.80, 45.32, 'C', 2.00),
+                                                                                                                               (117, 117, 34.00, 34.90, 34.36, 'E', 0.00),
+                                                                                                                               (118, 118, 74.00, 79.80, 76.32, 'A', 4.00),
+                                                                                                                               (119, 119, 78.00, 76.50, 77.40, 'A', 4.00),
+                                                                                                                               (120, 120, 18.00, 61.10, 35.24, 'EE', 0.00),
+                                                                                                                               (121, 121, 13.00, 50.90, 28.16, 'EE', 0.00),
+                                                                                                                               (122, 122, 33.00, 52.50, 40.80, 'EE', 0.00),
+                                                                                                                               (123, 123, 22.00, 50.20, 33.28, 'EE', 0.00),
+                                                                                                                               (124, 124, 6.00, 62.20, 28.48, 'EE', 0.00),
+                                                                                                                               (125, 125, 24.00, 49.80, 34.32, 'EE', 0.00),
+                                                                                                                               (126, 126, 34.00, 45.40, 38.56, 'EE', 0.00),
+                                                                                                                               (127, 127, 12.00, 33.30, 20.52, 'E', 0.00),
+                                                                                                                               (128, 128, 98.00, 95.80, 97.12, 'A+', 4.00),
+                                                                                                                               (129, 129, 88.00, 81.80, 85.52, 'A+', 4.00),
+                                                                                                                               (130, 130, 83.00, 75.40, 79.96, 'A', 4.00),
+                                                                                                                               (131, 131, 74.00, 69.60, 72.24, 'A-', 3.70),
+                                                                                                                               (132, 132, 65.00, 61.50, 63.60, 'B', 3.00),
+                                                                                                                               (133, 133, 54.00, 61.50, 57.00, 'B-', 2.70),
+                                                                                                                               (134, 134, 52.00, 56.10, 53.64, 'C+', 2.30),
+                                                                                                                               (135, 135, 27.00, 37.80, 31.32, 'E', 0.00),
+                                                                                                                               (136, 136, 14.00, 29.70, 20.28, 'E', 0.00),
+                                                                                                                               (137, 137, 67.00, 86.00, 74.60, 'A-', 3.70),
+                                                                                                                               (138, 138, 76.00, 59.20, 69.28, 'B+', 3.30),
+                                                                                                                               (139, 139, 20.00, 50.90, 32.36, 'EE', 0.00),
+                                                                                                                               (140, 140, 22.00, 45.60, 31.44, 'EE', 0.00),
+                                                                                                                               (141, 141, 8.00, 69.00, 32.40, 'EE', 0.00),
+                                                                                                                               (142, 142, 5.00, 52.80, 24.12, 'EE', 0.00),
+                                                                                                                               (143, 143, 7.00, 48.20, 23.48, 'EE', 0.00),
+                                                                                                                               (144, 144, 6.00, 36.10, 18.04, 'E', 0.00),
+                                                                                                                               (145, 145, 23.00, 22.40, 22.76, 'E', 0.00),
+                                                                                                                               (146, 146, 9.00, 30.10, 17.44, 'E', 0.00),
+                                                                                                                               (147, 147, 66.00, 64.20, 65.28, 'B+', 3.30),
+                                                                                                                               (148, 148, 56.00, 70.90, 61.96, 'B', 3.00),
+                                                                                                                               (149, 149, 52.00, 47.10, 50.04, 'C+', 2.30),
+                                                                                                                               (150, 150, 11.00, 39.50, 22.40, 'E', 0.00),
+                                                                                                                               (151, 151, 30.00, 40.00, 34.00, 'EE', 0.00),
+                                                                                                                               (152, 152, 31.00, 36.90, 33.36, 'E', 0.00),
+                                                                                                                               (153, 153, 29.00, 37.80, 32.52, 'E', 0.00),
+                                                                                                                               (154, 154, 85.00, 69.60, 78.84, 'A', 4.00),
+                                                                                                                               (155, 155, 58.00, 61.20, 59.28, 'B-', 2.70),
+                                                                                                                               (156, 156, 13.00, 65.00, 33.80, 'EE', 0.00),
+                                                                                                                               (157, 157, 30.00, 55.80, 40.32, 'EE', 0.00),
+                                                                                                                               (158, 158, 22.00, 56.40, 35.76, 'EE', 0.00),
+                                                                                                                               (159, 159, 23.00, 55.80, 36.12, 'EE', 0.00),
+                                                                                                                               (160, 160, 5.00, 55.50, 25.20, 'EE', 0.00),
+                                                                                                                               (161, 161, 27.00, 46.30, 34.72, 'EE', 0.00),
+                                                                                                                               (162, 162, 24.00, 25.00, 24.40, 'E', 0.00),
+                                                                                                                               (163, 163, 12.00, 33.60, 20.64, 'E', 0.00),
+                                                                                                                               (164, 164, 92.00, 97.90, 94.36, 'A+', 4.00),
+                                                                                                                               (165, 165, 90.00, 85.20, 88.08, 'A+', 4.00),
+                                                                                                                               (166, 166, 72.00, 88.20, 78.48, 'A', 4.00),
+                                                                                                                               (167, 167, 79.00, 77.10, 78.24, 'A', 4.00),
+                                                                                                                               (168, 168, 62.00, 61.80, 61.92, 'B', 3.00),
+                                                                                                                               (169, 169, 55.00, 65.20, 59.08, 'B-', 2.70),
+                                                                                                                               (170, 170, 36.00, 58.30, 44.92, 'C-', 1.70),
+                                                                                                                               (171, 171, 32.00, 49.50, 39.00, 'EE', 0.00),
+                                                                                                                               (172, 172, 34.00, 48.40, 39.76, 'EE', 0.00),
+                                                                                                                               (173, 173, 6.00, 32.60, 16.64, 'E', 0.00),
+                                                                                                                               (174, 174, 61.00, 76.00, 67.00, 'B+', 3.30),
+                                                                                                                               (175, 175, 63.00, 61.70, 62.48, 'B', 3.00),
+                                                                                                                               (176, 176, 17.00, 56.00, 32.60, 'EE', 0.00),
+                                                                                                                               (177, 177, 34.00, 43.60, 37.84, 'EE', 0.00),
+                                                                                                                               (178, 178, 10.00, 72.40, 34.96, 'EE', 0.00),
+                                                                                                                               (179, 179, 12.00, 52.80, 28.32, 'EE', 0.00),
+                                                                                                                               (180, 180, 6.00, 62.60, 28.64, 'EE', 0.00);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `medical`
 --
 
-DROP TABLE IF EXISTS `medical`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `medical` (
-                           `medical_id` int NOT NULL AUTO_INCREMENT,
-                           `reg_no` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-                           `course_id` int NOT NULL,
-                           `admin_id` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
+                           `medical_id` int(11) NOT NULL,
+                           `reg_no` varchar(20) NOT NULL,
+                           `course_id` int(11) NOT NULL,
+                           `admin_id` varchar(10) DEFAULT NULL,
                            `medical_date` date NOT NULL,
-                           `reason` text COLLATE utf8mb4_general_ci NOT NULL,
-                           `approved_by` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-                           `status` enum('Pending','Approved','Rejected') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Pending',
-                           PRIMARY KEY (`medical_id`),
-                           KEY `idx_medical_reg_no` (`reg_no`),
-                           KEY `idx_medical_course` (`course_id`),
-                           KEY `idx_medical_admin` (`admin_id`),
-                           CONSTRAINT `fk_medical_admin` FOREIGN KEY (`admin_id`) REFERENCES `admin` (`admin_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-                           CONSTRAINT `fk_medical_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                           CONSTRAINT `fk_medical_undergraduate` FOREIGN KEY (`reg_no`) REFERENCES `undergraduate` (`reg_no`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                           `reason` text NOT NULL,
+                           `approved_by` varchar(100) DEFAULT NULL,
+                           `status` enum('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `medical`
 --
 
-LOCK TABLES `medical` WRITE;
-/*!40000 ALTER TABLE `medical` DISABLE KEYS */;
-INSERT INTO `medical` VALUES (1,'TG2000',1,'A001','2026-10-10','Fever and medical rest',NULL,'Pending'),(2,'TG2001',3,'A001','2026-10-08','Hospital appointment','Nimal Perera','Approved'),(3,'TG2002',1,'A001','2026-10-12','Viral infection',NULL,'Pending');
-/*!40000 ALTER TABLE `medical` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `medical` (`medical_id`, `reg_no`, `course_id`, `admin_id`, `medical_date`, `reason`, `approved_by`, `status`) VALUES
+                                                                                                                               (1, 'TG2011', 4, 'A001', '2026-09-18', 'DEMO: Hospital appointment', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                               (2, 'TG2011', 2, 'A001', '2026-09-28', 'DEMO: Fever and medical rest', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                               (3, 'TG2011', 7, 'A001', '2026-09-24', 'DEMO: Viral infection', 'Pradeep Wijesinghe', 'Rejected'),
+                                                                                                                               (4, 'TG2010', 8, 'A001', '2026-10-01', 'DEMO: Viral infection', NULL, 'Pending'),
+                                                                                                                               (5, 'TG2019', 8, 'A001', '2026-09-03', 'DEMO: Viral infection', 'Pradeep Wijesinghe', 'Rejected'),
+                                                                                                                               (6, 'TG2010', 3, 'A001', '2026-08-25', 'DEMO: Hospital appointment', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                               (7, 'TG2019', 3, 'A001', '2026-10-06', 'DEMO: Fever and medical rest', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                               (8, 'TG2019', 6, 'A001', '2026-10-13', 'DEMO: Hospital appointment', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                               (9, 'TG2018', 5, 'A001', '2026-10-02', 'DEMO: Hospital appointment', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                               (10, 'TG2010', 1, 'A001', '2026-09-30', 'DEMO: Fever and medical rest', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                               (11, 'TG2018', 1, 'A001', '2026-10-14', 'DEMO: Fever and medical rest', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                               (12, 'TG2018', 9, 'A001', '2026-09-16', 'DEMO: Viral infection', NULL, 'Pending'),
+                                                                                                                               (13, 'TG2010', 8, 'A001', '2026-11-16', 'DEMO: ESA absence medical application, pending decision, result withheld', NULL, 'Pending'),
+                                                                                                                               (14, 'TG2011', 7, 'A001', '2026-11-15', 'DEMO: ESA absence medical application, pending decision, result withheld', NULL, 'Pending'),
+                                                                                                                               (15, 'TG2011', 4, 'A001', '2026-11-12', 'DEMO: ESA absence medical application, approved medical concession, ESA deferred', 'Pradeep Wijesinghe', 'Approved');
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `notice`
 --
 
-DROP TABLE IF EXISTS `notice`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `notice` (
-                          `notice_id` int NOT NULL AUTO_INCREMENT,
-                          `admin_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                          `title` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
-                          `content` text COLLATE utf8mb4_general_ci NOT NULL,
+                          `notice_id` int(11) NOT NULL,
+                          `admin_id` varchar(10) NOT NULL,
+                          `title` varchar(150) NOT NULL,
+                          `content` text NOT NULL,
                           `created_date` date NOT NULL,
-                          `published_date` date DEFAULT NULL,
-                          PRIMARY KEY (`notice_id`),
-                          KEY `idx_notice_admin` (`admin_id`),
-                          CONSTRAINT `fk_notice_admin` FOREIGN KEY (`admin_id`) REFERENCES `admin` (`admin_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                          `published_date` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `notice`
 --
 
-LOCK TABLES `notice` WRITE;
-/*!40000 ALTER TABLE `notice` DISABLE KEYS */;
-INSERT INTO `notice` VALUES (1,'A001','Semester Examination Timetable','The semester examination timetable will be published soon. Please check the student portal regularly.','2026-10-01','2026-10-02'),(2,'A001','Library Opening Hours','The library will be open from 8.00 AM to 6.00 PM on weekdays.','2026-10-05','2026-10-05'),(3,'A001','Project Submission Reminder','Students should submit their mini project documents before the announced deadline.','2026-10-15',NULL);
-/*!40000 ALTER TABLE `notice` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `notice` (`notice_id`, `admin_id`, `title`, `content`, `created_date`, `published_date`) VALUES
+                                                                                                         (1, 'A001', 'Semester Examination Timetable', 'The semester examination timetable will be published soon. Please check the student portal regularly.', '2026-10-01', '2026-10-02'),
+                                                                                                         (2, 'A001', 'Library Opening Hours', 'The library will be open from 8.00 AM to 6.00 PM on weekdays.', '2026-10-05', '2026-10-05'),
+                                                                                                         (3, 'A001', 'Project Submission Reminder', 'Students should submit their mini project documents before the announced deadline.', '2026-10-15', NULL);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `semester_result`
 --
 
-DROP TABLE IF EXISTS `semester_result`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `semester_result` (
-                                   `result_id` int NOT NULL AUTO_INCREMENT,
-                                   `reg_no` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-                                   `semester` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-                                   `academic_year` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-                                   `GPA` decimal(3,2) DEFAULT NULL,
-                                   PRIMARY KEY (`result_id`),
-                                   UNIQUE KEY `uq_semester_result` (`reg_no`,`semester`,`academic_year`),
-                                   KEY `idx_result_reg_no` (`reg_no`),
-                                   CONSTRAINT `fk_result_undergraduate` FOREIGN KEY (`reg_no`) REFERENCES `undergraduate` (`reg_no`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                                   `result_id` int(11) NOT NULL,
+                                   `reg_no` varchar(20) NOT NULL,
+                                   `semester` varchar(20) NOT NULL,
+                                   `academic_year` varchar(20) NOT NULL,
+                                   `GPA` decimal(3,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `semester_result`
 --
 
-LOCK TABLES `semester_result` WRITE;
-/*!40000 ALTER TABLE `semester_result` DISABLE KEYS */;
-INSERT INTO `semester_result` VALUES (1,'TG2000','Semester 1','2025/2026',3.65),(2,'TG2001','Semester 1','2025/2026',3.42),(3,'TG2002','Semester 1','2025/2026',3.18);
-/*!40000 ALTER TABLE `semester_result` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `semester_result` (`result_id`, `reg_no`, `semester`, `academic_year`, `GPA`) VALUES
+                                                                                              (1, 'TG2000', 'Semester 1', '2025/2026', 3.65),
+                                                                                              (2, 'TG2001', 'Semester 1', '2025/2026', 3.42),
+                                                                                              (3, 'TG2002', 'Semester 1', '2025/2026', 3.18),
+                                                                                              (4, 'TG2000', 'Semester 1', '2026/2027', 4.00),
+                                                                                              (5, 'TG2001', 'Semester 1', '2026/2027', 4.00),
+                                                                                              (6, 'TG2002', 'Semester 1', '2026/2027', 4.00),
+                                                                                              (7, 'TG2003', 'Semester 1', '2026/2027', 3.77),
+                                                                                              (8, 'TG2004', 'Semester 1', '2026/2027', 3.19),
+                                                                                              (9, 'TG2005', 'Semester 1', '2026/2027', 2.85),
+                                                                                              (10, 'TG2006', 'Semester 1', '2026/2027', 1.66),
+                                                                                              (11, 'TG2007', 'Semester 1', '2026/2027', 1.20),
+                                                                                              (12, 'TG2008', 'Semester 1', '2026/2027', 0.26),
+                                                                                              (13, 'TG2009', 'Semester 1', '2026/2027', 0.07),
+                                                                                              (14, 'TG2010', 'Semester 1', '2026/2027', NULL),
+                                                                                              (15, 'TG2011', 'Semester 1', '2026/2027', NULL),
+                                                                                              (16, 'TG2012', 'Semester 1', '2026/2027', 0.00),
+                                                                                              (17, 'TG2013', 'Semester 1', '2026/2027', 0.00),
+                                                                                              (18, 'TG2014', 'Semester 1', '2026/2027', 0.00),
+                                                                                              (19, 'TG2015', 'Semester 1', '2026/2027', 0.00),
+                                                                                              (20, 'TG2016', 'Semester 1', '2026/2027', 0.00),
+                                                                                              (21, 'TG2017', 'Semester 1', '2026/2027', 0.00),
+                                                                                              (22, 'TG2018', 'Semester 1', '2026/2027', 0.00),
+                                                                                              (23, 'TG2019', 'Semester 1', '2026/2027', 0.00);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `sessions`
 --
 
-DROP TABLE IF EXISTS `sessions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sessions` (
-                            `session_id` int NOT NULL AUTO_INCREMENT,
-                            `course_id` int NOT NULL,
+                            `session_id` int(11) NOT NULL,
+                            `course_id` int(11) NOT NULL,
                             `session_date` date NOT NULL,
                             `start_time` time NOT NULL,
                             `end_time` time NOT NULL,
-                            `session_type` enum('Theory','Practical') COLLATE utf8mb4_general_ci NOT NULL,
-                            PRIMARY KEY (`session_id`),
-                            KEY `idx_sessions_course` (`course_id`),
-                            CONSTRAINT `fk_sessions_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                            `session_type` enum('Theory','Practical') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `sessions`
 --
 
-LOCK TABLES `sessions` WRITE;
-/*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-INSERT INTO `sessions` VALUES (1,1,'2026-10-20','08:30:00','10:30:00','Theory'),(2,2,'2026-10-21','10:30:00','12:30:00','Practical'),(3,3,'2026-10-22','13:00:00','15:00:00','Theory'),(4,4,'2026-10-23','08:30:00','10:30:00','Theory'),(5,5,'2026-10-24','10:30:00','12:30:00','Theory');
-/*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `sessions` (`session_id`, `course_id`, `session_date`, `start_time`, `end_time`, `session_type`) VALUES
+                                                                                                                 (1, 2, '2026-08-03', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (2, 3, '2026-08-04', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (3, 6, '2026-08-04', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (4, 1, '2026-08-05', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (5, 9, '2026-08-05', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (6, 7, '2026-08-06', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (7, 8, '2026-08-06', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (8, 5, '2026-08-07', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (9, 4, '2026-08-07', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (10, 2, '2026-08-10', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (11, 3, '2026-08-11', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (12, 6, '2026-08-11', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (13, 9, '2026-08-12', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (14, 7, '2026-08-13', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (15, 8, '2026-08-13', '14:00:00', '16:00:00', 'Practical'),
+                                                                                                                 (16, 1, '2026-08-14', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (17, 5, '2026-08-14', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (18, 4, '2026-08-14', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (19, 2, '2026-08-17', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (20, 3, '2026-08-18', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (21, 6, '2026-08-18', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (22, 1, '2026-08-19', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (23, 9, '2026-08-19', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (24, 7, '2026-08-20', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (25, 8, '2026-08-20', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (26, 5, '2026-08-21', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (27, 4, '2026-08-21', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (28, 2, '2026-08-24', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (29, 3, '2026-08-25', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (30, 6, '2026-08-25', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (31, 9, '2026-08-26', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (32, 7, '2026-08-27', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (33, 8, '2026-08-27', '14:00:00', '16:00:00', 'Practical'),
+                                                                                                                 (34, 1, '2026-08-28', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (35, 5, '2026-08-28', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (36, 4, '2026-08-28', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (37, 2, '2026-08-31', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (38, 3, '2026-09-01', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (39, 6, '2026-09-01', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (40, 1, '2026-09-02', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (41, 9, '2026-09-02', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (42, 7, '2026-09-03', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (43, 8, '2026-09-03', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (44, 5, '2026-09-04', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (45, 4, '2026-09-04', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (46, 2, '2026-09-07', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (47, 3, '2026-09-08', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (48, 6, '2026-09-08', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (49, 9, '2026-09-09', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (50, 7, '2026-09-10', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (51, 8, '2026-09-10', '14:00:00', '16:00:00', 'Practical'),
+                                                                                                                 (52, 1, '2026-09-11', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (53, 5, '2026-09-11', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (54, 4, '2026-09-11', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (55, 2, '2026-09-14', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (56, 3, '2026-09-15', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (57, 6, '2026-09-15', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (58, 1, '2026-09-16', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (59, 9, '2026-09-16', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (60, 7, '2026-09-17', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (61, 8, '2026-09-17', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (62, 5, '2026-09-18', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (63, 4, '2026-09-18', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (64, 2, '2026-09-21', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (65, 3, '2026-09-22', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (66, 6, '2026-09-22', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (67, 9, '2026-09-23', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (68, 7, '2026-09-24', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (69, 8, '2026-09-24', '14:00:00', '16:00:00', 'Practical'),
+                                                                                                                 (70, 1, '2026-09-25', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (71, 5, '2026-09-25', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (72, 4, '2026-09-25', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (73, 2, '2026-09-28', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (74, 3, '2026-09-29', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (75, 6, '2026-09-29', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (76, 1, '2026-09-30', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (77, 9, '2026-09-30', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (78, 7, '2026-10-01', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (79, 8, '2026-10-01', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (80, 5, '2026-10-02', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (81, 4, '2026-10-02', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (82, 2, '2026-10-05', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (83, 3, '2026-10-06', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (84, 6, '2026-10-06', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (85, 9, '2026-10-07', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (86, 7, '2026-10-08', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (87, 8, '2026-10-08', '14:00:00', '16:00:00', 'Practical'),
+                                                                                                                 (88, 1, '2026-10-09', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (89, 5, '2026-10-09', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (90, 4, '2026-10-09', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (91, 2, '2026-10-12', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (92, 3, '2026-10-13', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (93, 6, '2026-10-13', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (94, 1, '2026-10-14', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (95, 9, '2026-10-14', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (96, 7, '2026-10-15', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (97, 8, '2026-10-15', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (98, 5, '2026-10-16', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (99, 4, '2026-10-16', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (100, 2, '2026-10-19', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (101, 3, '2026-10-20', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (102, 6, '2026-10-20', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (103, 9, '2026-10-21', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (104, 7, '2026-10-22', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (105, 8, '2026-10-22', '14:00:00', '16:00:00', 'Practical'),
+                                                                                                                 (106, 1, '2026-10-23', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (107, 5, '2026-10-23', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (108, 4, '2026-10-23', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (109, 2, '2026-10-26', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (110, 3, '2026-10-27', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (111, 6, '2026-10-27', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (112, 1, '2026-10-28', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (113, 9, '2026-10-28', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (114, 7, '2026-10-29', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (115, 8, '2026-10-29', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (116, 5, '2026-10-30', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (117, 4, '2026-10-30', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (118, 2, '2026-11-02', '11:00:00', '13:00:00', 'Practical'),
+                                                                                                                 (119, 3, '2026-11-03', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (120, 6, '2026-11-03', '13:00:00', '15:00:00', 'Theory'),
+                                                                                                                 (121, 9, '2026-11-04', '10:00:00', '12:00:00', 'Practical'),
+                                                                                                                 (122, 7, '2026-11-05', '09:00:00', '11:00:00', 'Theory'),
+                                                                                                                 (123, 8, '2026-11-05', '14:00:00', '16:00:00', 'Practical'),
+                                                                                                                 (124, 1, '2026-11-06', '08:00:00', '10:00:00', 'Theory'),
+                                                                                                                 (125, 5, '2026-11-06', '10:00:00', '12:00:00', 'Theory'),
+                                                                                                                 (126, 4, '2026-11-06', '13:00:00', '15:00:00', 'Theory');
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `technical_officer`
 --
 
-DROP TABLE IF EXISTS `technical_officer`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `technical_officer` (
-                                     `to_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                                     `user_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                                     `dept_id` int NOT NULL,
-                                     PRIMARY KEY (`to_id`),
-                                     UNIQUE KEY `uq_to_user` (`user_id`),
-                                     KEY `idx_to_department` (`dept_id`),
-                                     CONSTRAINT `fk_to_department` FOREIGN KEY (`dept_id`) REFERENCES `department` (`dept_id`) ON UPDATE CASCADE,
-                                     CONSTRAINT `fk_to_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                                     `to_id` varchar(10) NOT NULL,
+                                     `user_id` varchar(10) NOT NULL,
+                                     `dept_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `technical_officer`
 --
 
-LOCK TABLES `technical_officer` WRITE;
-/*!40000 ALTER TABLE `technical_officer` DISABLE KEYS */;
-INSERT INTO `technical_officer` VALUES ('T001','T001',1);
-/*!40000 ALTER TABLE `technical_officer` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `technical_officer` (`to_id`, `user_id`, `dept_id`) VALUES
+                                                                    ('T001', 'T001', 1),
+                                                                    ('T002', 'T002', 1),
+                                                                    ('T003', 'T003', 1),
+                                                                    ('T004', 'T004', 1);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `timetable`
 --
 
-DROP TABLE IF EXISTS `timetable`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `timetable` (
-                             `timetable_id` int NOT NULL AUTO_INCREMENT,
-                             `admin_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                             `course_id` int NOT NULL,
-                             `day_of_week` enum('Monday','Tuesday','Wednesday','Thursday','Friday') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Monday',
+                             `timetable_id` int(11) NOT NULL,
+                             `admin_id` varchar(10) NOT NULL,
+                             `course_id` int(11) NOT NULL,
+                             `day_of_week` enum('Monday','Tuesday','Wednesday','Thursday','Friday') NOT NULL DEFAULT 'Monday',
                              `start_time` time NOT NULL,
                              `end_time` time NOT NULL,
-                             `lecture_hall` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-                             `session_type` enum('Theory','Practical') COLLATE utf8mb4_general_ci NOT NULL,
-                             `academic_year` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-                             `semester` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-                             PRIMARY KEY (`timetable_id`),
-                             KEY `idx_timetable_admin` (`admin_id`),
-                             KEY `idx_timetable_course` (`course_id`),
-                             CONSTRAINT `fk_timetable_admin` FOREIGN KEY (`admin_id`) REFERENCES `admin` (`admin_id`) ON UPDATE CASCADE,
-                             CONSTRAINT `fk_timetable_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+                             `lecture_hall` varchar(50) NOT NULL,
+                             `session_type` enum('Theory','Practical') NOT NULL,
+                             `academic_year` varchar(20) NOT NULL,
+                             `semester` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `timetable`
 --
 
-LOCK TABLES `timetable` WRITE;
-/*!40000 ALTER TABLE `timetable` DISABLE KEYS */;
-INSERT INTO `timetable` VALUES (6,'A001',2,'Monday','09:00:00','11:00:00','ICT Lab 11','Theory','2026/2027','Semester 1'),(7,'A001',2,'Monday','11:00:00','13:00:00','ICT Lab 11','Practical','2026/2027','Semester 1'),(8,'A001',3,'Tuesday','09:00:00','12:00:00','ICT New Lab','Theory','2026/2027','Semester 1'),(9,'A001',6,'Tuesday','13:00:00','15:00:00','ICT Lab 12','Theory','2026/2027','Semester 1'),(10,'A001',1,'Wednesday','08:00:00','10:00:00','ICT ILT','Theory','2026/2027','Semester 1'),(11,'A001',9,'Wednesday','10:00:00','12:00:00','ICT Hardware Lab','Practical','2026/2027','Semester 1'),(12,'A001',7,'Thursday','09:00:00','11:00:00','ICT Lab 11','Theory','2026/2027','Semester 1'),(13,'A001',8,'Thursday','11:00:00','13:00:00','ICT Lab 11','Practical','2026/2027','Semester 1'),(14,'A001',8,'Thursday','14:00:00','16:00:00','ICT Lab 11','Practical','2026/2027','Semester 1'),(15,'A001',1,'Friday','08:00:00','10:00:00','ICT Hardware Lab','Theory','2026/2027','Semester 1'),(16,'A001',5,'Friday','10:00:00','12:00:00','ICT New Lab','Theory','2026/2027','Semester 1'),(17,'A001',4,'Friday','13:00:00','15:00:00','ICT Hardware Lab','Theory','2026/2027','Semester 1');
-/*!40000 ALTER TABLE `timetable` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `timetable` (`timetable_id`, `admin_id`, `course_id`, `day_of_week`, `start_time`, `end_time`, `lecture_hall`, `session_type`, `academic_year`, `semester`) VALUES
+                                                                                                                                                                            (6, 'A001', 2, 'Monday', '09:00:00', '11:00:00', 'ICT Lab 11', 'Theory', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (7, 'A001', 2, 'Monday', '11:00:00', '13:00:00', 'ICT Lab 11', 'Practical', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (8, 'A001', 3, 'Tuesday', '09:00:00', '12:00:00', 'ICT New Lab', 'Theory', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (9, 'A001', 6, 'Tuesday', '13:00:00', '15:00:00', 'ICT Lab 12', 'Theory', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (10, 'A001', 1, 'Wednesday', '08:00:00', '10:00:00', 'ICT ILT', 'Theory', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (11, 'A001', 9, 'Wednesday', '10:00:00', '12:00:00', 'ICT Hardware Lab', 'Practical', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (12, 'A001', 7, 'Thursday', '09:00:00', '11:00:00', 'ICT Lab 11', 'Theory', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (13, 'A001', 8, 'Thursday', '11:00:00', '13:00:00', 'ICT Lab 11', 'Practical', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (14, 'A001', 8, 'Thursday', '14:00:00', '16:00:00', 'ICT Lab 11', 'Practical', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (15, 'A001', 1, 'Friday', '08:00:00', '10:00:00', 'ICT Hardware Lab', 'Theory', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (16, 'A001', 5, 'Friday', '10:00:00', '12:00:00', 'ICT New Lab', 'Theory', '2026/2027', 'Semester 1'),
+                                                                                                                                                                            (17, 'A001', 4, 'Friday', '13:00:00', '15:00:00', 'ICT Hardware Lab', 'Theory', '2026/2027', 'Semester 1');
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `undergraduate`
 --
 
-DROP TABLE IF EXISTS `undergraduate`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `undergraduate` (
-                                 `reg_no` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-                                 `user_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                                 `batch_id` int NOT NULL,
-                                 `dept_id` int NOT NULL,
-                                 `is_repeat` tinyint(1) NOT NULL DEFAULT '0',
-                                 `is_batchmissed` tinyint(1) NOT NULL DEFAULT '0',
-                                 PRIMARY KEY (`reg_no`),
-                                 UNIQUE KEY `uq_undergraduate_user` (`user_id`),
-                                 KEY `idx_undergraduate_batch` (`batch_id`),
-                                 KEY `idx_undergraduate_department` (`dept_id`),
-                                 CONSTRAINT `fk_undergraduate_batch` FOREIGN KEY (`batch_id`) REFERENCES `batch` (`batch_id`) ON UPDATE CASCADE,
-                                 CONSTRAINT `fk_undergraduate_department` FOREIGN KEY (`dept_id`) REFERENCES `department` (`dept_id`) ON UPDATE CASCADE,
-                                 CONSTRAINT `fk_undergraduate_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                                 `reg_no` varchar(20) NOT NULL,
+                                 `user_id` varchar(10) NOT NULL,
+                                 `batch_id` int(11) NOT NULL,
+                                 `dept_id` int(11) NOT NULL,
+                                 `is_repeat` tinyint(1) NOT NULL DEFAULT 0,
+                                 `is_batchmissed` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `undergraduate`
 --
 
-LOCK TABLES `undergraduate` WRITE;
-/*!40000 ALTER TABLE `undergraduate` DISABLE KEYS */;
-INSERT INTO `undergraduate` VALUES ('TG2000','U001',1,1,0,0),('TG2001','U002',1,1,0,0),('TG2002','U003',2,1,0,0),('TG2003','U004',2,2,0,0),('TG2004','U005',3,2,0,0);
-/*!40000 ALTER TABLE `undergraduate` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `undergraduate` (`reg_no`, `user_id`, `batch_id`, `dept_id`, `is_repeat`, `is_batchmissed`) VALUES
+                                                                                                            ('TG2000', 'U001', 2, 1, 0, 0),
+                                                                                                            ('TG2001', 'U002', 2, 1, 0, 0),
+                                                                                                            ('TG2002', 'U003', 2, 1, 0, 0),
+                                                                                                            ('TG2003', 'U004', 2, 1, 0, 0),
+                                                                                                            ('TG2004', 'U005', 2, 1, 0, 0),
+                                                                                                            ('TG2005', 'U006', 2, 1, 0, 0),
+                                                                                                            ('TG2006', 'U007', 2, 1, 0, 0),
+                                                                                                            ('TG2007', 'U008', 2, 1, 0, 0),
+                                                                                                            ('TG2008', 'U009', 2, 1, 0, 0),
+                                                                                                            ('TG2009', 'U010', 2, 1, 0, 0),
+                                                                                                            ('TG2010', 'U011', 2, 1, 0, 0),
+                                                                                                            ('TG2011', 'U012', 2, 1, 0, 0),
+                                                                                                            ('TG2012', 'U013', 1, 1, 1, 0),
+                                                                                                            ('TG2013', 'U014', 1, 1, 1, 0),
+                                                                                                            ('TG2014', 'U015', 1, 1, 1, 0),
+                                                                                                            ('TG2015', 'U016', 1, 1, 1, 0),
+                                                                                                            ('TG2016', 'U017', 1, 1, 1, 0),
+                                                                                                            ('TG2017', 'U018', 2, 1, 0, 1),
+                                                                                                            ('TG2018', 'U019', 2, 1, 0, 1),
+                                                                                                            ('TG2019', 'U020', 2, 1, 0, 1);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `user`
 --
 
-DROP TABLE IF EXISTS `user`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user` (
-                        `user_id` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
-                        `user_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-                        `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-                        `first_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-                        `last_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-                        `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-                        `profile_image` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-                        `role` enum('Undergraduate','Technical_Officer','Lecturer','Admin') COLLATE utf8mb4_general_ci NOT NULL,
-                        PRIMARY KEY (`user_id`),
-                        UNIQUE KEY `uq_user_username` (`user_name`),
-                        UNIQUE KEY `uq_user_email` (`email`)
+                        `user_id` varchar(10) NOT NULL,
+                        `user_name` varchar(50) NOT NULL,
+                        `password` varchar(255) NOT NULL,
+                        `first_name` varchar(50) NOT NULL,
+                        `last_name` varchar(50) NOT NULL,
+                        `email` varchar(100) NOT NULL,
+                        `profile_image` varchar(255) DEFAULT NULL,
+                        `role` enum('Undergraduate','Technical_Officer','Lecturer','Admin') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `user`
 --
 
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ('A001','admin01','Admin@123','Nimal','Perera','nimal.admin@example.com',NULL,'Admin'),('L001','lecturer01','Lecturer@123','Kamal','Silva','kamal.silva@example.com',NULL,'Lecturer'),('L002','lecturer02','Lecturer@123','Sanduni','Fernando','sanduni.fernando@example.com',NULL,'Lecturer'),('T001','tech01','Tech@123','Amara','Jayasinghe','amara.tech@example.com',NULL,'Technical_Officer'),('U001','student01','Student@123','Kasun','Wickramasinghe','kasun.student@example.com',NULL,'Undergraduate'),('U002','student02','Student@123','Tharushi','Bandara','tharushi.student@example.com',NULL,'Undergraduate'),('U003','student03','Student@123','Dilan','Peris','dilan.student@example.com',NULL,'Undergraduate'),('U004','student04','Student@123','Mihiri','Senanayake','mihiri.senanayake@example.com',NULL,'Undergraduate'),('U005','student05','Student@123','Ravindu','Dissanayake','ravindu.student@example.com',NULL,'Undergraduate');
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `user` (`user_id`, `user_name`, `password`, `first_name`, `last_name`, `email`, `profile_image`, `role`) VALUES
+                                                                                                                         ('A001', 'admin01', 'Admin@123', 'Pradeep', 'Wijesinghe', 'admin01@example.com', NULL, 'Admin'),
+                                                                                                                         ('L001', 'lecturer01', 'Lecturer@123', 'Anura', 'Gunawardena', 'lecturer01@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('L002', 'lecturer02', 'Lecturer@123', 'Malini', 'Rathnayake', 'lecturer02@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('L003', 'lecturer03', 'Lecturer@123', 'Suresh', 'Abeysekara', 'lecturer03@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('L004', 'lecturer04', 'Lecturer@123', 'Nadeesha', 'Karunaratne', 'lecturer04@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('L005', 'lecturer05', 'Lecturer@123', 'Chamara', 'Rajapaksha', 'lecturer05@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('T001', 'tech01', 'Tech@123', 'Ruwan', 'Samarasinghe', 'tech01@example.com', NULL, 'Technical_Officer'),
+                                                                                                                         ('T002', 'tech02', 'Tech@123', 'Ishara', 'Madushani', 'tech02@example.com', NULL, 'Technical_Officer'),
+                                                                                                                         ('T003', 'tech03', 'Tech@123', 'Prasanna', 'Ekanayake', 'tech03@example.com', NULL, 'Technical_Officer'),
+                                                                                                                         ('T004', 'tech04', 'Tech@123', 'Dilrukshi', 'Weerasinghe', 'tech04@example.com', NULL, 'Technical_Officer'),
+                                                                                                                         ('U001', 'student01', 'Student@123', 'Sahan', 'Fernando', 'student01@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U002', 'student02', 'Student@123', 'Nethmi', 'Perera', 'student02@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U003', 'student03', 'Student@123', 'Avishka', 'Silva', 'student03@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U004', 'student04', 'Student@123', 'Dinithi', 'Jayawardena', 'student04@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U005', 'student05', 'Student@123', 'Kavindu', 'Bandara', 'student05@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U006', 'student06', 'Student@123', 'Senuri', 'Dissanayake', 'student06@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U007', 'student07', 'Student@123', 'Pasindu', 'Herath', 'student07@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U008', 'student08', 'Student@123', 'Oshadi', 'Wickramasinghe', 'student08@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U009', 'student09', 'Student@123', 'Tharindu', 'Senanayake', 'student09@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U010', 'student10', 'Student@123', 'Hiruni', 'Gamage', 'student10@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U011', 'student11', 'Student@123', 'Janith', 'Karunathilaka', 'student11@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U012', 'student12', 'Student@123', 'Piumi', 'Wijeratne', 'student12@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U013', 'student13', 'Student@123', 'Lakshan', 'Gunasekara', 'student13@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U014', 'student14', 'Student@123', 'Sandali', 'Amarasinghe', 'student14@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U015', 'student15', 'Student@123', 'Isuru', 'Rathnayake', 'student15@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U016', 'student16', 'Student@123', 'Dewmini', 'Samarakoon', 'student16@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U017', 'student17', 'Student@123', 'Nipun', 'Abeywickrama', 'student17@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U018', 'student18', 'Student@123', 'Sachini', 'Weerakoon', 'student18@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U019', 'student19', 'Student@123', 'Yasiru', 'Pathirana', 'student19@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U020', 'student20', 'Student@123', 'Imasha', 'Jayasekara', 'student20@example.com', NULL, 'Undergraduate');
+
+-- --------------------------------------------------------
 
 --
--- Dumping events for database 'university_db'
+-- Structure for view `ams_ca_batch_summary`
+--
+DROP TABLE IF EXISTS `ams_ca_batch_summary`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ams_ca_batch_summary`  AS SELECT `ams_result_details`.`batch_id` AS `batch_id`, `ams_result_details`.`course_code` AS `course_code`, count(0) AS `students`, round(avg(`ams_result_details`.`total_CA_marks`),2) AS `average_CA`, sum(case when `ams_result_details`.`total_CA_marks` >= 40 then 1 else 0 end) AS `CA_passed`, sum(case when `ams_result_details`.`eligibility` = 1 then 1 else 0 end) AS `exam_eligible`, sum(case when `ams_result_details`.`grade` in ('WH','MC') then 1 else 0 end) AS `pending_results` FROM `ams_result_details` GROUP BY `ams_result_details`.`batch_id`, `ams_result_details`.`course_code` ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `ams_result_details`
+--
+DROP TABLE IF EXISTS `ams_result_details`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ams_result_details`  AS SELECT `u`.`user_id` AS `user_id`, `u`.`reg_no` AS `reg_no`, `u`.`batch_id` AS `batch_id`, `u`.`is_repeat` AS `is_repeat`, `c`.`course_code` AS `course_code`, `c`.`course_name` AS `course_name`, `c`.`credit` AS `credit`, `ce`.`quiz1_marks` AS `quiz1_marks`, `ce`.`quiz2_marks` AS `quiz2_marks`, `ce`.`quiz_marks` AS `quiz_marks`, `ce`.`assignment1_marks` AS `assignment1_marks`, `ce`.`assignment2_marks` AS `assignment2_marks`, `ce`.`mid_exam_marks` AS `mid_exam_marks`, `ce`.`total_CA_marks` AS `total_CA_marks`, `ce`.`CA_status` AS `CA_status`, `ce`.`eligibility` AS `eligibility`, `a`.`total_sessions` AS `total_sessions`, `a`.`present_sessions` AS `present_sessions`, round(100.0 * `a`.`present_sessions` / nullif(`a`.`total_sessions`,0),2) AS `attendance_percent`, `m`.`end_exam_marks` AS `end_exam_marks`, `m`.`total_marks` AS `total_marks`, `m`.`grade` AS `grade`, `m`.`grade_point` AS `grade_point` FROM (((((`enrollment` `e` join `undergraduate` `u` on(`u`.`reg_no` = `e`.`reg_no`)) join `course` `c` on(`c`.`course_id` = `e`.`course_id`)) join `ca_evaluation` `ce` on(`ce`.`enrollment_id` = `e`.`enrollment_id`)) join `mark` `m` on(`m`.`enrollment_id` = `e`.`enrollment_id`)) left join (select `attendance`.`enrollment_id` AS `enrollment_id`,count(0) AS `total_sessions`,sum(case when `attendance`.`status` = 'Present' then 1 else 0 end) AS `present_sessions` from `attendance` group by `attendance`.`enrollment_id`) `a` on(`a`.`enrollment_id` = `e`.`enrollment_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `ams_semester_gpa`
+--
+DROP TABLE IF EXISTS `ams_semester_gpa`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ams_semester_gpa`  AS SELECT `ams_result_details`.`user_id` AS `user_id`, `ams_result_details`.`reg_no` AS `reg_no`, `ams_result_details`.`batch_id` AS `batch_id`, `ams_result_details`.`is_repeat` AS `is_repeat`, sum(`ams_result_details`.`credit`) AS `registered_credits`, sum(case when `ams_result_details`.`grade` in ('WH','MC') then 1 else 0 end) AS `pending_results`, CASE WHEN sum(case when `ams_result_details`.`grade` in ('WH','MC') then 1 else 0 end) > 0 THEN NULL ELSE round(1.0 * sum(`ams_result_details`.`credit` * `ams_result_details`.`grade_point`) / nullif(sum(`ams_result_details`.`credit`),0),2) END AS `provisional_SGPA` FROM `ams_result_details` GROUP BY `ams_result_details`.`user_id`, `ams_result_details`.`reg_no`, `ams_result_details`.`batch_id`, `ams_result_details`.`is_repeat` ;
+
+--
+-- Indexes for dumped tables
 --
 
 --
--- Dumping routines for database 'university_db'
+-- Indexes for table `admin`
 --
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+ALTER TABLE `admin`
+    ADD PRIMARY KEY (`admin_id`),
+  ADD UNIQUE KEY `uq_admin_user` (`user_id`);
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+--
+-- Indexes for table `attendance`
+--
+ALTER TABLE `attendance`
+    ADD PRIMARY KEY (`attendance_id`),
+  ADD UNIQUE KEY `uq_attendance` (`enrollment_id`,`session_id`),
+  ADD KEY `idx_attendance_enrollment` (`enrollment_id`),
+  ADD KEY `idx_attendance_session` (`session_id`);
+
+--
+-- Indexes for table `batch`
+--
+ALTER TABLE `batch`
+    ADD PRIMARY KEY (`batch_id`);
+
+--
+-- Indexes for table `ca_evaluation`
+--
+ALTER TABLE `ca_evaluation`
+    ADD PRIMARY KEY (`evaluation_id`),
+  ADD UNIQUE KEY `uq_ca_enrollment` (`enrollment_id`);
+
+--
+-- Indexes for table `course`
+--
+ALTER TABLE `course`
+    ADD PRIMARY KEY (`course_id`),
+  ADD UNIQUE KEY `uq_course_code` (`course_code`),
+  ADD KEY `idx_course_lecturer` (`lecturer_id`),
+  ADD KEY `idx_course_department` (`dept_id`);
+
+--
+-- Indexes for table `course_material`
+--
+ALTER TABLE `course_material`
+    ADD PRIMARY KEY (`material_id`),
+  ADD KEY `idx_material_lecturer` (`lecturer_id`),
+  ADD KEY `idx_material_course` (`course_id`);
+
+--
+-- Indexes for table `department`
+--
+ALTER TABLE `department`
+    ADD PRIMARY KEY (`dept_id`),
+  ADD UNIQUE KEY `uq_department_name` (`dept_name`);
+
+--
+-- Indexes for table `enrollment`
+--
+ALTER TABLE `enrollment`
+    ADD PRIMARY KEY (`enrollment_id`),
+  ADD UNIQUE KEY `uq_enrollment` (`reg_no`,`course_id`),
+  ADD KEY `idx_enrollment_reg_no` (`reg_no`),
+  ADD KEY `idx_enrollment_course` (`course_id`);
+
+--
+-- Indexes for table `lecturer`
+--
+ALTER TABLE `lecturer`
+    ADD PRIMARY KEY (`lecturer_id`),
+  ADD UNIQUE KEY `uq_lecturer_user` (`user_id`),
+  ADD KEY `idx_lecturer_department` (`dept_id`);
+
+--
+-- Indexes for table `mark`
+--
+ALTER TABLE `mark`
+    ADD PRIMARY KEY (`mark_id`),
+  ADD UNIQUE KEY `uq_mark_enrollment` (`enrollment_id`);
+
+--
+-- Indexes for table `medical`
+--
+ALTER TABLE `medical`
+    ADD PRIMARY KEY (`medical_id`),
+  ADD KEY `idx_medical_reg_no` (`reg_no`),
+  ADD KEY `idx_medical_course` (`course_id`),
+  ADD KEY `idx_medical_admin` (`admin_id`);
+
+--
+-- Indexes for table `notice`
+--
+ALTER TABLE `notice`
+    ADD PRIMARY KEY (`notice_id`),
+  ADD KEY `idx_notice_admin` (`admin_id`);
+
+--
+-- Indexes for table `semester_result`
+--
+ALTER TABLE `semester_result`
+    ADD PRIMARY KEY (`result_id`),
+  ADD UNIQUE KEY `uq_semester_result` (`reg_no`,`semester`,`academic_year`),
+  ADD KEY `idx_result_reg_no` (`reg_no`);
+
+--
+-- Indexes for table `sessions`
+--
+ALTER TABLE `sessions`
+    ADD PRIMARY KEY (`session_id`),
+  ADD KEY `idx_sessions_course` (`course_id`);
+
+--
+-- Indexes for table `technical_officer`
+--
+ALTER TABLE `technical_officer`
+    ADD PRIMARY KEY (`to_id`),
+  ADD UNIQUE KEY `uq_to_user` (`user_id`),
+  ADD KEY `idx_to_department` (`dept_id`);
+
+--
+-- Indexes for table `timetable`
+--
+ALTER TABLE `timetable`
+    ADD PRIMARY KEY (`timetable_id`),
+  ADD KEY `idx_timetable_admin` (`admin_id`),
+  ADD KEY `idx_timetable_course` (`course_id`);
+
+--
+-- Indexes for table `undergraduate`
+--
+ALTER TABLE `undergraduate`
+    ADD PRIMARY KEY (`reg_no`),
+  ADD UNIQUE KEY `uq_undergraduate_user` (`user_id`),
+  ADD KEY `idx_undergraduate_batch` (`batch_id`),
+  ADD KEY `idx_undergraduate_department` (`dept_id`);
+
+--
+-- Indexes for table `user`
+--
+ALTER TABLE `user`
+    ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `uq_user_username` (`user_name`),
+  ADD UNIQUE KEY `uq_user_email` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `attendance`
+--
+ALTER TABLE `attendance`
+    MODIFY `attendance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2521;
+
+--
+-- AUTO_INCREMENT for table `batch`
+--
+ALTER TABLE `batch`
+    MODIFY `batch_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `ca_evaluation`
+--
+ALTER TABLE `ca_evaluation`
+    MODIFY `evaluation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=181;
+
+--
+-- AUTO_INCREMENT for table `course`
+--
+ALTER TABLE `course`
+    MODIFY `course_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `course_material`
+--
+ALTER TABLE `course_material`
+    MODIFY `material_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `department`
+--
+ALTER TABLE `department`
+    MODIFY `dept_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `enrollment`
+--
+ALTER TABLE `enrollment`
+    MODIFY `enrollment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=263;
+
+--
+-- AUTO_INCREMENT for table `mark`
+--
+ALTER TABLE `mark`
+    MODIFY `mark_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=181;
+
+--
+-- AUTO_INCREMENT for table `medical`
+--
+ALTER TABLE `medical`
+    MODIFY `medical_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT for table `notice`
+--
+ALTER TABLE `notice`
+    MODIFY `notice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `semester_result`
+--
+ALTER TABLE `semester_result`
+    MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
+-- AUTO_INCREMENT for table `sessions`
+--
+ALTER TABLE `sessions`
+    MODIFY `session_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=127;
+
+--
+-- AUTO_INCREMENT for table `timetable`
+--
+ALTER TABLE `timetable`
+    MODIFY `timetable_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `admin`
+--
+ALTER TABLE `admin`
+    ADD CONSTRAINT `fk_admin_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `attendance`
+--
+ALTER TABLE `attendance`
+    ADD CONSTRAINT `fk_attendance_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollment` (`enrollment_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_attendance_session` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`session_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `ca_evaluation`
+--
+ALTER TABLE `ca_evaluation`
+    ADD CONSTRAINT `fk_ca_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollment` (`enrollment_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `course`
+--
+ALTER TABLE `course`
+    ADD CONSTRAINT `fk_course_department` FOREIGN KEY (`dept_id`) REFERENCES `department` (`dept_id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_course_lecturer` FOREIGN KEY (`lecturer_id`) REFERENCES `lecturer` (`lecturer_id`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `course_material`
+--
+ALTER TABLE `course_material`
+    ADD CONSTRAINT `fk_material_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_material_lecturer` FOREIGN KEY (`lecturer_id`) REFERENCES `lecturer` (`lecturer_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `enrollment`
+--
+ALTER TABLE `enrollment`
+    ADD CONSTRAINT `fk_enrollment_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_enrollment_undergraduate` FOREIGN KEY (`reg_no`) REFERENCES `undergraduate` (`reg_no`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `lecturer`
+--
+ALTER TABLE `lecturer`
+    ADD CONSTRAINT `fk_lecturer_department` FOREIGN KEY (`dept_id`) REFERENCES `department` (`dept_id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_lecturer_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `mark`
+--
+ALTER TABLE `mark`
+    ADD CONSTRAINT `fk_mark_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollment` (`enrollment_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `medical`
+--
+ALTER TABLE `medical`
+    ADD CONSTRAINT `fk_medical_admin` FOREIGN KEY (`admin_id`) REFERENCES `admin` (`admin_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_medical_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_medical_undergraduate` FOREIGN KEY (`reg_no`) REFERENCES `undergraduate` (`reg_no`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `notice`
+--
+ALTER TABLE `notice`
+    ADD CONSTRAINT `fk_notice_admin` FOREIGN KEY (`admin_id`) REFERENCES `admin` (`admin_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `semester_result`
+--
+ALTER TABLE `semester_result`
+    ADD CONSTRAINT `fk_result_undergraduate` FOREIGN KEY (`reg_no`) REFERENCES `undergraduate` (`reg_no`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `sessions`
+--
+ALTER TABLE `sessions`
+    ADD CONSTRAINT `fk_sessions_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `technical_officer`
+--
+ALTER TABLE `technical_officer`
+    ADD CONSTRAINT `fk_to_department` FOREIGN KEY (`dept_id`) REFERENCES `department` (`dept_id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_to_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `timetable`
+--
+ALTER TABLE `timetable`
+    ADD CONSTRAINT `fk_timetable_admin` FOREIGN KEY (`admin_id`) REFERENCES `admin` (`admin_id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_timetable_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `undergraduate`
+--
+ALTER TABLE `undergraduate`
+    ADD CONSTRAINT `fk_undergraduate_batch` FOREIGN KEY (`batch_id`) REFERENCES `batch` (`batch_id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_undergraduate_department` FOREIGN KEY (`dept_id`) REFERENCES `department` (`dept_id`) ON UPDATE CASCADE,
+                                                                                                                                                                                                                                        ADD CONSTRAINT `fk_undergraduate_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+COMMIT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2026-10-22 19:37:28

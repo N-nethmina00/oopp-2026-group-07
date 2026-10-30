@@ -30,10 +30,16 @@ public class StudentMaterialsController {
                 new Material("NW201", "OSI Model Slides",              "PPTX", "2026-09-12"));
         FilteredList<Material> filtered = new FilteredList<>(all, m -> true);
 
-        cmbCourse.getItems().addAll("All", "CS101", "MA101", "DB201", "NW201");
+        // TODO: CourseDAO eken student ge courses ganna
+        cmbCourse.getItems().addAll(
+                "All",
+                "CS101 - Object Oriented Programming",
+                "MA101 - Discrete Mathematics",
+                "DB201 - Database Systems",
+                "NW201 - Computer Networks");
         cmbCourse.getSelectionModel().selectFirst();
         cmbCourse.valueProperty().addListener((o, a, c) ->
-                filtered.setPredicate(m -> c == null || c.equals("All") || m.course().equals(c)));
+                filtered.setPredicate(m -> c == null || c.equals("All") || c.startsWith(m.course() + " - ")));
         colCourse.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().course()));
         colTitle.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().title()));
         colType.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().type()));

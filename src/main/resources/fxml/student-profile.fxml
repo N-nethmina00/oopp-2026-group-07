@@ -2,6 +2,10 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.Circle?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.fot.ams.controller.StudentProfileController"
@@ -13,10 +17,37 @@
     </VBox>
 
     <HBox styleClass="section-card" spacing="36" alignment="TOP_LEFT">
+
         <VBox alignment="TOP_CENTER" spacing="12">
-            <Label fx:id="lblPhoto" text="S" styleClass="photo-circle"/>
-            <Button text="Change Photo" onAction="#handleChangePhoto" styleClass="small-button"/>
+
+            <StackPane prefWidth="140" prefHeight="140"
+                       minWidth="140" minHeight="140"
+                       maxWidth="140" maxHeight="140">
+
+                <Label fx:id="lblPhoto"
+                       text="S"
+                       styleClass="photo-circle"/>
+
+                <ImageView fx:id="imgProfile"
+                           fitWidth="138"
+                           fitHeight="138"
+                           preserveRatio="false"
+                           visible="false">
+                    <clip>
+                        <Circle radius="69"
+                                centerX="69"
+                                centerY="69"/>
+                    </clip>
+                </ImageView>
+
+            </StackPane>
+
+            <Button text="Change Photo"
+                    onAction="#handleChangePhoto"
+                    styleClass="small-button"/>
+
         </VBox>
+
 
         <VBox spacing="14" HBox.hgrow="ALWAYS">
             <HBox spacing="16">
@@ -35,6 +66,9 @@
                 <TextField fx:id="txtEmail" styleClass="form-control"/>
             </VBox>
 
+
+
+
             <HBox spacing="16">
                 <VBox spacing="6" HBox.hgrow="ALWAYS">
                     <Label text="REGISTRATION NO." styleClass="field-label"/>
@@ -45,7 +79,6 @@
             <Label fx:id="lblMessage" managed="false" visible="false"/>
 
             <HBox spacing="12" alignment="CENTER_RIGHT">
-                <Button text="Change Password" onAction="#handleChangePassword" styleClass="secondary-button"/>
                 <Button text="Save Changes" onAction="#handleSave" styleClass="primary-button"/>
             </HBox>
         </VBox>

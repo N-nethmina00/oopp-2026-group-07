@@ -3,57 +3,82 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.fot.ams.controller.StudentMedicalController"
-      stylesheets="@../css/student-medical.css" styleClass="page" spacing="20">
+<ScrollPane fx:id="scrollPage" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.StudentMedicalController"
+            stylesheets="@../css/student-medical.css"
+            fitToWidth="true" hbarPolicy="NEVER">
 
-    <VBox spacing="4">
-        <Label text="MEDICAL APPLICATION" styleClass="page-heading"/>
-        <Label text="Submit a medical for a missed session or exam" styleClass="page-subtitle"/>
-    </VBox>
+    <VBox styleClass="page" spacing="20">
 
-    <VBox styleClass="section-card" spacing="14">
-        <HBox spacing="16">
-            <VBox spacing="6" HBox.hgrow="ALWAYS">
-                <Label text="COURSE" styleClass="field-label"/>
-                <ComboBox fx:id="cmbCourse" maxWidth="Infinity" styleClass="form-control"/>
-            </VBox>
-            <VBox spacing="6" HBox.hgrow="ALWAYS">
-                <Label text="MEDICAL DATE" styleClass="field-label"/>
-                <DatePicker fx:id="dpDate" maxWidth="Infinity" styleClass="form-control"/>
-            </VBox>
-        </HBox>
+        <fx:define>
+            <ToggleGroup fx:id="grpDuration"/>
+        </fx:define>
 
-        <VBox spacing="6">
-            <Label text="REASON" styleClass="field-label"/>
-            <TextArea fx:id="txtReason" prefRowCount="3" wrapText="true"
-                      promptText="Explain the reason" styleClass="form-control"/>
+        <VBox spacing="4">
+            <Label text="MEDICAL APPLICATION" styleClass="page-heading"/>
+            <Label text="Submit a medical for a missed session or exam" styleClass="page-subtitle"/>
         </VBox>
 
-        <VBox spacing="6">
-            <Label text="UPLOAD MEDICAL DOCUMENT (OPTIONAL)" styleClass="field-label"/>
-            <HBox spacing="12" alignment="CENTER_LEFT">
-                <Button text="Choose File" onAction="#handleChooseFile" styleClass="secondary-button"/>
-                <Label fx:id="lblFile" text="No file selected" styleClass="hint-label"/>
+        <VBox styleClass="section-card" spacing="14">
+
+            <!-- Course (code + name) -->
+            <VBox spacing="6">
+                <Label text="COURSE" styleClass="field-label"/>
+                <ComboBox fx:id="cmbCourse" maxWidth="Infinity" promptText="Select course" styleClass="form-control"/>
+            </VBox>
+
+            <!-- Single day / Multiple days -->
+            <VBox spacing="8">
+                <Label text="MEDICAL PERIOD" styleClass="field-label"/>
+                <HBox spacing="24" alignment="CENTER_LEFT">
+                    <RadioButton fx:id="rbSingle" text="Single day" toggleGroup="$grpDuration" selected="true"/>
+                    <RadioButton fx:id="rbMultiple" text="Multiple days" toggleGroup="$grpDuration"/>
+                </HBox>
+            </VBox>
+
+            <!-- Date(s): 1 calendar for a single day, 2 calendars for a range -->
+            <HBox spacing="16">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label fx:id="lblFromDate" text="MEDICAL DATE" styleClass="field-label"/>
+                    <DatePicker fx:id="dpFrom" maxWidth="Infinity" promptText="Select date" styleClass="form-control"/>
+                </VBox>
+                <VBox fx:id="boxToDate" spacing="6" HBox.hgrow="ALWAYS" managed="false" visible="false">
+                    <Label text="TO DATE" styleClass="field-label"/>
+                    <DatePicker fx:id="dpTo" maxWidth="Infinity" promptText="Select date" styleClass="form-control"/>
+                </VBox>
+            </HBox>
+
+            <VBox spacing="6">
+                <Label text="REASON" styleClass="field-label"/>
+                <TextArea fx:id="txtReason" prefRowCount="3" wrapText="true"
+                          promptText="Explain the reason" styleClass="form-control"/>
+            </VBox>
+
+            <VBox spacing="6">
+                <Label text="UPLOAD MEDICAL DOCUMENT (REQUIRED)" styleClass="field-label"/>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Button text="Choose File" onAction="#handleChooseFile" styleClass="secondary-button"/>
+                    <Label fx:id="lblFile" text="No file selected" styleClass="hint-label"/>
+                </HBox>
+            </VBox>
+
+            <Label fx:id="lblMessage" managed="false" visible="false"/>
+
+            <HBox alignment="CENTER_RIGHT">
+                <Button text="Submit" onAction="#handleSubmit" styleClass="primary-button"/>
             </HBox>
         </VBox>
 
-        <Label fx:id="lblMessage" managed="false" visible="false"/>
-
-        <HBox alignment="CENTER_RIGHT">
-            <Button text="Submit" onAction="#handleSubmit" styleClass="primary-button"/>
-        </HBox>
+        <VBox styleClass="section-card" spacing="14">
+            <Label text="My previous applications" styleClass="section-title"/>
+            <TableView fx:id="tblMedical" prefHeight="270" minHeight="270">
+                <columns>
+                    <TableColumn fx:id="colDate" text="Date"/>
+                    <TableColumn fx:id="colCourse" text="Course"/>
+                    <TableColumn fx:id="colReason" text="Reason"/>
+                    <TableColumn fx:id="colStatus" text="Status"/>
+                </columns>
+            </TableView>
+        </VBox>
     </VBox>
-
-    <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
-        <Label text="My previous applications" styleClass="section-title"/>
-        <TableView fx:id="tblMedical" prefHeight="220" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colDate" text="Date"/>
-            <TableColumn fx:id="colCourse" text="Course"/>
-            <TableColumn fx:id="colReason" text="Reason"/>
-            <TableColumn fx:id="colStatus" text="Status"/>
-        </columns>
-        </TableView>
-    </VBox>
-</VBox>
+</ScrollPane>

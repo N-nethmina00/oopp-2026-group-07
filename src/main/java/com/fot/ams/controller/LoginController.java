@@ -12,6 +12,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import java.sql.SQLException;
 
 public class LoginController {
 
@@ -33,7 +34,7 @@ public class LoginController {
         txtPassword.clear();
         hideError();
 
-        // ඔයාගේ පැවති Focus Styles සහ Event Listeners ටික
+
         bindFocusStyle(txtUsername, boxUsername);
         bindFocusStyle(txtPassword, boxPassword);
 
@@ -73,8 +74,8 @@ public class LoginController {
             // considering database role and redirecting dashboard
             switch (user.getRole()) {
                 case "Admin" -> navigateToDashboard("/fxml/admindashboard.fxml", "AMS - Admin Dashboard");
-                case "Lecturer" -> navigateToDashboard("/fxml/lecturer-dashboard.fxml", "AMS - Lecturer Dashboard");
-                case "Undergraduate" -> navigateToDashboard("/fxml/student-layout.fxml", "AMS - Student Dashboard");
+                case "Lecturer" -> navigateToLecturerDashboard(user);
+                case "Undergraduate" -> navigateToStudentDashboard(user);
                 case "Technical_Officer" -> navigateToDashboard("/fxml/technical-officer-dashboard.fxml", "AMS - TO Dashboard");
                 default -> showError("Invalid user role detected: " + user.getRole());
             }
@@ -82,6 +83,57 @@ public class LoginController {
             showError("Invalid username or password!");
         }
     }
+
+
+    private void navigateToLecturerDashboard(User user) {
+
+        try {
+            // Find Lecturer ID using authenticated User ID
+            String lecturerId =
+                    userDAO.getLecturerIdByUserId(
+                            user.getUserId()
+                    );
+
+            if (lecturerId == null || lecturerId.isBlank()) {
+                showError(
+                        "No lecturer record found for this account."
+                );
+                return;
+            }
+
+            // Load Lecturer Dashboard FXML
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/fxml/lecturer-dashboard.fxml"
+                    )
+            );
+
+            Parent root = loader.load();
+
+            // Pass Lecturer ID to controller
+            LecturerController lecturerController =
+                    loader.getController();
+
+            lecturerController.setLecturerId(lecturerId);
+
+            // Open dashboard after ID is set
+            Stage stage = (Stage)
+                    txtUsername.getScene().getWindow();
+
+            stage.setTitle("AMS - Lecturer Dashboard");
+            stage.setScene(new Scene(root, 1200, 750));
+            stage.centerOnScreen();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showError("Unable to load lecturer account.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Failed to load Lecturer Dashboard!");
+        }
+    }
+
 
     // to change the page
     private void navigateToDashboard(String fxmlPath, String title) {
@@ -133,4 +185,48 @@ public class LoginController {
         a.setContentText(msg);
         a.showAndWait();
     }
+
+    private void navigateToStudentDashboard(User user) {
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/fxml/student-layout.fxml"
+                    )
+            );
+
+            Parent root = loader.load();
+
+            // Get Student Layout Controller
+            StudentLayoutController studentController =
+                    loader.getController();
+
+            // Pass logged-in Student User ID
+            studentController.loadStudentName(
+                    user.getUserId()
+            );
+
+            // Open Student Dashboard
+            Stage stage = (Stage)
+                    txtUsername.getScene().getWindow();
+
+            stage.setTitle("AMS - Student Dashboard");
+
+            stage.setScene(
+                    new Scene(root, 1100, 680)
+            );
+
+            stage.centerOnScreen();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showError(
+                    "Failed to load Student Dashboard!"
+            );
+        }
+    }
+
 }

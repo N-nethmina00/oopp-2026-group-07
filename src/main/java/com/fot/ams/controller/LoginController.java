@@ -75,7 +75,7 @@ public class LoginController {
             switch (user.getRole()) {
                 case "Admin" -> navigateToDashboard("/fxml/admindashboard.fxml", "AMS - Admin Dashboard");
                 case "Lecturer" -> navigateToLecturerDashboard(user);
-                case "Undergraduate" -> navigateToDashboard("/fxml/student-layout.fxml", "AMS - Student Dashboard");
+                case "Undergraduate" -> navigateToStudentDashboard(user);
                 case "Technical_Officer" -> navigateToDashboard("/fxml/technical-officer-dashboard.fxml", "AMS - TO Dashboard");
                 default -> showError("Invalid user role detected: " + user.getRole());
             }
@@ -185,4 +185,48 @@ public class LoginController {
         a.setContentText(msg);
         a.showAndWait();
     }
+
+    private void navigateToStudentDashboard(User user) {
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/fxml/student-layout.fxml"
+                    )
+            );
+
+            Parent root = loader.load();
+
+            // Get Student Layout Controller
+            StudentLayoutController studentController =
+                    loader.getController();
+
+            // Pass logged-in Student User ID
+            studentController.loadStudentName(
+                    user.getUserId()
+            );
+
+            // Open Student Dashboard
+            Stage stage = (Stage)
+                    txtUsername.getScene().getWindow();
+
+            stage.setTitle("AMS - Student Dashboard");
+
+            stage.setScene(
+                    new Scene(root, 1100, 680)
+            );
+
+            stage.centerOnScreen();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            showError(
+                    "Failed to load Student Dashboard!"
+            );
+        }
+    }
+
 }

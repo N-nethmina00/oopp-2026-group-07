@@ -18,21 +18,13 @@
             <Label fx:id="lblCourses" text="6" styleClass="stat-value"/>
             <Label text="This semester" styleClass="stat-hint"/>
         </VBox>
-        <VBox styleClass="stat-card, purple-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
-            <Label text="ATTENDANCE" styleClass="stat-label"/>
-            <Label fx:id="lblAttendance" text="86%" styleClass="stat-value"/>
-            <Label text="Overall" styleClass="stat-hint"/>
-        </VBox>
+
         <VBox styleClass="stat-card, green-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
             <Label text="GPA" styleClass="stat-label"/>
             <Label fx:id="lblGpa" text="3.42" styleClass="stat-value"/>
             <Label text="Current" styleClass="stat-hint"/>
         </VBox>
-        <VBox styleClass="stat-card, orange-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
-            <Label text="PENDING MEDICAL" styleClass="stat-label"/>
-            <Label fx:id="lblPending" text="1" styleClass="stat-value"/>
-            <Label text="Application" styleClass="stat-hint"/>
-        </VBox>
+
     </HBox>
 
     <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">

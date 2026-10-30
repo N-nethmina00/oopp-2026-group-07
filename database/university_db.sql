@@ -3953,6 +3953,10 @@ ALTER TABLE `user`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+ALTER TABLE `timetable`
+  ADD PRIMARY KEY (`timetable_id`),
+  ADD KEY `idx_timetable_admin` (`admin_id`),
+  ADD KEY `idx_timetable_course` (`course_id`);
 
 --
 -- AUTO_INCREMENT for table `attendance`

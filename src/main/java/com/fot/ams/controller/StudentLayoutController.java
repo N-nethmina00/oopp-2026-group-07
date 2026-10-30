@@ -14,6 +14,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import com.fot.ams.dao.StudentDashboardDAO;
+import java.sql.SQLException;
+import com.fot.ams.dao.StudentDashboardDAO;
+import com.fot.ams.model.Student;
+
 
 public class StudentLayoutController {
 
@@ -27,9 +32,10 @@ public class StudentLayoutController {
 
     @FXML
     private void initialize() {
-        // TODO: logged-in user eka session / UserDAO eken ganna
-        setUser("Sample User", "Undergraduate");
-        open((Button) navBox.getChildren().get(0));   // first page = Dashboard
+
+        setUser("Student", "Undergraduate");
+
+        open((Button) navBox.getChildren().get(0));
     }
 
     /** Call this from LoginController after login success. */
@@ -63,6 +69,40 @@ public class StudentLayoutController {
             new Alert(Alert.AlertType.ERROR, "Cannot load page: " + page + ".fxml").showAndWait();
         }
     }
+
+
+
+    public void loadStudentName(String userId) {
+
+        StudentDashboardDAO dao = new StudentDashboardDAO();
+
+        try {
+
+            // Get Student object from DAO
+            Student student = dao.getStudentByUserId(userId);
+
+            if (student != null && !student.getFullName().isBlank()) {
+
+                // Get name and role from Student Model
+                String name = student.getFullName();
+                String role = student.getRole();
+
+                // Display in Student Layout
+                setUser(name, role);
+
+            } else {
+
+                setUser("Student", "Undergraduate");
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+            setUser("Student", "Undergraduate");
+        }
+    }
+
+
 
     @FXML
     private void handleLogout(ActionEvent event) {

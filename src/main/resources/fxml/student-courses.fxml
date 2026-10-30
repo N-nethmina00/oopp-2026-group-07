@@ -15,19 +15,13 @@
     <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
         <Label text="Enrolled Courses" styleClass="section-title"/>
         <TableView fx:id="tblCourses" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colCode" text="Code"/>
-            <TableColumn fx:id="colName" text="Course name"/>
-            <TableColumn fx:id="colCredits" text="Credits"/>
-            <TableColumn fx:id="colLecturer" text="Lecturer"/>
-            <TableColumn fx:id="colStatus" text="Status"/>
-            <TableColumn fx:id="colAction" text="Action" sortable="false"/>
-        </columns>
+            <columns>
+                <TableColumn fx:id="colCode" text="Code"/>
+                <TableColumn fx:id="colName" text="Course name"/>
+                <TableColumn fx:id="colCredits" text="Credits"/>
+                <TableColumn fx:id="colLecturer" text="Lecturer"/>
+                <TableColumn fx:id="colType" text="Type"/>
+            </columns>
         </TableView>
     </VBox>
-
-    <HBox spacing="12" alignment="CENTER_RIGHT">
-        <Button text="Refresh" onAction="#handleRefresh" styleClass="secondary-button"/>
-        <Button text="View Details" onAction="#handleView" styleClass="primary-button"/>
-    </HBox>
 </VBox>

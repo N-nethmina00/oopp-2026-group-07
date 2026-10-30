@@ -8,8 +8,6 @@ import javafx.stage.Stage;
 import com.fot.ams.util.DBConnection;
 import java.sql.Connection;
 
-
-
 public class Main extends Application {
 
     @Override

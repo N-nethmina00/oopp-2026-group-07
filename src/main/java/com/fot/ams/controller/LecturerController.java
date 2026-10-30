@@ -2,7 +2,7 @@
 package com.fot.ams.controller;
 
 import com.fot.ams.dao.CourseMaterialDAO;
-import com.fot.ams.dao.StudentDAO;
+import com.fot.ams.dao.StudentDashboardDAO;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -37,6 +37,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import com.fot.ams.dao.StudentDAO;
 
 
 

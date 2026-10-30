@@ -20,22 +20,75 @@
         <Button text="Search" onAction="#handleSearch" styleClass="primary-button"/>
     </HBox>
 
-    <VBox styleClass="section-card" spacing="10">
-        <HBox alignment="CENTER_LEFT" spacing="14">
-            <Label text="ATTENDANCE" styleClass="stat-label"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="lblCount" text="Present 24 / 28" styleClass="hint-label"/>
+
+    <VBox styleClass="section-card" spacing="14">
+
+        <Label text="Attendance Summary"
+               styleClass="section-title"/>
+
+        <HBox spacing="20">
+
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="TOTAL SESSIONS" styleClass="field-label"/>
+                <Label fx:id="lblTotal" text="0" styleClass="stat-value"/>
+            </VBox>
+
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="PRESENT" styleClass="field-label"/>
+                <Label fx:id="lblPresent" text="0" styleClass="stat-value"/>
+            </VBox>
+
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="ABSENT" styleClass="field-label"/>
+                <Label fx:id="lblAbsent" text="0" styleClass="stat-value"/>
+            </VBox>
+
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="MEDICAL" styleClass="field-label"/>
+                <Label fx:id="lblMedical" text="0" styleClass="stat-value"/>
+            </VBox>
+
         </HBox>
-        <Label fx:id="lblPercent" text="86%" styleClass="stat-value"/>
-        <ProgressBar fx:id="barAttendance" progress="0.86" maxWidth="Infinity" prefHeight="14"/>
+
+        <Label text="OVERALL ATTENDANCE" styleClass="stat-label"/>
+
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <Label fx:id="lblPercent" text="0%" styleClass="stat-value"/>
+            <Region HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <ProgressBar fx:id="barAttendance"
+                     progress="0"
+                     maxWidth="Infinity"
+                     prefHeight="14"/>
+
+        <Label text="Session Breakdown" styleClass="section-title"/>
+
+        <HBox spacing="20">
+
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="LECTURES" styleClass="field-label"/>
+                <Label fx:id="lblLecture" text="Present 0 / 0" styleClass="hint-label"/>
+                <Label fx:id="lblLecturePercent" text="0%" styleClass="stat-value"/>
+            </VBox>
+
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="PRACTICALS" styleClass="field-label"/>
+                <Label fx:id="lblPractical" text="Present 0 / 0" styleClass="hint-label"/>
+                <Label fx:id="lblPracticalPercent" text="0%" styleClass="stat-value"/>
+            </VBox>
+
+        </HBox>
+
     </VBox>
+
 
     <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
         <Label text="Attendance Records" styleClass="section-title"/>
         <TableView fx:id="tblAttendance" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="colDate" text="Date"/>
-            <TableColumn fx:id="colSession" text="Session"/>
+            <TableColumn fx:id="colSession" text="Session Type"/>
             <TableColumn fx:id="colStatus" text="Status"/>
         </columns>
         </TableView>

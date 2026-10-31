@@ -40,7 +40,7 @@
     <HBox>
         <VBox styleClass="stat-card, blue-card" spacing="4" minWidth="220">
             <Label text="SEMESTER GPA" styleClass="stat-label"/>
-            <Label fx:id="lblGpa" text="3.42" styleClass="stat-value"/>
+            <Label fx:id="lblGpa" text="N/A" styleClass="stat-value"/>
         </VBox>
     </HBox>
 </VBox>

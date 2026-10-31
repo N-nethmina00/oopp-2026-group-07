@@ -203,13 +203,14 @@ public class CourseDAO {
         return getLecturers();
     }
 
-    public int getDepartmentId(String departmentName) throws SQLException {
+    public int getDepartmentId(String departmentName)
+            throws SQLException {
+
         try (Connection connection = DBConnection.getConnection()) {
             return getDepartmentId(connection, departmentName);
         }
     }
 
-    // Existing develop method - lecturer course count
     public int countCoursesByLecturer(String lecturerId)
             throws SQLException {
 
@@ -232,7 +233,6 @@ public class CourseDAO {
         return 0;
     }
 
-    // Existing develop method - lecturer assigned courses
     public List<String[]> getCoursesByLecturer(String lecturerId)
             throws SQLException {
 

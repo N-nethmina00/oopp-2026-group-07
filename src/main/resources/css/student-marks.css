@@ -5,26 +5,8 @@
 .page-heading  { -fx-text-fill: #17324D; -fx-font-size: 20px; -fx-font-weight: bold; }
 .page-subtitle { -fx-text-fill: #526174; -fx-font-size: 12px; }
 .section-title { -fx-text-fill: #17324D; -fx-font-size: 16px; -fx-font-weight: bold; }
-.field-label   { -fx-text-fill: #526174; -fx-font-size: 11px; -fx-font-weight: bold; }
 
-/* ---------- CARDS ---------- */
-.stat-card {
-    -fx-background-color: white;
-    -fx-background-radius: 10;
-    -fx-border-color: #D5DCE5;
-    -fx-border-radius: 10;
-    -fx-border-width: 1;
-    -fx-padding: 16 18 16 18;
-}
-.blue-card   { -fx-border-color: #93c5fd; }
-.purple-card { -fx-border-color: #c4b5fd; }
-.green-card  { -fx-border-color: #86efac; }
-.orange-card { -fx-border-color: #fdba74; }
-
-.stat-label { -fx-text-fill: #526174; -fx-font-size: 11px; -fx-font-weight: bold; }
-.stat-value { -fx-text-fill: #172B45; -fx-font-size: 30px; -fx-font-weight: bold; }
-.stat-hint  { -fx-text-fill: #7B8797; -fx-font-size: 11px; }
-
+/* ---------- CARD ---------- */
 .section-card {
     -fx-background-color: white;
     -fx-background-radius: 12;
@@ -32,9 +14,6 @@
     -fx-border-radius: 12;
     -fx-padding: 20;
 }
-
-.progress-bar .track { -fx-background-color: #e2e8f0; -fx-background-radius: 10; -fx-background-insets: 0; }
-.progress-bar .bar   { -fx-background-color: #4c56cd; -fx-background-radius: 10; -fx-background-insets: 0; -fx-padding: 5; }
 
 /* ---------- TABLE ---------- */
 .table-view {
@@ -54,3 +33,9 @@
 .table-cell { -fx-text-fill: #334155; -fx-font-size: 12px; -fx-alignment: center-left; -fx-padding: 0 12 0 12; }
 .table-row-cell:selected .table-cell { -fx-text-fill: #17324D; }
 .table-view .placeholder .label { -fx-text-fill: #94a3b8; }
+
+/* ---------- ELIGIBILITY BADGES ---------- */
+.badge { -fx-padding: 3 12 3 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold; }
+.badge-eligible     { -fx-background-color: #dcfce7; -fx-text-fill: #15803d; }
+.badge-not-eligible { -fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; }
+.badge-pending      { -fx-background-color: #fef3c7; -fx-text-fill: #b45309; }

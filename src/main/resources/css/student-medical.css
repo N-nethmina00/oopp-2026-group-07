@@ -119,3 +119,16 @@
 .badge-active, .badge-present, .badge-approved, .badge-enrolled, .badge-completed { -fx-background-color: #dcfce7; -fx-text-fill: #15803d; }
 .badge-absent, .badge-rejected { -fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; }
 .badge-pending, .badge-medical, .badge-upcoming { -fx-background-color: #fef3c7; -fx-text-fill: #b45309; }
+
+/* ---------- RADIO BUTTONS (Single day / Multiple days) ---------- */
+.radio-button { -fx-text-fill: #17324D; -fx-font-size: 13px; -fx-cursor: hand; }
+.radio-button .radio { -fx-background-color: white; -fx-border-color: #D5DCE5; -fx-border-radius: 20; -fx-background-radius: 20; -fx-background-insets: 0; }
+.radio-button:hover .radio { -fx-border-color: #4c56cd; }
+.radio-button:selected .radio { -fx-border-color: #4c56cd; }
+.radio-button .dot { -fx-background-color: transparent; }
+.radio-button:selected .dot { -fx-background-color: #4c56cd; }
+
+/* ---------- SCROLL (page scrolls when the form is taller than the window) ---------- */
+.scroll-pane { -fx-background-color: transparent; -fx-padding: 0; }
+.scroll-pane > .viewport { -fx-background-color: transparent; }
+.scroll-pane:focused { -fx-background-insets: 0; }

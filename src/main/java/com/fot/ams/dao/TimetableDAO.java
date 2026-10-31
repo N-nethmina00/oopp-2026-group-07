@@ -4,7 +4,11 @@ import com.fot.ams.model.Course;
 import com.fot.ams.model.Timetable;
 import com.fot.ams.util.DBConnection;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,6 +145,7 @@ public class TimetableDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
+
             return ps.executeUpdate() > 0;
         }
     }
@@ -154,6 +159,7 @@ public class TimetableDAO {
 
         return time;
     }
+
     // TG2070 - START: Read timetable for logged-in TO's department
     public List<Timetable> getTimetablesForTechnicalOfficer(
             String technicalOfficerId) throws SQLException {
@@ -201,7 +207,6 @@ public class TimetableDAO {
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-
                     Timetable entry = new Timetable(
                             resultSet.getInt("timetable_id"),
                             resultSet.getString("admin_id"),

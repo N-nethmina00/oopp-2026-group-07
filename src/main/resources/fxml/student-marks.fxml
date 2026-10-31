@@ -8,38 +8,18 @@
       stylesheets="@../css/student-marks.css" styleClass="page" spacing="20">
 
     <VBox spacing="4">
-        <Label text="CA EVALUATION &amp; FINAL MARKS" styleClass="page-heading"/>
-        <Label text="Select a course to see the summary below" styleClass="page-subtitle"/>
+        <Label text="CA / MARKS" styleClass="page-heading"/>
+        <Label text="Your CA eligibility for each enrolled course" styleClass="page-subtitle"/>
     </VBox>
 
     <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
-        <Label text="Course Marks" styleClass="section-title"/>
+        <Label text="CA Eligibility" styleClass="section-title"/>
         <TableView fx:id="tblMarks" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colCode" text="Code"/>
-            <TableColumn fx:id="colName" text="Course"/>
-            <TableColumn fx:id="colQuiz" text="Quiz /10"/>
-            <TableColumn fx:id="colAssign" text="Assignment /15"/>
-            <TableColumn fx:id="colMid" text="Mid /25"/>
-            <TableColumn fx:id="colCa" text="CA /50"/>
-            <TableColumn fx:id="colFinal" text="Final /50"/>
-            <TableColumn fx:id="colGrade" text="Grade"/>
-        </columns>
+            <columns>
+                <TableColumn fx:id="colCode" text="Code"/>
+                <TableColumn fx:id="colName" text="Course"/>
+                <TableColumn fx:id="colEligibility" text="CA Eligibility"/>
+            </columns>
         </TableView>
     </VBox>
-
-    <HBox spacing="18">
-        <VBox styleClass="stat-card, blue-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
-            <Label text="CA TOTAL" styleClass="stat-label"/>
-            <Label fx:id="lblCa" text="42/50" styleClass="stat-value"/>
-        </VBox>
-        <VBox styleClass="stat-card, purple-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
-            <Label text="FINAL" styleClass="stat-label"/>
-            <Label fx:id="lblFinal" text="38/50" styleClass="stat-value"/>
-        </VBox>
-        <VBox styleClass="stat-card, green-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
-            <Label text="GRADE" styleClass="stat-label"/>
-            <Label fx:id="lblGrade" text="A" styleClass="stat-value"/>
-        </VBox>
-    </HBox>
 </VBox>

@@ -14,11 +14,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
-import java.sql.SQLException;
+import java.net.URL;
 
 public class LoginController {
 
-    private static final String FOCUSED_STYLE = "input-box-focused";
+    private static final String FOCUSED_STYLE =
+            "input-box-focused";
 
     @FXML
     private HBox boxUsername;
@@ -50,6 +51,10 @@ public class LoginController {
                 event -> txtPassword.requestFocus()
         );
 
+        txtPassword.setOnAction(
+                event -> handleLogin()
+        );
+
         txtUsername.textProperty().addListener(
                 (observable, oldValue, newValue) -> hideError()
         );
@@ -61,8 +66,8 @@ public class LoginController {
 
     private void bindFocusStyle(TextField field, HBox box) {
         field.focusedProperty().addListener(
-                (observable, wasFocused, isFocused) -> {
-                    if (isFocused) {
+                (observable, oldValue, focused) -> {
+                    if (focused) {
                         if (!box.getStyleClass().contains(FOCUSED_STYLE)) {
                             box.getStyleClass().add(FOCUSED_STYLE);
                         }
@@ -78,44 +83,116 @@ public class LoginController {
         String username = txtUsername.getText().trim();
         String password = txtPassword.getText();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            showError("Please enter username and password");
+        if (username.isEmpty() || password.isBlank()) {
+            showError("Please enter username and password.");
             return;
         }
 
         hideError();
 
-        User user = userDAO.authenticateUser(username, password);
-
-        if (user == null) {
-            showError("Invalid username or password!");
-            return;
-        }
-
-        switch (user.getRole()) {
-            case "Admin" -> navigateToDashboard(
-                    "/fxml/admindashboard.fxml",
-                    "AMS - Admin Dashboard"
+        try {
+            User user = userDAO.authenticateUser(
+                    username,
+                    password
             );
 
-            case "Lecturer" -> navigateToLecturerDashboard(user);
+            if (user == null) {
+                showError("Invalid username or password!");
+                return;
+            }
 
-            case "Undergraduate" -> navigateToDashboard(
-                    "/fxml/student-layout.fxml",
-                    "AMS - Student Dashboard"
-            );
+            if (user.getRole() == null) {
+                showError("This account has no assigned role.");
+                return;
+            }
 
-            // TG2070 - Open TO dashboard with authenticated TO ID
-            case "Technical_Officer" ->
-                    navigateToTechnicalOfficerDashboard(user);
+            switch (user.getRole()) {
+                case "Admin" -> navigateToAdminDashboard(user);
 
-            default -> showError(
-                    "Invalid user role detected: " + user.getRole()
+                case "Lecturer" ->
+                        navigateToLecturerDashboard(user);
+
+                case "Undergraduate" ->
+                        navigateToStudentDashboard(user);
+
+                // TG2070 - Open dashboard with authenticated TO ID
+                case "Technical_Officer" ->
+                        navigateToTechnicalOfficerDashboard(user);
+
+                default -> showError(
+                        "Invalid user role detected: "
+                                + user.getRole()
+                );
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
+            showError(
+                    "Unable to log in: "
+                            + exception.getMessage()
             );
         }
     }
 
-    // Existing develop lecturer navigation
+    private FXMLLoader createLoader(String path) {
+        URL resource = getClass().getResource(path);
+
+        if (resource == null) {
+            throw new IllegalStateException(
+                    "Cannot find " + path
+            );
+        }
+
+        return new FXMLLoader(resource);
+    }
+
+    private void openScene(
+            Parent root,
+            String title,
+            double width,
+            double height) {
+
+        Stage stage = (Stage) txtUsername
+                .getScene()
+                .getWindow();
+
+        txtPassword.clear();
+
+        stage.setTitle(title);
+        stage.setScene(new Scene(root, width, height));
+        stage.centerOnScreen();
+        stage.show();
+    }
+
+    private void navigateToAdminDashboard(User user) {
+        try {
+            FXMLLoader loader = createLoader(
+                    "/fxml/adminDashboard.fxml"
+            );
+
+            Parent root = loader.load();
+
+            AdminController controller = loader.getController();
+            controller.setLoggedInUser(user);
+
+            openScene(
+                    root,
+                    "AMS - Admin Dashboard",
+                    1100,
+                    680
+            );
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
+            showError(
+                    "Failed to load Admin Dashboard: "
+                            + exception.getMessage()
+            );
+        }
+    }
+
     private void navigateToLecturerDashboard(User user) {
         try {
             String lecturerId = userDAO.getLecturerIdByUserId(
@@ -123,37 +200,65 @@ public class LoginController {
             );
 
             if (lecturerId == null || lecturerId.isBlank()) {
-                showError("No lecturer record found for this account.");
+                showError(
+                        "No lecturer record found for this account."
+                );
                 return;
             }
 
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(
-                            "/fxml/lecturer-dashboard.fxml"
-                    )
+            FXMLLoader loader = createLoader(
+                    "/fxml/lecturer-dashboard.fxml"
             );
 
             Parent root = loader.load();
 
-            LecturerController lecturerController =
-                    loader.getController();
+            LecturerController controller = loader.getController();
+            controller.setLecturerId(lecturerId);
 
-            lecturerController.setLecturerId(lecturerId);
-
-            Stage stage =
-                    (Stage) txtUsername.getScene().getWindow();
-
-            stage.setTitle("AMS - Lecturer Dashboard");
-            stage.setScene(new Scene(root, 1200, 750));
-            stage.centerOnScreen();
-
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-            showError("Unable to load lecturer account.");
+            openScene(
+                    root,
+                    "AMS - Lecturer Dashboard",
+                    1200,
+                    750
+            );
 
         } catch (Exception exception) {
             exception.printStackTrace();
-            showError("Failed to load Lecturer Dashboard!");
+
+            showError(
+                    "Failed to load Lecturer Dashboard: "
+                            + exception.getMessage()
+            );
+        }
+    }
+
+    private void navigateToStudentDashboard(User user) {
+        try {
+            FXMLLoader loader = createLoader(
+                    "/fxml/student-layout.fxml"
+            );
+
+            Parent root = loader.load();
+
+            StudentLayoutController controller =
+                    loader.getController();
+
+            controller.loadStudentName(user.getUserId());
+
+            openScene(
+                    root,
+                    "AMS - Student Dashboard",
+                    1100,
+                    680
+            );
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
+            showError(
+                    "Failed to load Student Dashboard: "
+                            + exception.getMessage()
+            );
         }
     }
 
@@ -167,17 +272,14 @@ public class LoginController {
 
             if (technicalOfficerId == null
                     || technicalOfficerId.isBlank()) {
-
                 showError(
                         "No Technical Officer record found for this account."
                 );
                 return;
             }
 
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(
-                            "/fxml/technical-officer-dashboard.fxml"
-                    )
+            FXMLLoader loader = createLoader(
+                    "/fxml/technical-officer-dashboard.fxml"
             );
 
             Parent root = loader.load();
@@ -187,40 +289,40 @@ public class LoginController {
 
             controller.setTechnicalOfficerId(technicalOfficerId);
 
-            Stage stage =
-                    (Stage) txtUsername.getScene().getWindow();
-
-            stage.setTitle("AMS - Technical Officer Dashboard");
-            stage.setScene(new Scene(root, 1200, 750));
-            stage.centerOnScreen();
-
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-            showError("Unable to load Technical Officer account.");
+            openScene(
+                    root,
+                    "AMS - Technical Officer Dashboard",
+                    1200,
+                    750
+            );
 
         } catch (Exception exception) {
             exception.printStackTrace();
-            showError("Failed to load Technical Officer Dashboard.");
+
+            showError(
+                    "Failed to load Technical Officer Dashboard: "
+                            + exception.getMessage()
+            );
         }
     }
     // TG2070 - END
 
-    private void navigateToDashboard(String fxmlPath, String title) {
+    private void navigateToDashboard(
+            String path,
+            String title) {
+
         try {
-            Parent root = FXMLLoader.load(
-                    getClass().getResource(fxmlPath)
-            );
+            Parent root = createLoader(path).load();
 
-            Stage stage =
-                    (Stage) txtUsername.getScene().getWindow();
-
-            stage.setTitle(title);
-            stage.setScene(new Scene(root, 1100, 680));
-            stage.centerOnScreen();
+            openScene(root, title, 1100, 680);
 
         } catch (Exception exception) {
             exception.printStackTrace();
-            showError("Failed to load dashboard interface!");
+
+            showError(
+                    "Failed to load dashboard interface: "
+                            + exception.getMessage()
+            );
         }
     }
 
@@ -228,6 +330,7 @@ public class LoginController {
     private void handleClear() {
         txtUsername.clear();
         txtPassword.clear();
+
         hideError();
         txtUsername.requestFocus();
     }
@@ -236,7 +339,8 @@ public class LoginController {
     private void handleForgotPassword() {
         info(
                 "Forgot Password",
-                "Please contact the system administrator to reset your password."
+                "Please contact the system administrator "
+                        + "to reset your password."
         );
     }
 
@@ -261,6 +365,7 @@ public class LoginController {
 
     private void info(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

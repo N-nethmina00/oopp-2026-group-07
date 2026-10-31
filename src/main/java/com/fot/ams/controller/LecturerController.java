@@ -1,45 +1,43 @@
-
 package com.fot.ams.controller;
 
+import com.fot.ams.dao.CourseDAO;
 import com.fot.ams.dao.CourseMaterialDAO;
 import com.fot.ams.dao.StudentDAO;
+
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import com.fot.ams.dao.CourseDAO;
-import java.sql.SQLException;
-import javafx.scene.control.Alert;
-import java.util.List;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ButtonBar;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-
-
-
+import java.util.UUID;
 
 public class LecturerController {
 
@@ -59,7 +57,6 @@ public class LecturerController {
     @FXML private Button gradesBtn;
     @FXML private Button noticesBtn;
 
-    // Sidebar button styles
     private static final String ACTIVE_STYLE =
             "-fx-background-color: white;" +
                     "-fx-text-fill: #0078b9;" +
@@ -76,7 +73,6 @@ public class LecturerController {
     private String lecturerId;
 
     public void setLecturerId(String lecturerId) {
-
         if (lecturerId == null || lecturerId.isBlank()) {
             throw new IllegalArgumentException(
                     "Valid Lecturer ID is required"
@@ -88,13 +84,10 @@ public class LecturerController {
     }
 
     private String loadMyCoursesCount() {
-
         CourseDAO courseDAO = new CourseDAO();
 
         try {
-            int count =
-                    courseDAO.countCoursesByLecturer(lecturerId);
-
+            int count = courseDAO.countCoursesByLecturer(lecturerId);
             return String.valueOf(count);
 
         } catch (SQLException e) {
@@ -105,7 +98,6 @@ public class LecturerController {
 
     @FXML
     public void initialize() {
-
         displayPage(
                 "Lecturer Dashboard",
                 "Loading lecturer information...",
@@ -114,7 +106,6 @@ public class LecturerController {
     }
 
     private void setActiveButton(Button activeButton) {
-
         Button[] buttons = {
                 dashboardBtn, profileBtn, coursesBtn,
                 materialsBtn, marksBtn, studentsBtn,
@@ -144,7 +135,6 @@ public class LecturerController {
         setActiveButton(activeButton);
     }
 
-    // Create a dashboard statistic card
     private VBox createStatCard(
             String title,
             String value,
@@ -193,7 +183,6 @@ public class LecturerController {
         return card;
     }
 
-    // Create a table with column headings
     private TableView<String[]> createTable(
             String placeholder,
             String... headings) {
@@ -205,9 +194,7 @@ public class LecturerController {
                 TableView.CONSTRAINED_RESIZE_POLICY
         );
 
-        for (int index = 0;
-             index < headings.length; index++) {
-
+        for (int index = 0; index < headings.length; index++) {
             final int columnIndex = index;
 
             TableColumn<String[], String> column =
@@ -217,8 +204,7 @@ public class LecturerController {
                 String[] row = cell.getValue();
 
                 String value =
-                        row != null &&
-                                columnIndex < row.length
+                        row != null && columnIndex < row.length
                                 ? row[columnIndex]
                                 : "";
 
@@ -234,17 +220,14 @@ public class LecturerController {
         return table;
     }
 
-    // Dashboard overview
     @FXML
     private void showDashboard() {
-
         displayPage(
                 "Dashboard Overview",
                 "Overview of your teaching activities.",
                 dashboardBtn
         );
 
-        // Statistic cards
         HBox statsRow = new HBox(15);
 
         statsRow.getChildren().addAll(
@@ -264,9 +247,7 @@ public class LecturerController {
                 )
         );
 
-        // Teaching schedule
-        Label scheduleTitle =
-                new Label("Teaching Schedule");
+        Label scheduleTitle = new Label("Teaching Schedule");
 
         scheduleTitle.setStyle(
                 "-fx-font-size: 20px;" +
@@ -274,15 +255,12 @@ public class LecturerController {
                         "-fx-text-fill: #17324D;"
         );
 
-        TableView<String[]> scheduleTable =
-                createTable(
-                        "No teaching schedule loaded",
-                        "Day", "Time", "Course", "Location"
-                );
+        TableView<String[]> scheduleTable = createTable(
+                "No teaching schedule loaded",
+                "Day", "Time", "Course", "Location"
+        );
 
-        // Students overview
-        Label studentsTitle =
-                new Label("Students Overview");
+        Label studentsTitle = new Label("Students Overview");
 
         studentsTitle.setStyle(
                 "-fx-font-size: 20px;" +
@@ -290,14 +268,11 @@ public class LecturerController {
                         "-fx-text-fill: #17324D;"
         );
 
-        TableView<String[]> studentsTable =
-                createTable(
-                        "No student records loaded",
-                        "ID", "Name", "Course",
-                        "Status", "Action"
-                );
+        TableView<String[]> studentsTable = createTable(
+                "No student records loaded",
+                "ID", "Name", "Course", "Status", "Action"
+        );
 
-        // Add dashboard elements
         contentArea.setSpacing(22);
 
         contentArea.getChildren().addAll(
@@ -319,9 +294,7 @@ public class LecturerController {
     }
 
     @FXML
-
     private void showCourses() {
-
         displayPage(
                 "My Courses",
                 "Courses assigned to Lecturer " + lecturerId,
@@ -369,11 +342,8 @@ public class LecturerController {
         );
     }
 
-
-
     @FXML
     private void showMaterials() {
-
         displayPage(
                 "Course Materials",
                 "Materials uploaded for your assigned courses.",
@@ -381,6 +351,12 @@ public class LecturerController {
         );
 
         Label heading = new Label("My Course Materials");
+
+        heading.setStyle(
+                "-fx-font-size: 20px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #17324D;"
+        );
 
         Button uploadButton = new Button("+ Upload Material");
 
@@ -393,12 +369,6 @@ public class LecturerController {
         );
 
         uploadButton.setOnAction(event -> uploadMaterial());
-
-        heading.setStyle(
-                "-fx-font-size: 20px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-text-fill: #17324D;"
-        );
 
         TableView<String[]> materialsTable = createTable(
                 "No course materials found.",
@@ -436,8 +406,6 @@ public class LecturerController {
     }
 
     private void uploadMaterial() {
-
-        // Get assigned courses
         ComboBox<String> courseComboBox = new ComboBox<>();
         courseComboBox.setMaxWidth(Double.MAX_VALUE);
         courseComboBox.setPromptText("Select Course");
@@ -470,11 +438,9 @@ public class LecturerController {
             return;
         }
 
-        // Material title
         TextField titleField = new TextField();
         titleField.setPromptText("Enter material title");
 
-        // Selected PDF
         final File[] selectedPdf = {null};
 
         Label fileLabel = new Label("No PDF selected");
@@ -483,7 +449,6 @@ public class LecturerController {
         Button chooseFileButton = new Button("Choose PDF");
 
         chooseFileButton.setOnAction(event -> {
-
             FileChooser chooser = new FileChooser();
             chooser.setTitle("Select Lecture PDF");
 
@@ -503,7 +468,6 @@ public class LecturerController {
             }
         });
 
-        // Upload dialog layout
         VBox form = new VBox(12);
         form.setPadding(new Insets(15));
 
@@ -519,7 +483,6 @@ public class LecturerController {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Upload Course Material");
         dialog.setHeaderText("Add New PDF Material");
-
         dialog.getDialogPane().setContent(form);
 
         ButtonType uploadType = new ButtonType(
@@ -533,23 +496,21 @@ public class LecturerController {
 
         Optional<ButtonType> result = dialog.showAndWait();
 
-        if (result.isEmpty() ||
-                result.get() != uploadType) {
+        if (result.isEmpty() || result.get() != uploadType) {
             return;
         }
 
         String courseCode = courseComboBox.getValue();
         String materialTitle = titleField.getText().trim();
 
-        // Validate input
-        if (courseCode == null ||
-                materialTitle.isEmpty() ||
-                selectedPdf[0] == null) {
+        if (courseCode == null
+                || materialTitle.isEmpty()
+                || selectedPdf[0] == null) {
 
             new Alert(
                     Alert.AlertType.WARNING,
-                    "Please select a course, enter a title, " +
-                            "and choose a PDF file."
+                    "Please select a course, enter a title, "
+                            + "and choose a PDF file."
             ).showAndWait();
             return;
         }
@@ -564,8 +525,7 @@ public class LecturerController {
 
         File sourceFile = selectedPdf[0];
 
-        if (!sourceFile.getName().toLowerCase()
-                .endsWith(".pdf")) {
+        if (!sourceFile.getName().toLowerCase().endsWith(".pdf")) {
             new Alert(
                     Alert.AlertType.WARNING,
                     "Only PDF files are allowed."
@@ -576,9 +536,7 @@ public class LecturerController {
         Path targetPath = null;
 
         try {
-            // Maximum file size: 20 MB
             long maxSize = 20L * 1024 * 1024;
-
             long fileSize = Files.size(sourceFile.toPath());
 
             if (fileSize == 0 || fileSize > maxSize) {
@@ -589,7 +547,6 @@ public class LecturerController {
                 return;
             }
 
-            // Basic PDF signature validation
             try (InputStream input =
                          Files.newInputStream(sourceFile.toPath())) {
 
@@ -607,7 +564,6 @@ public class LecturerController {
                 }
             }
 
-            // Create upload directory
             Path uploadDirectory = Paths.get(
                     System.getProperty("user.dir"),
                     "uploads",
@@ -616,21 +572,16 @@ public class LecturerController {
 
             Files.createDirectories(uploadDirectory);
 
-            // Unique filename prevents overwriting
-            String storedFileName =
-                    UUID.randomUUID() + ".pdf";
+            String storedFileName = UUID.randomUUID() + ".pdf";
 
-            targetPath =
-                    uploadDirectory.resolve(storedFileName);
+            targetPath = uploadDirectory.resolve(storedFileName);
 
-            // Save PDF to local storage
             Files.copy(
                     sourceFile.toPath(),
                     targetPath,
                     StandardCopyOption.COPY_ATTRIBUTES
             );
 
-            // Relative path stored in MySQL
             String databasePath =
                     "uploads/materials/" + storedFileName;
 
@@ -649,12 +600,9 @@ public class LecturerController {
                     "PDF uploaded successfully!"
             ).showAndWait();
 
-            // Refresh Course Materials table
             showMaterials();
 
         } catch (IOException | SQLException e) {
-
-            // Delete the copied file if database saving fails
             if (targetPath != null) {
                 try {
                     Files.deleteIfExists(targetPath);
@@ -672,7 +620,6 @@ public class LecturerController {
         }
     }
 
-
     @FXML
     private void showMarks() {
         displayPage(
@@ -684,7 +631,6 @@ public class LecturerController {
 
     @FXML
     private void showStudents() {
-
         displayPage(
                 "Undergraduate Details",
                 "Students enrolled in your assigned courses.",
@@ -719,7 +665,6 @@ public class LecturerController {
             studentsTable.getItems().setAll(students);
 
         } catch (SQLException e) {
-
             e.printStackTrace();
 
             new Alert(
@@ -779,10 +724,8 @@ public class LecturerController {
         );
     }
 
-
     @FXML
     private void logout() {
-
         Alert confirmation = new Alert(
                 Alert.AlertType.CONFIRMATION,
                 "Are you sure you want to log out?",
@@ -793,11 +736,9 @@ public class LecturerController {
         confirmation.setTitle("Confirm Logout");
         confirmation.setHeaderText("Log Out");
 
-        Optional<ButtonType> result =
-                confirmation.showAndWait();
+        Optional<ButtonType> result = confirmation.showAndWait();
 
-        if (result.isEmpty() ||
-                result.get() != ButtonType.YES) {
+        if (result.isEmpty() || result.get() != ButtonType.YES) {
             return;
         }
 
@@ -815,7 +756,6 @@ public class LecturerController {
             stage.setScene(new Scene(root, 1100, 680));
             stage.centerOnScreen();
 
-            // Clear lecturer information
             lecturerId = null;
 
         } catch (IOException e) {
@@ -827,5 +767,4 @@ public class LecturerController {
             ).showAndWait();
         }
     }
-
 }

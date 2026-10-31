@@ -346,8 +346,11 @@ public class UserDAO {
     public String getLecturerIdByUserId(String userId)
             throws SQLException {
 
-        String sql =
-                "SELECT lecturer_id FROM lecturer WHERE user_id = ?";
+        String sql = """
+                SELECT lecturer_id
+                FROM lecturer
+                WHERE user_id = ?
+                """;
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {

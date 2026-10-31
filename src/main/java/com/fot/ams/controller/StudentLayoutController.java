@@ -14,10 +14,16 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import com.fot.ams.dao.StudentDashboardDAO;
+import java.sql.SQLException;
+import com.fot.ams.dao.StudentDashboardDAO;
+import com.fot.ams.model.Student;
+
 
 public class StudentLayoutController {
 
     private static final String ACTIVE = "nav-button-active";
+    private String loggedInUserId;
 
     @FXML private VBox navBox;
     @FXML private StackPane contentArea;
@@ -27,9 +33,10 @@ public class StudentLayoutController {
 
     @FXML
     private void initialize() {
-        // TODO: logged-in user eka session / UserDAO eken ganna
-        setUser("Sample User", "Undergraduate");
-        open((Button) navBox.getChildren().get(0));   // first page = Dashboard
+
+        setUser("Student", "Undergraduate");
+
+        open((Button) navBox.getChildren().get(0));
     }
 
     /** Call this from LoginController after login success. */
@@ -52,29 +59,143 @@ public class StudentLayoutController {
     }
 
     private void open(Button btn) {
+
         String page = (String) btn.getUserData();
+
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/fxml/" + page + ".fxml"));
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/fxml/" + page + ".fxml"
+                    )
+            );
+
+            Parent root = loader.load();
+
+            // Load dashboard data for logged-in student
+            if ("student-dashboard".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentDashboardController controller =
+                        loader.getController();
+
+                controller.loadDashboard(loggedInUserId);
+            }
+            // Load logged-in student's enrolled courses
+            if ("student-courses".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentCoursesController controller =
+                        loader.getController();
+
+                controller.loadCourses(loggedInUserId);
+            }
+            // Load profile for logged-in student
+            if ("student-profile".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentProfileController controller =
+                        loader.getController();
+
+                controller.loadProfile(loggedInUserId);
+            }
+            // Load semester results of logged-in student
+            if ("student-results".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentResultsController controller =
+                        loader.getController();
+
+                controller.loadResults(loggedInUserId);
+            }
+            if ("student-medical".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentMedicalController controller =
+                        loader.getController();
+
+                controller.loadMedical(loggedInUserId);
+            }
+
             contentArea.getChildren().setAll(root);
-            navBox.getChildren().forEach(n -> n.getStyleClass().remove(ACTIVE));
+
+            // Update active sidebar button
+            navBox.getChildren().forEach(
+                    n -> n.getStyleClass().remove(ACTIVE)
+            );
+
             btn.getStyleClass().add(ACTIVE);
+
         } catch (IOException | NullPointerException ex) {
+
             ex.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Cannot load page: " + page + ".fxml").showAndWait();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Cannot load page: " + page + ".fxml"
+            ).showAndWait();
         }
     }
 
+
+
+    public void loadStudentName(String userId) {
+
+        // Save logged-in user ID
+        this.loggedInUserId = userId;
+
+        StudentDashboardDAO dao = new StudentDashboardDAO();
+
+        try {
+
+            Student student = dao.getStudentByUserId(userId);
+
+            if (student != null
+                    && !student.getFullName().isBlank()) {
+
+                setUser(
+                        student.getFullName(),
+                        student.getRole()
+                );
+
+            } else {
+
+                setUser("Student", "Undergraduate");
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+            setUser("Student", "Undergraduate");
+        }
+
+        // Reload dashboard using actual logged-in user ID
+        open((Button) navBox.getChildren().get(0));
+    }
+
+
     @FXML
-    private void handleLogout() {
+    private void handleLogout(ActionEvent event) {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Do you want to logout?", ButtonType.YES, ButtonType.NO);
         a.setHeaderText(null);
         if (a.showAndWait().orElse(ButtonType.NO) != ButtonType.YES) return;
+
         try {
-            // NOTE: login fxml path eka oyaage project ekata change karanna
-            Parent login = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
-            contentArea.getScene().setRoot(login);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            Parent loginRoot = loader.load();
+
+
+            javafx.stage.Stage stage = (javafx.stage.Stage) ((Node) event.getSource()).getScene().getWindow();
+            javafx.scene.Scene scene = new javafx.scene.Scene(loginRoot);
+            stage.setScene(scene);
+            stage.setTitle("Login - AMS");
+            stage.centerOnScreen();
+            stage.show();
+
         } catch (IOException ex) {
             ex.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Cannot load login page!").showAndWait();
         }
     }
 }

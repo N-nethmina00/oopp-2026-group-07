@@ -4,9 +4,11 @@ import com.fot.ams.dao.CourseDAO;
 import com.fot.ams.model.Course;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Region;
 
 import java.sql.SQLException;
 
@@ -15,12 +17,15 @@ public class AdminCourseManagementController {
     @FXML private TextField courseIdField;
     @FXML private TextField courseNameField;
     @FXML private TextField creditField;
+
     @FXML private ComboBox<String> typeComboBox;
     @FXML private ComboBox<String> departmentComboBox;
     @FXML private ComboBox<String> lecturerComboBox;
+
     @FXML private Label messageLabel;
 
     @FXML private TableView<Course> coursesTable;
+
     @FXML private TableColumn<Course, String> courseIdColumn;
     @FXML private TableColumn<Course, String> courseNameColumn;
     @FXML private TableColumn<Course, String> departmentColumn;
@@ -30,8 +35,37 @@ public class AdminCourseManagementController {
 
     private final CourseDAO dao = new CourseDAO();
 
+    private static final double TABLE_ROW_HEIGHT = 38.0;
+    private static final double TABLE_HEADER_HEIGHT = 40.0;
+
+    private final ListChangeListener<Course> tableRowsListener =
+            change -> updateTableHeight();
+
     @FXML
     public void initialize() {
+        configureTableColumns();
+        configureTableHeight();
+
+        typeComboBox.setItems(
+                FXCollections.observableArrayList(
+                        "Theory",
+                        "Practical"
+                )
+        );
+
+        coursesTable.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((observable, oldValue, selected) -> {
+                    if (selected != null) {
+                        fillForm(selected);
+                    }
+                });
+
+        loadOptions();
+        loadCourses();
+    }
+
+    private void configureTableColumns() {
         courseIdColumn.setCellValueFactory(
                 new PropertyValueFactory<>("courseCode")
         );
@@ -56,19 +90,53 @@ public class AdminCourseManagementController {
                 new PropertyValueFactory<>("lecturerId")
         );
 
-        typeComboBox.setItems(
-                FXCollections.observableArrayList("Theory", "Practical")
+        coursesTable.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY
+        );
+    }
+
+    private void configureTableHeight() {
+        coursesTable.setFixedCellSize(TABLE_ROW_HEIGHT);
+
+        // The outer ScrollPane handles vertical scrolling.
+        coursesTable.setMinHeight(Region.USE_PREF_SIZE);
+        coursesTable.setMaxHeight(Region.USE_PREF_SIZE);
+
+        if (coursesTable.getItems() != null) {
+            coursesTable.getItems().addListener(tableRowsListener);
+        }
+
+        // Observe the new list when loadCourses replaces table items.
+        coursesTable.itemsProperty().addListener(
+                (observable, oldItems, newItems) -> {
+                    if (oldItems != null) {
+                        oldItems.removeListener(tableRowsListener);
+                    }
+
+                    if (newItems != null) {
+                        newItems.addListener(tableRowsListener);
+                    }
+
+                    updateTableHeight();
+                }
         );
 
-        coursesTable.getSelectionModel().selectedItemProperty()
-                .addListener((obs, oldValue, selected) -> {
-                    if (selected != null) {
-                        fillForm(selected);
-                    }
-                });
+        updateTableHeight();
+    }
 
-        loadOptions();
-        loadCourses();
+    private void updateTableHeight() {
+        int rowCount = coursesTable.getItems() == null
+                ? 0
+                : coursesTable.getItems().size();
+
+        // Leave space for the placeholder when there are no courses.
+        int visibleRows = Math.max(rowCount, 1);
+
+        double tableHeight =
+                visibleRows * TABLE_ROW_HEIGHT
+                        + TABLE_HEADER_HEIGHT;
+
+        coursesTable.setPrefHeight(tableHeight);
     }
 
     private void loadOptions() {
@@ -104,7 +172,9 @@ public class AdminCourseManagementController {
             messageLabel.setText("Courses loaded successfully.");
 
         } catch (SQLException e) {
-            showError("Unable to load courses: " + e.getMessage());
+            showError(
+                    "Unable to load courses: " + e.getMessage()
+            );
         }
     }
 
@@ -116,19 +186,23 @@ public class AdminCourseManagementController {
             if (dao.addCourse(course)) {
                 loadCourses();
                 handleClear();
+
                 messageLabel.setText("Course added successfully.");
             }
 
         } catch (Exception e) {
-            showError("Unable to add course: " + e.getMessage());
+            showError(
+                    "Unable to add course: " + e.getMessage()
+            );
         }
     }
 
     @FXML
     private void handleUpdate() {
         try {
-            Course selected =
-                    coursesTable.getSelectionModel().getSelectedItem();
+            Course selected = coursesTable
+                    .getSelectionModel()
+                    .getSelectedItem();
 
             if (selected == null) {
                 showError("Select a course from the table first.");
@@ -137,25 +211,31 @@ public class AdminCourseManagementController {
 
             Course course = readForm();
 
-            if (!course.getCourseCode().equals(selected.getCourseCode())) {
+            if (!course.getCourseCode()
+                    .equals(selected.getCourseCode())) {
+
                 showError("Course ID cannot be changed during update.");
                 return;
             }
 
             if (dao.updateCourse(course)) {
                 loadCourses();
+
                 messageLabel.setText("Course updated successfully.");
             }
 
         } catch (Exception e) {
-            showError("Unable to update course: " + e.getMessage());
+            showError(
+                    "Unable to update course: " + e.getMessage()
+            );
         }
     }
 
     @FXML
     private void handleDelete() {
-        Course selected =
-                coursesTable.getSelectionModel().getSelectedItem();
+        Course selected = coursesTable
+                .getSelectionModel()
+                .getSelectedItem();
 
         if (selected == null) {
             showError("Select a course from the table first.");
@@ -163,17 +243,19 @@ public class AdminCourseManagementController {
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+
         confirm.setTitle("Delete Course");
         confirm.setHeaderText(
                 "Delete " + selected.getCourseCode() + "?"
         );
 
         confirm.setContentText(
-                "Related records may also be deleted due to database foreign keys."
+                "Related records may also be deleted "
+                        + "due to database foreign keys."
         );
 
-        if (confirm.showAndWait().orElse(ButtonType.CANCEL)
-                != ButtonType.OK) {
+        if (confirm.showAndWait()
+                .orElse(ButtonType.CANCEL) != ButtonType.OK) {
             return;
         }
 
@@ -181,11 +263,14 @@ public class AdminCourseManagementController {
             if (dao.deleteCourse(selected.getCourseCode())) {
                 loadCourses();
                 handleClear();
+
                 messageLabel.setText("Course deleted successfully.");
             }
 
         } catch (SQLException e) {
-            showError("Unable to delete course: " + e.getMessage());
+            showError(
+                    "Unable to delete course: " + e.getMessage()
+            );
         }
     }
 
@@ -200,6 +285,7 @@ public class AdminCourseManagementController {
         lecturerComboBox.getSelectionModel().clearSelection();
 
         coursesTable.getSelectionModel().clearSelection();
+
         courseIdField.setEditable(true);
         messageLabel.setText("");
     }
@@ -208,6 +294,7 @@ public class AdminCourseManagementController {
         String code = courseIdField.getText().trim();
         String name = courseNameField.getText().trim();
         String creditText = creditField.getText().trim();
+
         String type = typeComboBox.getValue();
         String department = departmentComboBox.getValue();
         String lecturer = lecturerComboBox.getValue();
@@ -263,9 +350,11 @@ public class AdminCourseManagementController {
         courseIdField.setText(course.getCourseCode());
         courseNameField.setText(course.getCourseName());
         creditField.setText(String.valueOf(course.getCredit()));
+
         typeComboBox.setValue(course.getType());
         departmentComboBox.setValue(course.getDepartmentName());
         lecturerComboBox.setValue(course.getLecturerId());
+
         courseIdField.setEditable(false);
     }
 
@@ -273,6 +362,7 @@ public class AdminCourseManagementController {
         messageLabel.setText(message);
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
+
         alert.setTitle("Course Management");
         alert.setHeaderText("Operation failed");
         alert.setContentText(message);

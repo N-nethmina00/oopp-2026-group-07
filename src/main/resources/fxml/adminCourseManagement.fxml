@@ -1,157 +1,327 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-        <?import javafx.geometry.Insets?>
-        <?import javafx.scene.control.*?>
-        <?import javafx.scene.layout.*?>
-        <?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane minHeight="600.0" minWidth="850.0"
-            prefHeight="720.0" prefWidth="1100.0"
+<BorderPane minHeight="0.0"
+            minWidth="0.0"
+            prefHeight="720.0"
+            prefWidth="1100.0"
             style="-fx-background-color: #F3F6FA;"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.fot.ams.controller.AdminCourseManagementController">
 
     <center>
-        <VBox spacing="14">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
+        <ScrollPane fitToWidth="true"
+                    fitToHeight="false"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    pannable="false"
+                    style="-fx-background-color: transparent;
+                           -fx-background: #F3F6FA;
+                           -fx-padding: 0;">
 
-            <Label text="Course Management" textFill="#17324D">
-                <font>
-                    <Font name="System Bold" size="22"/>
-                </font>
-            </Label>
+            <content>
+                <VBox spacing="18.0"
+                      fillWidth="true"
+                      minWidth="0.0"
+                      style="-fx-background-color: #F3F6FA;">
 
-            <Label text="Add, view, update and delete courses."
-                   textFill="#7B8797"/>
+                    <padding>
+                        <Insets top="24.0"
+                                right="24.0"
+                                bottom="24.0"
+                                left="24.0"/>
+                    </padding>
 
-            <VBox spacing="12"
-                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D5DCE5; -fx-border-radius: 8;">
-                <padding>
-                    <Insets top="16" right="16" bottom="16" left="16"/>
-                </padding>
+                    <!-- Page heading -->
+                    <VBox spacing="6.0">
+                        <Label text="Course Management"
+                               textFill="#17324D"
+                               wrapText="true">
+                            <font>
+                                <Font name="System Bold" size="24.0"/>
+                            </font>
+                        </Label>
 
-                <Label text="Course Details" textFill="#17324D">
-                    <font>
-                        <Font name="System Bold" size="15"/>
-                    </font>
-                </Label>
-
-                <HBox spacing="12">
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Course Code"/>
-                        <TextField fx:id="courseIdField"
-                                   promptText="Example: ICT2132"
-                                   prefHeight="34"/>
+                        <Label text="Add, view, update and delete courses."
+                               textFill="#7B8797"
+                               wrapText="true"/>
                     </VBox>
 
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Course Name"/>
-                        <TextField fx:id="courseNameField"
-                                   promptText="Enter course name"
-                                   prefHeight="34"/>
+                    <!-- Course form -->
+                    <VBox spacing="16.0"
+                          minHeight="-Infinity"
+                          style="-fx-background-color: white;
+                                 -fx-background-radius: 12;
+                                 -fx-border-color: #D5DCE5;
+                                 -fx-border-radius: 12;">
+
+                        <padding>
+                            <Insets top="20.0"
+                                    right="20.0"
+                                    bottom="20.0"
+                                    left="20.0"/>
+                        </padding>
+
+                        <Label text="Course Details"
+                               textFill="#17324D">
+                            <font>
+                                <Font name="System Bold" size="16.0"/>
+                            </font>
+                        </Label>
+
+                        <GridPane hgap="16.0"
+                                  vgap="16.0"
+                                  minWidth="0.0">
+
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="30.0"
+                                                   minWidth="0.0"
+                                                   hgrow="ALWAYS"/>
+
+                                <ColumnConstraints percentWidth="45.0"
+                                                   minWidth="0.0"
+                                                   hgrow="ALWAYS"/>
+
+                                <ColumnConstraints percentWidth="25.0"
+                                                   minWidth="0.0"
+                                                   hgrow="ALWAYS"/>
+                            </columnConstraints>
+
+                            <children>
+                                <VBox spacing="7.0"
+                                      minWidth="0.0"
+                                      GridPane.columnIndex="0"
+                                      GridPane.rowIndex="0">
+
+                                    <Label text="Course Code"
+                                           textFill="#334155"/>
+
+                                    <TextField fx:id="courseIdField"
+                                               promptText="Example: ICT2132"
+                                               minWidth="0.0"
+                                               maxWidth="Infinity"
+                                               prefHeight="38.0"/>
+                                </VBox>
+
+                                <VBox spacing="7.0"
+                                      minWidth="0.0"
+                                      GridPane.columnIndex="1"
+                                      GridPane.rowIndex="0">
+
+                                    <Label text="Course Name"
+                                           textFill="#334155"/>
+
+                                    <TextField fx:id="courseNameField"
+                                               promptText="Enter course name"
+                                               minWidth="0.0"
+                                               maxWidth="Infinity"
+                                               prefHeight="38.0"/>
+                                </VBox>
+
+                                <VBox spacing="7.0"
+                                      minWidth="0.0"
+                                      GridPane.columnIndex="2"
+                                      GridPane.rowIndex="0">
+
+                                    <Label text="Credits"
+                                           textFill="#334155"/>
+
+                                    <TextField fx:id="creditField"
+                                               promptText="Example: 3"
+                                               minWidth="0.0"
+                                               maxWidth="Infinity"
+                                               prefHeight="38.0"/>
+                                </VBox>
+
+                                <VBox spacing="7.0"
+                                      minWidth="0.0"
+                                      GridPane.columnIndex="0"
+                                      GridPane.rowIndex="1">
+
+                                    <Label text="Course Type"
+                                           textFill="#334155"/>
+
+                                    <ComboBox fx:id="typeComboBox"
+                                              promptText="Select type"
+                                              minWidth="0.0"
+                                              maxWidth="Infinity"
+                                              prefHeight="38.0"/>
+                                </VBox>
+
+                                <VBox spacing="7.0"
+                                      minWidth="0.0"
+                                      GridPane.columnIndex="1"
+                                      GridPane.rowIndex="1">
+
+                                    <Label text="Department"
+                                           textFill="#334155"/>
+
+                                    <ComboBox fx:id="departmentComboBox"
+                                              promptText="Select department"
+                                              minWidth="0.0"
+                                              maxWidth="Infinity"
+                                              prefHeight="38.0"/>
+                                </VBox>
+
+                                <VBox spacing="7.0"
+                                      minWidth="0.0"
+                                      GridPane.columnIndex="2"
+                                      GridPane.rowIndex="1">
+
+                                    <Label text="Lecturer ID"
+                                           textFill="#334155"/>
+
+                                    <ComboBox fx:id="lecturerComboBox"
+                                              promptText="Select lecturer"
+                                              minWidth="0.0"
+                                              maxWidth="Infinity"
+                                              prefHeight="38.0"/>
+                                </VBox>
+                            </children>
+                        </GridPane>
+
+                        <!-- Buttons wrap when the window becomes narrower -->
+                        <FlowPane hgap="10.0"
+                                  vgap="10.0"
+                                  alignment="CENTER_LEFT">
+
+                            <Button text="Add Course"
+                                    onAction="#handleAdd"
+                                    mnemonicParsing="false"
+                                    prefHeight="38.0"
+                                    minWidth="110.0"
+                                    style="-fx-background-color: #4c56cd;
+                                           -fx-text-fill: white;
+                                           -fx-font-weight: bold;
+                                           -fx-background-radius: 7;
+                                           -fx-padding: 9 16;
+                                           -fx-cursor: hand;"/>
+
+                            <Button text="Update"
+                                    onAction="#handleUpdate"
+                                    mnemonicParsing="false"
+                                    prefHeight="38.0"
+                                    minWidth="90.0"
+                                    style="-fx-background-color: #EEF0FF;
+                                           -fx-text-fill: #4c56cd;
+                                           -fx-background-radius: 7;
+                                           -fx-padding: 9 16;
+                                           -fx-cursor: hand;"/>
+
+                            <Button text="Delete"
+                                    onAction="#handleDelete"
+                                    mnemonicParsing="false"
+                                    prefHeight="38.0"
+                                    minWidth="90.0"
+                                    style="-fx-background-color: #FCE8E8;
+                                           -fx-text-fill: #B42318;
+                                           -fx-background-radius: 7;
+                                           -fx-padding: 9 16;
+                                           -fx-cursor: hand;"/>
+
+                            <Button text="Clear"
+                                    onAction="#handleClear"
+                                    mnemonicParsing="false"
+                                    prefHeight="38.0"
+                                    minWidth="90.0"
+                                    style="-fx-background-color: #EEF0FF;
+                                           -fx-text-fill: #4c56cd;
+                                           -fx-background-radius: 7;
+                                           -fx-padding: 9 16;
+                                           -fx-cursor: hand;"/>
+                        </FlowPane>
+
+                        <Label fx:id="messageLabel"
+                               wrapText="true"
+                               minHeight="-Infinity"
+                               maxWidth="Infinity"
+                               textFill="#526174"/>
                     </VBox>
 
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Credits"/>
-                        <TextField fx:id="creditField"
-                                   promptText="Example: 3"
-                                   prefHeight="34"/>
+                    <!-- Table grows with its rows using the controller binding -->
+                    <VBox spacing="14.0"
+                          minHeight="-Infinity"
+                          style="-fx-background-color: white;
+                                 -fx-background-radius: 12;
+                                 -fx-border-color: #D5DCE5;
+                                 -fx-border-radius: 12;">
+
+                        <padding>
+                            <Insets top="20.0"
+                                    right="20.0"
+                                    bottom="20.0"
+                                    left="20.0"/>
+                        </padding>
+
+                        <Label text="Course List"
+                               textFill="#17324D">
+                            <font>
+                                <Font name="System Bold" size="16.0"/>
+                            </font>
+                        </Label>
+
+                        <TableView fx:id="coursesTable"
+                                   fixedCellSize="38.0"
+                                   prefHeight="260.0"
+                                   minHeight="-Infinity"
+                                   maxHeight="-Infinity"
+                                   minWidth="0.0"
+                                   maxWidth="Infinity"
+                                   style="-fx-background-color: white;
+                                          -fx-border-color: #E2E8F0;
+                                          -fx-background-radius: 7;
+                                          -fx-border-radius: 7;
+                                          -fx-padding: 0;">
+
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                            </columnResizePolicy>
+
+                            <placeholder>
+                                <Label text="No courses available."
+                                       textFill="#7B8797"/>
+                            </placeholder>
+
+                            <columns>
+                                <TableColumn fx:id="courseIdColumn"
+                                             text="Course Code"
+                                             minWidth="75.0"
+                                             prefWidth="110.0"/>
+
+                                <TableColumn fx:id="courseNameColumn"
+                                             text="Course Name"
+                                             minWidth="100.0"
+                                             prefWidth="260.0"/>
+
+                                <TableColumn fx:id="departmentColumn"
+                                             text="Department"
+                                             minWidth="80.0"
+                                             prefWidth="170.0"/>
+
+                                <TableColumn fx:id="creditsColumn"
+                                             text="Credits"
+                                             minWidth="55.0"
+                                             prefWidth="75.0"/>
+
+                                <TableColumn fx:id="typeColumn"
+                                             text="Type"
+                                             minWidth="65.0"
+                                             prefWidth="100.0"/>
+
+                                <TableColumn fx:id="lecturerColumn"
+                                             text="Lecturer ID"
+                                             minWidth="75.0"
+                                             prefWidth="100.0"/>
+                            </columns>
+                        </TableView>
                     </VBox>
-                </HBox>
-
-                <HBox spacing="12">
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Course Type"/>
-                        <ComboBox fx:id="typeComboBox"
-                                  promptText="Select type"
-                                  maxWidth="Infinity"
-                                  prefHeight="34"/>
-                    </VBox>
-
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Department"/>
-                        <ComboBox fx:id="departmentComboBox"
-                                  promptText="Select department"
-                                  maxWidth="Infinity"
-                                  prefHeight="34"/>
-                    </VBox>
-
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Lecturer ID"/>
-                        <ComboBox fx:id="lecturerComboBox"
-                                  promptText="Select lecturer"
-                                  maxWidth="Infinity"
-                                  prefHeight="34"/>
-                    </VBox>
-                </HBox>
-
-                <HBox spacing="8">
-                    <Button text="Add Course"
-                            onAction="#handleAdd"
-                            prefHeight="34"
-                            style="-fx-background-color: #4c56cd; -fx-text-fill: white; -fx-background-radius: 5;"/>
-
-                    <Button text="Update"
-                            onAction="#handleUpdate"
-                            prefHeight="34"
-                            style="-fx-background-color: #EEF0FF; -fx-text-fill: #4c56cd; -fx-background-radius: 5;"/>
-
-                    <Button text="Delete"
-                            onAction="#handleDelete"
-                            prefHeight="34"
-                            style="-fx-background-color: #FCE8E8; -fx-text-fill: #B42318; -fx-background-radius: 5;"/>
-
-                    <Button text="Clear"
-                            onAction="#handleClear"
-                            prefHeight="34"
-                            style="-fx-background-color: #EEF0FF; -fx-text-fill: #4c56cd; -fx-background-radius: 5;"/>
-                </HBox>
-
-                <Label fx:id="messageLabel"
-                       wrapText="true"
-                       textFill="#526174"/>
-            </VBox>
-
-            <VBox spacing="10" VBox.vgrow="ALWAYS"
-                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D5DCE5; -fx-border-radius: 8;">
-                <padding>
-                    <Insets top="14" right="14" bottom="14" left="14"/>
-                </padding>
-
-                <Label text="Course List" textFill="#17324D">
-                    <font>
-                        <Font name="System Bold" size="15"/>
-                    </font>
-                </Label>
-
-                <TableView fx:id="coursesTable"
-                           VBox.vgrow="ALWAYS"
-                           prefHeight="300">
-                    <columns>
-                        <TableColumn fx:id="courseIdColumn"
-                                     text="Course Code"
-                                     prefWidth="110"/>
-                        <TableColumn fx:id="courseNameColumn"
-                                     text="Course Name"
-                                     prefWidth="260"/>
-                        <TableColumn fx:id="departmentColumn"
-                                     text="Department"
-                                     prefWidth="170"/>
-                        <TableColumn fx:id="creditsColumn"
-                                     text="Credits"
-                                     prefWidth="75"/>
-                        <TableColumn fx:id="typeColumn"
-                                     text="Type"
-                                     prefWidth="100"/>
-                        <TableColumn fx:id="lecturerColumn"
-                                     text="Lecturer ID"
-                                     prefWidth="100"/>
-                    </columns>
-                </TableView>
-            </VBox>
-        </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
     </center>
 </BorderPane>

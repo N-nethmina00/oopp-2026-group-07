@@ -1,173 +1,491 @@
+
 package com.fot.ams.controller;
+
+import com.fot.ams.dao.StudentCoursesDAO;
+import com.fot.ams.dao.StudentMedicalDAO;
+import com.fot.ams.model.Course;
+import com.fot.ams.model.Medical;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.util.StringConverter;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 public class StudentMedicalController {
 
-    /** date = "2026-10-03"  or  "2026-10-03 to 2026-10-05" */
-    private record Application(String date, String course, String reason, String status) {}
-
     @FXML private ScrollPane scrollPage;
-    @FXML private ComboBox<String> cmbCourse;
-    @FXML private RadioButton rbSingle, rbMultiple;
-    @FXML private Label lblFromDate;
-    @FXML private DatePicker dpFrom, dpTo;
-    @FXML private VBox boxToDate;
-    @FXML private TextArea txtReason;
-    @FXML private Label lblFile, lblMessage;
-    @FXML private TableView<Application> tblMedical;
-    @FXML private TableColumn<Application, String> colDate;
-    @FXML private TableColumn<Application, String> colCourse;
-    @FXML private TableColumn<Application, String> colReason;
-    @FXML private TableColumn<Application, String> colStatus;
 
-    private final ObservableList<Application> data = FXCollections.observableArrayList();
+    @FXML private ComboBox<Course> cmbCourse;
+
+    @FXML private RadioButton rbSingle;
+    @FXML private RadioButton rbMultiple;
+
+    @FXML private Label lblFromDate;
+    @FXML private DatePicker dpFrom;
+    @FXML private DatePicker dpTo;
+
+    @FXML private javafx.scene.layout.VBox boxToDate;
+
+    @FXML private TextArea txtReason;
+    @FXML private Label lblFile;
+    @FXML private Label lblMessage;
+
+    @FXML private TableView<Medical> tblMedical;
+    @FXML private TableColumn<Medical, String> colDate;
+    @FXML private TableColumn<Medical, String> colCourse;
+    @FXML private TableColumn<Medical, String> colReason;
+    @FXML private TableColumn<Medical, String> colStatus;
+
+    private String loggedInUserId;
     private File selectedFile;
+
+    private final StudentCoursesDAO coursesDAO =
+            new StudentCoursesDAO();
+
+    private final StudentMedicalDAO medicalDAO =
+            new StudentMedicalDAO();
 
     @FXML
     private void initialize() {
-        // TODO: CourseDAO eken student ge courses ganna
-        cmbCourse.getItems().addAll(
-                "CS101 - Object Oriented Programming",
-                "MA101 - Discrete Mathematics",
-                "DB201 - Database Systems",
-                "NW201 - Computer Networks",
-                "SE301 - Software Engineering",
-                "EN101 - Technical English");
 
-        // Single day -> 1 calendar, Multiple days -> 2 calendars
-        rbMultiple.selectedProperty().addListener((o, was, multiple) -> {
-            boxToDate.setVisible(multiple);
-            boxToDate.setManaged(multiple);
-            lblFromDate.setText(multiple ? "FROM DATE" : "MEDICAL DATE");
-            if (!multiple) dpTo.setValue(null);
-            hideMessage();
+        cmbCourse.setConverter(new StringConverter<>() {
+
+            @Override
+            public String toString(Course course) {
+                if (course == null) {
+                    return "";
+                }
+
+                return course.getCourseCode() +
+                        " - " + course.getCourseName();
+            }
+
+            @Override
+            public Course fromString(String text) {
+                return null;
+            }
         });
 
-        // Future dates disable; "To" date can't be before "From" date
+        rbMultiple.selectedProperty().addListener(
+                (obs, oldValue, multiple) -> {
+
+                    boxToDate.setVisible(multiple);
+                    boxToDate.setManaged(multiple);
+
+                    lblFromDate.setText(
+                            multiple ? "FROM DATE" : "MEDICAL DATE"
+                    );
+
+                    if (!multiple) {
+                        dpTo.setValue(null);
+                    }
+
+                    hideMessage();
+                }
+        );
+
         dpFrom.setDayCellFactory(p -> new DateCell() {
-            @Override public void updateItem(LocalDate d, boolean empty) {
-                super.updateItem(d, empty);
-                setDisable(empty || d.isAfter(LocalDate.now()));
+
+            @Override
+            public void updateItem(
+                    LocalDate date, boolean empty) {
+
+                super.updateItem(date, empty);
+
+                setDisable(empty ||
+                        date.isAfter(LocalDate.now()));
             }
         });
+
         dpTo.setDayCellFactory(p -> new DateCell() {
-            @Override public void updateItem(LocalDate d, boolean empty) {
-                super.updateItem(d, empty);
-                setDisable(empty || d.isAfter(LocalDate.now())
-                        || (dpFrom.getValue() != null && d.isBefore(dpFrom.getValue())));
+
+            @Override
+            public void updateItem(
+                    LocalDate date, boolean empty) {
+
+                super.updateItem(date, empty);
+
+                setDisable(
+                        empty ||
+                                date.isAfter(LocalDate.now()) ||
+                                (dpFrom.getValue() != null &&
+                                        date.isBefore(dpFrom.getValue()))
+                );
             }
         });
-        dpFrom.valueProperty().addListener((o, a, from) -> {
-            if (from != null && dpTo.getValue() != null && dpTo.getValue().isBefore(from)) dpTo.setValue(null);
-            hideMessage();
-        });
 
-        colDate.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().date()));
-        colCourse.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().course()));
-        colReason.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().reason()));
-        colStatus.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().status()));
+        colDate.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getDateDisplay()
+                )
+        );
+
+        colCourse.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getCourseName()
+                )
+        );
+
+        colReason.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getReason()
+                )
+        );
+
+        colStatus.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getStatus()
+                )
+        );
+
         colStatus.setCellFactory(c -> badgeCell());
-        tblMedical.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        tblMedical.setPlaceholder(new Label("No records found"));
-        tblMedical.setItems(data);
 
-        // TODO: MedicalDAO.findByStudent(...)
-        data.add(new Application("2026-09-28", "MA101 - Discrete Mathematics", "Fever", "Approved"));
-        data.add(new Application("2026-10-03 to 2026-10-05", "CS101 - Object Oriented Programming",
-                "Dental surgery", "Pending"));
+        tblMedical.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
+        );
 
-        txtReason.textProperty().addListener((o, a, b) -> hideMessage());
+        tblMedical.setPlaceholder(
+                new Label("No medical applications found")
+        );
+
+        txtReason.textProperty().addListener(
+                (obs, oldValue, newValue) -> hideMessage()
+        );
+    }
+
+    public void loadMedical(String userId) {
+
+        loggedInUserId = userId;
+
+        cmbCourse.getItems().clear();
+        tblMedical.getItems().clear();
+
+        try {
+
+            List<Course> courses =
+                    coursesDAO.getEnrolledCourses(userId);
+
+            cmbCourse.getItems().setAll(courses);
+
+            loadHistory();
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            showMessage(
+                    "Unable to load medical data: " +
+                            e.getMessage(),
+                    false
+            );
+        }
+    }
+
+    private void loadHistory() throws SQLException {
+
+        List<Medical> medicals =
+                medicalDAO.getStudentMedicalHistory(
+                        loggedInUserId
+                );
+
+        tblMedical.setItems(
+                FXCollections.observableArrayList(medicals)
+        );
     }
 
     @FXML
     private void handleChooseFile() {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Select medical document");
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF / Images", "*.pdf", "*.png", "*.jpg", "*.jpeg"));
-        File f = fc.showOpenDialog(lblFile.getScene().getWindow());
-        if (f != null) { selectedFile = f; lblFile.setText(f.getName()); hideMessage(); }
+
+        FileChooser chooser = new FileChooser();
+
+        chooser.setTitle("Choose Medical Document");
+
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Medical Documents",
+                        "*.pdf", "*.png", "*.jpg", "*.jpeg"
+                )
+        );
+
+        File file = chooser.showOpenDialog(
+                lblFile.getScene().getWindow()
+        );
+
+        if (file == null) {
+            return;
+        }
+
+        if (!file.isFile() || !file.canRead()
+                || file.length() == 0
+                || file.length() > 5 * 1024 * 1024) {
+
+            showMessage(
+                    "Select a readable file up to 5 MB.",
+                    false
+            );
+            return;
+        }
+
+        String name = file.getName().toLowerCase(Locale.ROOT);
+
+        if (!(name.endsWith(".pdf")
+                || name.endsWith(".jpg")
+                || name.endsWith(".jpeg")
+                || name.endsWith(".png"))) {
+
+            showMessage(
+                    "Only PDF, JPG and PNG are allowed.",
+                    false
+            );
+            return;
+        }
+
+        selectedFile = file;
+
+        lblFile.setText(file.getName());
+
+        hideMessage();
     }
 
     @FXML
     private void handleSubmit() {
-        boolean multiple = rbMultiple.isSelected();
-        LocalDate from = dpFrom.getValue();
-        LocalDate to = dpTo.getValue();
 
-        if (cmbCourse.getValue() == null || from == null || txtReason.getText().isBlank()) {
-            showMessage("Please select course, date and enter a reason.", false);
+        Course course = cmbCourse.getValue();
+
+        LocalDate fromDate = dpFrom.getValue();
+
+        LocalDate toDate = rbMultiple.isSelected()
+                ? dpTo.getValue()
+                : null;
+
+        String reason = txtReason.getText().trim();
+
+        if (loggedInUserId == null
+                || course == null
+                || fromDate == null
+                || reason.isBlank()) {
+
+            showMessage(
+                    "Please select course, date and reason.",
+                    false
+            );
             return;
         }
+
+        if (rbMultiple.isSelected() && toDate == null) {
+
+            showMessage("Please select To Date.", false);
+            return;
+        }
+
+        if (fromDate.isAfter(LocalDate.now())
+                || (toDate != null &&
+                toDate.isAfter(LocalDate.now()))) {
+
+            showMessage(
+                    "Medical dates cannot be in the future.",
+                    false
+            );
+            return;
+        }
+
+        if (toDate != null && toDate.isBefore(fromDate)) {
+
+            showMessage("Invalid medical date range.", false);
+            return;
+        }
+
+        if (reason.length() > 2000) {
+
+            showMessage("Reason is too long.", false);
+            return;
+        }
+
         if (selectedFile == null) {
-            showMessage("Please upload your medical document (required).", false);
-            return;
-        }
-        if (multiple && to == null) {
-            showMessage("Please select the 'To' date.", false);
-            return;
-        }
-        if (from.isAfter(LocalDate.now()) || (multiple && to.isAfter(LocalDate.now()))) {
-            showMessage("Medical date cannot be in the future.", false);
-            return;
-        }
-        if (multiple && to.isBefore(from)) {
-            showMessage("'To' date cannot be before the 'From' date.", false);
+
+            showMessage(
+                    "Please upload your medical document.",
+                    false
+            );
             return;
         }
 
-        String dateText = (multiple && !to.equals(from)) ? from + " to " + to : from.toString();
+        Path savedFile = null;
 
-        // TODO: MedicalDAO.save(...) + selectedFile upload
-        data.add(0, new Application(dateText, cmbCourse.getValue(), txtReason.getText().trim(), "Pending"));
+        try {
 
-        cmbCourse.getSelectionModel().clearSelection();
-        rbSingle.setSelected(true);
-        dpFrom.setValue(null);
-        dpTo.setValue(null);
-        txtReason.clear();
-        selectedFile = null;
-        lblFile.setText("No file selected");
-        showMessage("Medical application submitted successfully.", true);
+            if (!selectedFile.isFile()
+                    || !selectedFile.canRead()
+                    || selectedFile.length() == 0
+                    || selectedFile.length() > 5 * 1024 * 1024) {
 
-        // aluth application eka table eke udama pennanawa, page eka table ekata scroll wenawa
-        tblMedical.getSelectionModel().selectFirst();
-        Platform.runLater(() -> scrollPage.setVvalue(1.0));
+                showMessage(
+                        "Selected document is invalid.",
+                        false
+                );
+                return;
+            }
+
+            String originalName =
+                    selectedFile.getName().toLowerCase(Locale.ROOT);
+
+            String ext;
+
+            if (originalName.endsWith(".pdf")) {
+                ext = ".pdf";
+            } else if (originalName.endsWith(".png")) {
+                ext = ".png";
+            } else if (originalName.endsWith(".jpg")
+                    || originalName.endsWith(".jpeg")) {
+                ext = ".jpg";
+            } else {
+                showMessage("Invalid file type.", false);
+                return;
+            }
+
+            Path folder = Path.of(
+                    System.getProperty("user.dir"),
+                    "medical-documents"
+            );
+            Files.createDirectories(folder);
+
+            String fileName =
+                    UUID.randomUUID() + ext;
+
+            savedFile = folder.resolve(fileName);
+
+            Files.copy(
+                    selectedFile.toPath(),
+                    savedFile
+            );
+
+            String relativePath = Path.of(
+                    "medical-documents",
+                    fileName
+            ).toString();
+
+            boolean success = medicalDAO.submitMedical(
+                    loggedInUserId,
+                    course.getCourseId(),
+                    fromDate,
+                    toDate,
+                    reason,
+                    relativePath
+            );
+
+            if (!success) {
+
+                Files.deleteIfExists(savedFile);
+
+                showMessage(
+                        "Unable to submit. Check your enrollment.",
+                        false
+                );
+                return;
+            }
+
+            cmbCourse.getSelectionModel().clearSelection();
+
+            rbSingle.setSelected(true);
+
+            dpFrom.setValue(null);
+            dpTo.setValue(null);
+            txtReason.clear();
+
+            selectedFile = null;
+            lblFile.setText("No file selected");
+
+            try {
+                loadHistory();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            showMessage(
+                    "Medical application submitted successfully.",
+                    true
+            );
+
+            Platform.runLater(
+                    () -> scrollPage.setVvalue(1.0)
+            );
+
+        } catch (SQLException | IOException e) {
+
+            e.printStackTrace();
+
+            if (savedFile != null) {
+                try {
+                    Files.deleteIfExists(savedFile);
+                } catch (IOException cleanupError) {
+                    cleanupError.printStackTrace();
+                }
+            }
+
+            showMessage(
+                    "Unable to submit medical: " +
+                            e.getMessage(),
+                    false
+            );
+        }
     }
 
-    private void showMessage(String msg, boolean ok) {
-        lblMessage.getStyleClass().setAll(ok ? "success-label" : "error-label");
-        lblMessage.setText(msg);
+    private TableCell<Medical, String> badgeCell() {
+
+        return new TableCell<>() {
+
+            @Override
+            protected void updateItem(
+                    String status, boolean empty) {
+
+                super.updateItem(status, empty);
+
+                if (empty || status == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+
+                Label label = new Label(status);
+
+                label.getStyleClass().addAll(
+                        "badge",
+                        "badge-" + status.toLowerCase(Locale.ROOT)
+                );
+
+                setGraphic(label);
+                setText(null);
+            }
+        };
+    }
+
+    private void showMessage(
+            String message, boolean success) {
+
+        lblMessage.getStyleClass().setAll(
+                success ? "success-label" : "error-label"
+        );
+
+        lblMessage.setText(message);
         lblMessage.setVisible(true);
         lblMessage.setManaged(true);
     }
 
     private void hideMessage() {
+
         lblMessage.setVisible(false);
         lblMessage.setManaged(false);
-    }
-
-    /** Status column eka colour badge ekak widiyata pennanna */
-    private <T> TableCell<T, String> badgeCell() {
-        return new TableCell<>() {
-            @Override protected void updateItem(String s, boolean empty) {
-                super.updateItem(s, empty);
-                if (empty || s == null) { setGraphic(null); setText(null); return; }
-                Label l = new Label(s);
-                l.getStyleClass().addAll("badge", "badge-" + s.toLowerCase().replace(' ', '-'));
-                setGraphic(l);
-                setText(null);
-            }
-        };
     }
 }

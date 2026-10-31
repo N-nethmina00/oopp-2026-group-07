@@ -31,7 +31,6 @@
                     <Button text="CA / Marks" userData="student-marks" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
                     <Button text="Semester Results" userData="student-results" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
                     <Button text="Medical" userData="student-medical" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
-                    <Button text="Timetable" userData="student-timetable" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
                     <Button text="Course Materials" userData="student-materials" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
                     <Button text="Notices" userData="student-notices" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>
                     <Button text="My Profile" userData="student-profile" onAction="#navigate" styleClass="nav-button" maxWidth="Infinity"/>

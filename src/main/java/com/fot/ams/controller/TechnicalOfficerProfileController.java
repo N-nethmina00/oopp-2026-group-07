@@ -3,11 +3,13 @@ package com.fot.ams.controller;
 import com.fot.ams.dao.UserDAO;
 import com.fot.ams.model.User;
 import javafx.fxml.FXML;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -129,7 +131,6 @@ public class TechnicalOfficerProfileController {
             showPhoto(image);
 
         } catch (IOException | IllegalArgumentException exception) {
-            // Keep the TO placeholder if the saved file is unavailable
             System.out.println(
                     "Profile photo could not be loaded: "
                             + exception.getMessage()
@@ -197,13 +198,17 @@ public class TechnicalOfficerProfileController {
         }
 
         if (Files.size(file.toPath()) > 5L * 1024 * 1024) {
-            throw new IOException("Please select a photo smaller than 5 MB.");
+            throw new IOException(
+                    "Please select a photo smaller than 5 MB."
+            );
         }
 
         try (InputStream input = Files.newInputStream(file.toPath())) {
             Image image = new Image(input, 200, 200, true, true);
 
-            if (image.isError() || image.getWidth() <= 0) {
+            if (image.isError()
+                    || image.getWidth() <= 0
+                    || image.getHeight() <= 0) {
                 throw new IOException(
                         "The selected file could not be opened as an image."
                 );
@@ -213,11 +218,39 @@ public class TechnicalOfficerProfileController {
         }
     }
 
-    // TG2070 - Switch between photo and placeholder
+    // TG2070 - START: Crop photo and display as a circle
     private void showPhoto(Image image) {
         profileImageView.setImage(image);
 
         boolean hasPhoto = image != null;
+
+        if (hasPhoto) {
+            double width = image.getWidth();
+            double height = image.getHeight();
+
+            double size = Math.min(width, height);
+
+            double x = (width - size) / 2;
+            double y = (height - size) / 2;
+
+            // Select a square from the centre of the photo
+            profileImageView.setViewport(
+                    new Rectangle2D(x, y, size, size)
+            );
+
+            profileImageView.setFitWidth(80);
+            profileImageView.setFitHeight(80);
+            profileImageView.setPreserveRatio(true);
+
+            // Clip the square photo into a circle
+            profileImageView.setClip(
+                    new Circle(40, 40, 40)
+            );
+
+        } else {
+            profileImageView.setViewport(null);
+            profileImageView.setClip(null);
+        }
 
         profileImageView.setVisible(hasPhoto);
         profileImageView.setManaged(hasPhoto);
@@ -225,6 +258,7 @@ public class TechnicalOfficerProfileController {
         profileAvatarLabel.setVisible(!hasPhoto);
         profileAvatarLabel.setManaged(!hasPhoto);
     }
+    // TG2070 - END
 
     // TG2070 - Validate and save profile
     @FXML

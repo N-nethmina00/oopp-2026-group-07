@@ -32,6 +32,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 /images/profiles/
+/medical-documents/
 
 ### VS Code ###
 .vscode/

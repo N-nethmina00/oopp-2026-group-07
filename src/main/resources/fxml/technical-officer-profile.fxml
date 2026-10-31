@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
 <ScrollPane xmlns="http://javafx.com/javafx/21"
@@ -24,9 +25,27 @@
 
                 <HBox spacing="20" alignment="CENTER_LEFT">
 
-                    <StackPane styleClass="profile-avatar">
-                        <Label text="TO"
+                    <!-- TG2070 - Profile photo and default placeholder -->
+                    <StackPane styleClass="profile-avatar"
+                               minWidth="90"
+                               prefWidth="90"
+                               maxWidth="90"
+                               minHeight="90"
+                               prefHeight="90"
+                               maxHeight="90">
+
+                        <Label fx:id="profileAvatarLabel"
+                               text="TO"
                                styleClass="profile-avatar-text"/>
+
+                        <ImageView fx:id="profileImageView"
+                                   fitWidth="80"
+                                   fitHeight="80"
+                                   preserveRatio="true"
+                                   smooth="true"
+                                   visible="false"
+                                   managed="false"/>
+
                     </StackPane>
 
                     <VBox spacing="8">
@@ -36,8 +55,14 @@
                         <Label text="Profile Photo"
                                styleClass="profile-subtitle"/>
 
+                        <!-- TG2070 - Open photo chooser -->
                         <Button text="Change Photo"
+                                onAction="#changePhoto"
                                 styleClass="profile-secondary-button"/>
+
+                        <Label text="PNG or JPG, up to 5 MB. Click Save Changes to save."
+                               wrapText="true"
+                               styleClass="profile-subtitle"/>
                     </VBox>
 
                 </HBox>

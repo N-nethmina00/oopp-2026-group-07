@@ -2,17 +2,14 @@ package com.fot.ams.controller;
 
 import com.fot.ams.dao.UserDAO;
 import com.fot.ams.model.User;
+
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Region;
 
 import java.util.Optional;
 
@@ -38,67 +35,142 @@ public class AdminUserManagementController {
 
     private final UserDAO userDAO = new UserDAO();
 
+    private final ObservableList<User> userList =
+            FXCollections.observableArrayList();
+
+    private static final double ROW_HEIGHT = 38.0;
+    private static final double HEADER_SPACE = 48.0;
+
     @FXML
     public void initialize() {
-        usersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        configureColumns();
 
-        userIdColumn.setCellValueFactory(new PropertyValueFactory<>("userId"));
-        roleSpecificIdColumn.setCellValueFactory(new PropertyValueFactory<>("roleSpecificId"));
-        usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
-        fullNameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
-        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
-        roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
+        usersTable.setItems(userList);
+        configureTableHeight();
 
-        roleComboBox.setItems(FXCollections.observableArrayList(
-                "Admin",
-                "Lecturer",
-                "Technical_Officer",
-                "Undergraduate"
-        ));
+        roleComboBox.setItems(
+                FXCollections.observableArrayList(
+                        "Admin",
+                        "Lecturer",
+                        "Technical_Officer",
+                        "Undergraduate"
+                )
+        );
 
-        roleComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            updateRoleIdLabel(newValue);
-        });
+        roleComboBox.valueProperty().addListener(
+                (observable, oldValue, newValue) ->
+                        updateRoleIdLabel(newValue)
+        );
 
-        usersTable.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldUser, selectedUser) -> {
+        usersTable.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((observable, oldUser, selectedUser) -> {
                     if (selectedUser != null) {
                         showUserDetails(selectedUser);
                     }
-                }
+                });
+
+        updateRoleIdLabel(null);
+        loadUsers();
+    }
+
+    private void configureColumns() {
+        usersTable.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY
         );
 
-        updateRoleIdLabel(roleComboBox.getValue());
-        loadUsers();
+        userIdColumn.setCellValueFactory(
+                new PropertyValueFactory<>("userId")
+        );
+
+        roleSpecificIdColumn.setCellValueFactory(
+                new PropertyValueFactory<>("roleSpecificId")
+        );
+
+        usernameColumn.setCellValueFactory(
+                new PropertyValueFactory<>("username")
+        );
+
+        fullNameColumn.setCellValueFactory(
+                new PropertyValueFactory<>("fullName")
+        );
+
+        emailColumn.setCellValueFactory(
+                new PropertyValueFactory<>("email")
+        );
+
+        roleColumn.setCellValueFactory(
+                new PropertyValueFactory<>("role")
+        );
+
+        usersTable.setPlaceholder(
+                new Label("No registered users available.")
+        );
+    }
+
+    private void configureTableHeight() {
+        usersTable.setFixedCellSize(ROW_HEIGHT);
+
+        usersTable.setMinHeight(Region.USE_PREF_SIZE);
+        usersTable.setMaxHeight(Region.USE_PREF_SIZE);
+
+        // Keep all rows visible; the outer ScrollPane scrolls the page.
+        usersTable.prefHeightProperty().bind(
+                Bindings.createDoubleBinding(
+                        () -> Math.max(1, userList.size())
+                                * usersTable.getFixedCellSize()
+                                + HEADER_SPACE,
+                        userList,
+                        usersTable.fixedCellSizeProperty()
+                )
+        );
     }
 
     private void updateRoleIdLabel(String role) {
         if (role == null) {
             roleSpecificIdLabel.setText("Role-specific ID");
-            roleSpecificIdField.setPromptText("Enter role-specific ID");
+            roleSpecificIdField.setPromptText(
+                    "Enter role-specific ID"
+            );
             return;
         }
 
         switch (role) {
             case "Undergraduate" -> {
                 roleSpecificIdLabel.setText("Registration No");
-                roleSpecificIdField.setPromptText("Enter registration number");
+                roleSpecificIdField.setPromptText(
+                        "Enter registration number"
+                );
             }
+
             case "Technical_Officer" -> {
-                roleSpecificIdLabel.setText("Technical Officer ID");
-                roleSpecificIdField.setPromptText("Enter technical officer ID");
+                roleSpecificIdLabel.setText(
+                        "Technical Officer ID"
+                );
+                roleSpecificIdField.setPromptText(
+                        "Enter technical officer ID"
+                );
             }
+
             case "Lecturer" -> {
                 roleSpecificIdLabel.setText("Lecturer ID");
-                roleSpecificIdField.setPromptText("Enter lecturer ID");
+                roleSpecificIdField.setPromptText(
+                        "Enter lecturer ID"
+                );
             }
+
             case "Admin" -> {
                 roleSpecificIdLabel.setText("Admin ID");
-                roleSpecificIdField.setPromptText("Enter admin ID");
+                roleSpecificIdField.setPromptText(
+                        "Enter admin ID"
+                );
             }
+
             default -> {
                 roleSpecificIdLabel.setText("Role-specific ID");
-                roleSpecificIdField.setPromptText("Enter role-specific ID");
+                roleSpecificIdField.setPromptText(
+                        "Enter role-specific ID"
+                );
             }
         }
     }
@@ -110,13 +182,27 @@ public class AdminUserManagementController {
         firstNameField.setText(user.getFirstName());
         lastNameField.setText(user.getLastName());
         emailField.setText(user.getEmail());
+
         roleComboBox.setValue(user.getRole());
+
+        // Do not display stored passwords.
         passwordField.clear();
-        userIdField.setDisable(true);
+
+        // Keep the ID readable and selectable, but prevent editing.
+        userIdField.setEditable(false);
     }
 
     @FXML
     private void addUser() {
+        if (usersTable.getSelectionModel().getSelectedItem() != null) {
+            showAlert(
+                    Alert.AlertType.WARNING,
+                    "Clear Selection",
+                    "Click Clear before adding a new user."
+            );
+            return;
+        }
+
         if (!validateFields(true)) {
             return;
         }
@@ -125,21 +211,43 @@ public class AdminUserManagementController {
             boolean added = userDAO.addUser(readForm());
 
             if (added) {
-                showAlert(Alert.AlertType.INFORMATION, "Success", "User added successfully.");
                 loadUsers();
                 clearFields();
+
+                showAlert(
+                        Alert.AlertType.INFORMATION,
+                        "Success",
+                        "User added successfully."
+                );
             } else {
-                showAlert(Alert.AlertType.WARNING, "Not Added", "User was not added.");
+                showAlert(
+                        Alert.AlertType.WARNING,
+                        "Not Added",
+                        "User was not added."
+                );
             }
+
         } catch (RuntimeException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", e.getMessage());
+            showAlert(
+                    Alert.AlertType.ERROR,
+                    "Database Error",
+                    e.getMessage()
+            );
         }
     }
 
     @FXML
     private void updateUser() {
-        if (userIdField.getText().isBlank()) {
-            showAlert(Alert.AlertType.WARNING, "Select User", "Select a user from the table first.");
+        User selected = usersTable
+                .getSelectionModel()
+                .getSelectedItem();
+
+        if (selected == null) {
+            showAlert(
+                    Alert.AlertType.WARNING,
+                    "Select User",
+                    "Select a user from the table first."
+            );
             return;
         }
 
@@ -147,37 +255,80 @@ public class AdminUserManagementController {
             return;
         }
 
+        if (!selected.getUserId().equals(
+                userIdField.getText().trim())) {
+
+            showAlert(
+                    Alert.AlertType.WARNING,
+                    "Invalid User ID",
+                    "User ID cannot be changed during update."
+            );
+            return;
+        }
+
         try {
             User user = readForm();
-            boolean updatePassword = !passwordField.getText().isBlank();
+
+            boolean updatePassword =
+                    !passwordField.getText().isBlank();
 
             if (userDAO.updateUser(user, updatePassword)) {
-                showAlert(Alert.AlertType.INFORMATION, "Success", "User updated successfully.");
                 loadUsers();
                 clearFields();
+
+                showAlert(
+                        Alert.AlertType.INFORMATION,
+                        "Success",
+                        "User updated successfully."
+                );
             } else {
-                showAlert(Alert.AlertType.WARNING, "Not Updated", "No matching user was found.");
+                showAlert(
+                        Alert.AlertType.WARNING,
+                        "Not Updated",
+                        "No matching user was found."
+                );
             }
+
         } catch (RuntimeException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", e.getMessage());
+            showAlert(
+                    Alert.AlertType.ERROR,
+                    "Database Error",
+                    e.getMessage()
+            );
         }
     }
 
     @FXML
     private void deleteUser() {
-        String userId = userIdField.getText().trim();
+        User selected = usersTable
+                .getSelectionModel()
+                .getSelectedItem();
 
-        if (userId.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Select User", "Select a user from the table first.");
+        if (selected == null) {
+            showAlert(
+                    Alert.AlertType.WARNING,
+                    "Select User",
+                    "Select a user from the table first."
+            );
             return;
         }
 
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("Confirm Delete");
-        confirmation.setHeaderText(null);
-        confirmation.setContentText("Delete user " + userId + " and their role record?");
+        String userId = selected.getUserId();
 
-        Optional<ButtonType> result = confirmation.showAndWait();
+        Alert confirmation = new Alert(
+                Alert.AlertType.CONFIRMATION
+        );
+
+        confirmation.setTitle("Confirm Delete");
+        confirmation.setHeaderText("Delete User");
+
+        confirmation.setContentText(
+                "Delete user " + userId
+                        + " and their role record?"
+        );
+
+        Optional<ButtonType> result =
+                confirmation.showAndWait();
 
         if (result.isEmpty() || result.get() != ButtonType.OK) {
             return;
@@ -185,19 +336,35 @@ public class AdminUserManagementController {
 
         try {
             if (userDAO.deleteUser(userId)) {
-                showAlert(Alert.AlertType.INFORMATION, "Success", "User deleted successfully.");
                 loadUsers();
                 clearFields();
+
+                showAlert(
+                        Alert.AlertType.INFORMATION,
+                        "Success",
+                        "User deleted successfully."
+                );
             } else {
-                showAlert(Alert.AlertType.WARNING, "Not Deleted", "No matching user was found.");
+                showAlert(
+                        Alert.AlertType.WARNING,
+                        "Not Deleted",
+                        "No matching user was found."
+                );
             }
+
         } catch (RuntimeException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", e.getMessage());
+            showAlert(
+                    Alert.AlertType.ERROR,
+                    "Database Error",
+                    e.getMessage()
+            );
         }
     }
 
     @FXML
     private void clearFields() {
+        usersTable.getSelectionModel().clearSelection();
+
         userIdField.clear();
         roleSpecificIdField.clear();
         usernameField.clear();
@@ -205,9 +372,13 @@ public class AdminUserManagementController {
         lastNameField.clear();
         emailField.clear();
         passwordField.clear();
+
         roleComboBox.getSelectionModel().clearSelection();
-        usersTable.getSelectionModel().clearSelection();
+        roleComboBox.setValue(null);
+
         userIdField.setDisable(false);
+        userIdField.setEditable(true);
+
         updateRoleIdLabel(null);
     }
 
@@ -232,7 +403,8 @@ public class AdminUserManagementController {
                 || lastNameField.getText().isBlank()
                 || emailField.getText().isBlank()
                 || roleComboBox.getValue() == null
-                || (requirePassword && passwordField.getText().isBlank())) {
+                || (requirePassword
+                && passwordField.getText().isBlank())) {
 
             showAlert(
                     Alert.AlertType.WARNING,
@@ -241,11 +413,34 @@ public class AdminUserManagementController {
                             ? "Fill in all fields, including password."
                             : "Fill in all required fields."
             );
+
             return false;
         }
 
-        if (!emailField.getText().trim().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-            showAlert(Alert.AlertType.WARNING, "Invalid Email", "Enter a valid email address.");
+        if (!roleComboBox.getItems().contains(
+                roleComboBox.getValue())) {
+
+            showAlert(
+                    Alert.AlertType.WARNING,
+                    "Invalid Role",
+                    "Select a valid role."
+            );
+
+            return false;
+        }
+
+        String email = emailField.getText().trim();
+
+        if (!email.matches(
+                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+
+            showAlert(
+                    Alert.AlertType.WARNING,
+                    "Invalid Email",
+                    "Enter a valid email address."
+            );
+
+            emailField.requestFocus();
             return false;
         }
 
@@ -254,9 +449,11 @@ public class AdminUserManagementController {
 
     private void loadUsers() {
         try {
-            usersTable.setItems(
-                    FXCollections.observableArrayList(userDAO.getAllUsers())
+            // Reuse the same list so the height binding stays active.
+            userList.setAll(
+                    userDAO.getAllUsers()
             );
+
         } catch (RuntimeException e) {
             showAlert(
                     Alert.AlertType.ERROR,
@@ -266,11 +463,22 @@ public class AdminUserManagementController {
         }
     }
 
-    private void showAlert(Alert.AlertType type, String title, String message) {
+    private void showAlert(
+            Alert.AlertType type,
+            String title,
+            String message) {
+
         Alert alert = new Alert(type);
+
         alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(message);
+
+        alert.setContentText(
+                message == null || message.isBlank()
+                        ? "The operation could not be completed."
+                        : message
+        );
+
         alert.showAndWait();
     }
 }

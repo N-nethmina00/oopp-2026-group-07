@@ -3,7 +3,10 @@ package com.fot.ams.dao;
 import com.fot.ams.model.Course;
 import com.fot.ams.util.DBConnection;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,20 +24,21 @@ public class CourseDAO {
                 ORDER BY c.course_id
                 """;
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
 
-            while (rs.next()) {
+            while (resultSet.next()) {
                 courses.add(new Course(
-                        rs.getInt("course_id"),
-                        rs.getString("course_code"),
-                        rs.getString("course_name"),
-                        rs.getInt("credit"),
-                        rs.getString("type"),
-                        rs.getString("lecturer_id"),
-                        rs.getInt("dept_id"),
-                        rs.getString("dept_name")
+                        resultSet.getInt("course_id"),
+                        resultSet.getString("course_code"),
+                        resultSet.getString("course_name"),
+                        resultSet.getInt("credit"),
+                        resultSet.getString("type"),
+                        resultSet.getString("lecturer_id"),
+                        resultSet.getInt("dept_id"),
+                        resultSet.getString("dept_name")
                 ));
             }
         }
@@ -45,14 +49,16 @@ public class CourseDAO {
     public List<String> getDepartments() throws SQLException {
         List<String> departments = new ArrayList<>();
 
-        String sql = "SELECT dept_name FROM department ORDER BY dept_name";
+        String sql =
+                "SELECT dept_name FROM department ORDER BY dept_name";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
 
-            while (rs.next()) {
-                departments.add(rs.getString("dept_name"));
+            while (resultSet.next()) {
+                departments.add(resultSet.getString("dept_name"));
             }
         }
 
@@ -60,42 +66,46 @@ public class CourseDAO {
     }
 
     public List<String> getLecturers() throws SQLException {
-        List<String> lecturers = new ArrayList<>();
+        List<String> lecturerIds = new ArrayList<>();
 
-        String sql = """
-                SELECT l.lecturer_id
-                FROM lecturer l
-                ORDER BY l.lecturer_id
-                """;
+        String sql =
+                "SELECT lecturer_id FROM lecturer ORDER BY lecturer_id";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
 
-            while (rs.next()) {
-                lecturers.add(rs.getString("lecturer_id"));
+            while (resultSet.next()) {
+                lecturerIds.add(resultSet.getString("lecturer_id"));
             }
         }
 
-        return lecturers;
+        return lecturerIds;
     }
 
-    private int getDepartmentId(Connection con, String department)
-            throws SQLException {
+    private int getDepartmentId(
+            Connection connection,
+            String departmentName) throws SQLException {
 
-        String sql = "SELECT dept_id FROM department WHERE dept_name = ?";
+        String sql =
+                "SELECT dept_id FROM department WHERE dept_name = ?";
 
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, department);
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("dept_id");
+            statement.setString(1, departmentName);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("dept_id");
                 }
             }
         }
 
-        throw new SQLException("Department not found: " + department);
+        throw new SQLException(
+                "Department not found: " + departmentName
+        );
     }
 
     public boolean addCourse(Course course) throws SQLException {
@@ -105,18 +115,23 @@ public class CourseDAO {
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection con = DBConnection.getConnection()) {
-            int deptId = getDepartmentId(con, course.getDepartmentName());
+        try (Connection connection = DBConnection.getConnection()) {
+            int departmentId = getDepartmentId(
+                    connection,
+                    course.getDepartmentName()
+            );
 
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setString(1, course.getCourseCode());
-                ps.setString(2, course.getCourseName());
-                ps.setInt(3, course.getCredit());
-                ps.setString(4, course.getType());
-                ps.setString(5, course.getLecturerId());
-                ps.setInt(6, deptId);
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
 
-                return ps.executeUpdate() > 0;
+                statement.setString(1, course.getCourseCode());
+                statement.setString(2, course.getCourseName());
+                statement.setInt(3, course.getCredit());
+                statement.setString(4, course.getType());
+                statement.setString(5, course.getLecturerId());
+                statement.setInt(6, departmentId);
+
+                return statement.executeUpdate() > 0;
             }
         }
     }
@@ -129,18 +144,23 @@ public class CourseDAO {
                 WHERE course_code = ?
                 """;
 
-        try (Connection con = DBConnection.getConnection()) {
-            int deptId = getDepartmentId(con, course.getDepartmentName());
+        try (Connection connection = DBConnection.getConnection()) {
+            int departmentId = getDepartmentId(
+                    connection,
+                    course.getDepartmentName()
+            );
 
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setString(1, course.getCourseName());
-                ps.setInt(2, course.getCredit());
-                ps.setString(3, course.getType());
-                ps.setString(4, course.getLecturerId());
-                ps.setInt(5, deptId);
-                ps.setString(6, course.getCourseCode());
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
 
-                return ps.executeUpdate() > 0;
+                statement.setString(1, course.getCourseName());
+                statement.setInt(2, course.getCredit());
+                statement.setString(3, course.getType());
+                statement.setString(4, course.getLecturerId());
+                statement.setInt(5, departmentId);
+                statement.setString(6, course.getCourseCode());
+
+                return statement.executeUpdate() > 0;
             }
         }
     }
@@ -148,14 +168,47 @@ public class CourseDAO {
     public boolean deleteCourse(String courseCode) throws SQLException {
         String sql = "DELETE FROM course WHERE course_code = ?";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            ps.setString(1, courseCode);
-            return ps.executeUpdate() > 0;
+            statement.setString(1, courseCode);
+
+            return statement.executeUpdate() > 0;
         }
     }
 
+    public boolean courseExists(String courseCode) throws SQLException {
+        String sql = "SELECT 1 FROM course WHERE course_code = ?";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, courseCode);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
+    // Preserve existing method names for older callers
+    public List<String> getDepartmentNames() throws SQLException {
+        return getDepartments();
+    }
+
+    public List<String> getLecturerIds() throws SQLException {
+        return getLecturers();
+    }
+
+    public int getDepartmentId(String departmentName)
+            throws SQLException {
+
+        try (Connection connection = DBConnection.getConnection()) {
+            return getDepartmentId(connection, departmentName);
+        }
+    }
 
     public int countCoursesByLecturer(String lecturerId)
             throws SQLException {
@@ -163,14 +216,15 @@ public class CourseDAO {
         String sql =
                 "SELECT COUNT(*) FROM course WHERE lecturer_id = ?";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            stmt.setString(1, lecturerId);
+            statement.setString(1, lecturerId);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
                 }
             }
         }
@@ -188,18 +242,19 @@ public class CourseDAO {
                         "FROM course WHERE lecturer_id = ? " +
                         "ORDER BY course_id";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            stmt.setString(1, lecturerId);
+            statement.setString(1, lecturerId);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
                     courses.add(new String[]{
-                            rs.getString("course_code"),
-                            rs.getString("course_name"),
-                            rs.getString("credit"),
-                            rs.getString("type")
+                            resultSet.getString("course_code"),
+                            resultSet.getString("course_name"),
+                            resultSet.getString("credit"),
+                            resultSet.getString("type")
                     });
                 }
             }
@@ -208,28 +263,52 @@ public class CourseDAO {
         return courses;
     }
 
+    // TG2070 - START: Find database course ID using course code
+    public int getCourseDatabaseId(String courseCode)
+            throws SQLException {
 
+        String sql =
+                "SELECT course_id FROM course WHERE course_code = ?";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, courseCode);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("course_id");
+                }
+            }
+        }
+
+        throw new SQLException("Course not found: " + courseCode);
+    }
+    // TG2070 - END
+
+    // Lecturer - Load assigned courses as Course objects
     public List<Course> getCourseModelsByLecturer(
             String lecturerId) throws SQLException {
 
         List<Course> courses = new ArrayList<>();
 
         String sql = """
-            SELECT
-                c.course_id,
-                c.course_code,
-                c.course_name,
-                c.credit,
-                c.type,
-                c.lecturer_id,
-                c.dept_id,
-                d.dept_name
-            FROM course c
-            LEFT JOIN department d
-                ON c.dept_id = d.dept_id
-            WHERE c.lecturer_id = ?
-            ORDER BY c.course_code
-            """;
+                SELECT
+                    c.course_id,
+                    c.course_code,
+                    c.course_name,
+                    c.credit,
+                    c.type,
+                    c.lecturer_id,
+                    c.dept_id,
+                    d.dept_name
+                FROM course c
+                LEFT JOIN department d
+                    ON c.dept_id = d.dept_id
+                WHERE c.lecturer_id = ?
+                ORDER BY c.course_code
+                """;
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -237,9 +316,7 @@ public class CourseDAO {
             stmt.setString(1, lecturerId);
 
             try (ResultSet rs = stmt.executeQuery()) {
-
                 while (rs.next()) {
-
                     Course course = new Course(
                             rs.getInt("course_id"),
                             rs.getString("course_code"),
@@ -258,6 +335,4 @@ public class CourseDAO {
 
         return courses;
     }
-
-
 }

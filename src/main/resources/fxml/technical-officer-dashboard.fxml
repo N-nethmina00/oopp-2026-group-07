@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:id="dashboardRoot"
+            fx:controller="com.fot.ams.controller.TechnicalOfficerController"
+            stylesheets="@../css/technical-officer.css"
+            styleClass="to-root"
+            prefWidth="1200"
+            prefHeight="750">
+
+    <top>
+        <HBox alignment="CENTER_LEFT"
+              spacing="15"
+              styleClass="to-header">
+
+            <Label text="UMS"
+                   styleClass="to-logo"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <VBox alignment="CENTER_RIGHT" spacing="4">
+                <Label text="Welcome, Technical Officer"
+                       styleClass="to-welcome"/>
+
+                <Label text="Technical Officer"
+                       styleClass="to-role"/>
+            </VBox>
+
+            <StackPane styleClass="to-avatar">
+                <Label text="TO"
+                       styleClass="to-avatar-text"/>
+            </StackPane>
+
+        </HBox>
+    </top>
+
+    <left>
+        <VBox styleClass="to-sidebar-wrapper">
+
+            <!-- TG2070 - Technical Officer navigation -->
+            <VBox spacing="9"
+                  styleClass="to-sidebar"
+                  VBox.vgrow="ALWAYS">
+
+                <Button text="Dashboard"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"
+                        onAction="#showDashboard"/>
+
+                <Button text="Attendance"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"
+                        onAction="#showAttendance"/>
+
+                <Button text="Medical Records"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"
+                        onAction="#showMedical"/>
+
+                <Button text="Notices"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"
+                        onAction="#showNotices"/>
+
+                <Button text="Timetable"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"
+                        onAction="#showTimetable"/>
+
+                <Button text="Profile"
+                        maxWidth="Infinity"
+                        styleClass="to-nav-button"
+                        onAction="#showProfile"/>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <Button text="Log Out"
+                        maxWidth="Infinity"
+                        styleClass="to-logout-button"
+                        onAction="#handleLogout"/>
+
+            </VBox>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    styleClass="to-scroll">
+
+            <content>
+                <VBox spacing="20"
+                      styleClass="to-content">
+
+                    <Label text="TECHNICAL OFFICER DASHBOARD"
+                           styleClass="to-page-title"/>
+
+                    <Label text="Manage undergraduate attendance and medical records."
+                           wrapText="true"
+                           styleClass="to-subtitle"/>
+
+                    <!-- TG2070 - Counts loaded from database -->
+                    <HBox spacing="15">
+
+                        <VBox spacing="10"
+                              minWidth="0"
+                              prefWidth="1"
+                              styleClass="to-stat-card"
+                              HBox.hgrow="ALWAYS">
+
+                            <Label text="Students"
+                                   styleClass="to-card-title"/>
+
+                            <Label fx:id="studentCountLabel"
+                                   text="—"
+                                   styleClass="to-card-value"/>
+
+                            <Label text="Department"
+                                   styleClass="to-card-description"/>
+                        </VBox>
+
+                        <VBox spacing="10"
+                              minWidth="0"
+                              prefWidth="1"
+                              styleClass="to-stat-card"
+                              HBox.hgrow="ALWAYS">
+
+                            <Label text="Sessions"
+                                   styleClass="to-card-title"/>
+
+                            <Label fx:id="sessionCountLabel"
+                                   text="—"
+                                   styleClass="to-card-value"/>
+
+                            <Label text="This week"
+                                   styleClass="to-card-description"/>
+                        </VBox>
+
+                        <VBox spacing="10"
+                              minWidth="0"
+                              prefWidth="1"
+                              styleClass="to-stat-card"
+                              HBox.hgrow="ALWAYS">
+
+                            <Label text="Attendance"
+                                   styleClass="to-card-title"/>
+
+                            <Label fx:id="attendanceCountLabel"
+                                   text="—"
+                                   styleClass="to-card-value"/>
+
+                            <Label text="Sessions not recorded"
+                                   wrapText="true"
+                                   styleClass="to-card-description"/>
+                        </VBox>
+
+                    </HBox>
+
+                    <!-- TG2070 - Attendance and medical quick actions -->
+                    <VBox spacing="18"
+                          styleClass="to-section-card">
+
+                        <Label text="Quick Actions"
+                               styleClass="to-section-title"/>
+
+                        <FlowPane hgap="12" vgap="12">
+
+                            <Button text="Record Attendance"
+                                    styleClass="to-action-button"
+                                    onAction="#showAttendance"/>
+
+                            <Button text="View Medical"
+                                    styleClass="to-action-button"
+                                    onAction="#showMedical"/>
+
+                        </FlowPane>
+
+                    </VBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

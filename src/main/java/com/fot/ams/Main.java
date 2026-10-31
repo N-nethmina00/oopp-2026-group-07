@@ -1,11 +1,13 @@
 package com.fot.ams;
 
+import com.fot.ams.util.DBConnection;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import com.fot.ams.util.DBConnection;
+
 import java.sql.Connection;
 
 public class Main extends Application {
@@ -24,12 +26,13 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-
         try (Connection connection = DBConnection.getConnection()) {
             System.out.println("Database Connected Successfully!");
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
+
         launch(args);
     }
 }

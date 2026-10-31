@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.TechnicalOfficerTimetableController"
+            fitToWidth="true"
+            stylesheets="@../css/technical-officer-timetable.css"
+            styleClass="timetable-scroll">
+
+    <content>
+        <VBox spacing="20" styleClass="timetable-page">
+
+            <Label text="DEPARTMENT TIMETABLE"
+                   styleClass="timetable-title"/>
+
+            <Label text="View scheduled theory and practical sessions for your department."
+                   wrapText="true"
+                   styleClass="timetable-subtitle"/>
+
+            <VBox spacing="18" styleClass="timetable-panel">
+
+                <Label text="Filter Timetable"
+                       styleClass="timetable-section-title"/>
+
+                <FlowPane hgap="20" vgap="15">
+
+                    <VBox spacing="7">
+                        <Label text="Academic Year"/>
+
+                        <ComboBox fx:id="timetableYearComboBox"
+                                  promptText="Select academic year"
+                                  prefWidth="200"/>
+                    </VBox>
+
+                    <VBox spacing="7">
+                        <Label text="Semester"/>
+
+                        <ComboBox fx:id="timetableSemesterComboBox"
+                                  promptText="Select semester"
+                                  prefWidth="180"/>
+                    </VBox>
+
+                    <VBox spacing="7">
+                        <Label text="Course"/>
+
+                        <ComboBox fx:id="timetableCourseComboBox"
+                                  promptText="All courses"
+                                  prefWidth="220"/>
+                    </VBox>
+
+                    <VBox spacing="7">
+                        <Label text="Session Type"/>
+
+                        <ComboBox fx:id="timetableTypeComboBox"
+                                  promptText="All types"
+                                  prefWidth="180"/>
+                    </VBox>
+
+                </FlowPane>
+
+                <!-- TG2070 - Timetable filter actions -->
+                <HBox spacing="12" alignment="CENTER_RIGHT">
+
+                    <Button text="Reset Filters"
+                            styleClass="timetable-secondary-button"
+                            onAction="#resetFilters"/>
+
+                    <Button text="View Timetable"
+                            styleClass="timetable-primary-button"
+                            onAction="#viewTimetable"/>
+
+                </HBox>
+
+            </VBox>
+
+            <VBox spacing="18" styleClass="timetable-panel">
+
+                <Label text="Scheduled Sessions"
+                       styleClass="timetable-section-title"/>
+
+                <TableView fx:id="timetableTable"
+                           prefHeight="350">
+
+                    <columns>
+
+                        <TableColumn fx:id="timetableCourseCodeColumn"
+                                     text="Course Code"
+                                     prefWidth="120"/>
+
+                        <TableColumn fx:id="timetableCourseNameColumn"
+                                     text="Course Name"
+                                     prefWidth="240"/>
+
+                        <!-- TG2070 - Weekly timetable day -->
+                        <TableColumn fx:id="timetableDayColumn"
+                                     text="Day"
+                                     prefWidth="120"/>
+
+                        <TableColumn fx:id="timetableTypeColumn"
+                                     text="Type"
+                                     prefWidth="110"/>
+
+                        <TableColumn fx:id="timetableStartTimeColumn"
+                                     text="Start Time"
+                                     prefWidth="110"/>
+
+                        <TableColumn fx:id="timetableEndTimeColumn"
+                                     text="End Time"
+                                     prefWidth="110"/>
+
+                        <TableColumn fx:id="timetableHallColumn"
+                                     text="Lecture Hall"
+                                     prefWidth="140"/>
+
+                    </columns>
+
+                    <placeholder>
+                        <Label text="No timetable records loaded."/>
+                    </placeholder>
+
+                </TableView>
+
+            </VBox>
+
+        </VBox>
+    </content>
+
+</ScrollPane>

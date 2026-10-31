@@ -1,0 +1,111 @@
+.timetable-scroll,
+.timetable-scroll > .viewport {
+    -fx-background-color: #F3F6FA;
+}
+
+.timetable-scroll {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.timetable-page {
+    -fx-background-color: #F3F6FA;
+    -fx-padding: 25 25 25 10;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 13px;
+}
+
+.timetable-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #17324D;
+}
+
+.timetable-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7B8797;
+}
+
+.timetable-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 8;
+    -fx-padding: 20;
+}
+
+.timetable-section-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #17324D;
+}
+
+.timetable-page .combo-box {
+    -fx-pref-height: 38;
+    -fx-background-color: white;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.timetable-primary-button {
+    -fx-background-color: #4C56CD;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 11 18;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.timetable-primary-button:hover {
+    -fx-background-color: #3D46B5;
+}
+
+.timetable-secondary-button {
+    -fx-background-color: #ECEEFC;
+    -fx-text-fill: #4C56CD;
+    -fx-font-weight: bold;
+    -fx-padding: 11 18;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.timetable-secondary-button:hover {
+    -fx-background-color: #DDE1FA;
+}
+
+.timetable-page .table-view {
+    -fx-background-color: white;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.timetable-page .table-view .column-header-background,
+.timetable-page .table-view .column-header,
+.timetable-page .table-view .filler {
+    -fx-background-color: #ECEEFC;
+}
+
+.timetable-page .table-view .column-header {
+    -fx-pref-height: 40;
+}
+
+.timetable-page .table-view .column-header .label {
+    -fx-text-fill: #17324D;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 10;
+}
+
+.timetable-page .table-row-cell {
+    -fx-cell-size: 40;
+}
+
+.timetable-page .table-row-cell:filled:hover {
+    -fx-background-color: #F0F1FD;
+}
+
+.timetable-page .table-row-cell:filled:selected {
+    -fx-background-color: #DDE1FA;
+}

@@ -108,6 +108,14 @@ public class StudentLayoutController {
 
                 controller.loadResults(loggedInUserId);
             }
+            if ("student-medical".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentMedicalController controller =
+                        loader.getController();
+
+                controller.loadMedical(loggedInUserId);
+            }
 
             contentArea.getChildren().setAll(root);
 

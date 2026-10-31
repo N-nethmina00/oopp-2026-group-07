@@ -1,17 +1,22 @@
+
 package com.fot.ams.controller;
+
+import com.fot.ams.dao.StudentCoursesDAO;
+import com.fot.ams.model.Course;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-public class StudentCoursesController {
+import java.sql.SQLException;
+import java.util.List;
 
-    /** type = "Theory" / "Practical" */
-    private record Course(String code, String name, String credits, String lecturer, String type) {}
+public class StudentCoursesController {
 
     @FXML private TableView<Course> tblCourses;
     @FXML private TableColumn<Course, String> colCode;
@@ -20,37 +25,111 @@ public class StudentCoursesController {
     @FXML private TableColumn<Course, String> colLecturer;
     @FXML private TableColumn<Course, String> colType;
 
+    private final StudentCoursesDAO dao =
+            new StudentCoursesDAO();
+
     @FXML
     private void initialize() {
-        colCode.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().code()));
-        colName.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().name()));
-        colCredits.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().credits()));
-        colLecturer.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().lecturer()));
-        colType.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().type()));
-        colType.setCellFactory(c -> badgeCell());
 
-        tblCourses.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        tblCourses.setPlaceholder(new Label("No records found"));
+        // Course Code
+        colCode.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getCourseCode()
+                )
+        );
 
-        // TODO: CourseDAO.findByStudent(...)
-        tblCourses.setItems(FXCollections.observableArrayList(
-                new Course("CS101", "Object Oriented Programming", "3", "Dr. Perera",     "Theory"),
-                new Course("MA101", "Discrete Mathematics",        "3", "Ms. Silva",      "Theory"),
-                new Course("DB201", "Database Systems",            "3", "Mr. Fernando",   "Practical"),
-                new Course("NW201", "Computer Networks",           "2", "Dr. Jayasinghe", "Theory"),
-                new Course("SE301", "Software Engineering",        "3", "Ms. Dias",       "Practical"),
-                new Course("EN101", "Technical English",           "2", "Mr. Kumara",     "Theory")));
+        // Course Name
+        colName.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getCourseName()
+                )
+        );
+
+        // Credits
+        colCredits.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        String.valueOf(
+                                data.getValue().getCredit()
+                        )
+                )
+        );
+
+        // Lecturer ID
+        colLecturer.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getLecturerId()
+                )
+        );
+
+        // Course Type
+        colType.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getType()
+                )
+        );
+
+        // Type badge styling
+        colType.setCellFactory(column -> badgeCell());
+
+        // Table settings
+        tblCourses.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
+        );
+
+        tblCourses.setPlaceholder(
+                new Label("No enrolled courses found")
+        );
     }
 
-    /** Type eka colour badge ekak widiyata pennanna */
+    // Load logged-in student's enrolled courses
+    public void loadCourses(String userId) {
+
+        try {
+
+            List<Course> courses =
+                    dao.getEnrolledCourses(userId);
+
+            tblCourses.setItems(
+                    FXCollections.observableArrayList(courses)
+            );
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            tblCourses.getItems().clear();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load enrolled courses."
+            ).showAndWait();
+        }
+    }
+
+    // Display Theory / Practical as coloured badges
     private TableCell<Course, String> badgeCell() {
+
         return new TableCell<>() {
-            @Override protected void updateItem(String s, boolean empty) {
-                super.updateItem(s, empty);
-                if (empty || s == null) { setGraphic(null); setText(null); return; }
-                Label l = new Label(s);
-                l.getStyleClass().addAll("badge", "badge-" + s.toLowerCase().replace(' ', '-'));
-                setGraphic(l);
+
+            @Override
+            protected void updateItem(String type, boolean empty) {
+
+                super.updateItem(type, empty);
+
+                if (empty || type == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+
+                Label badge = new Label(type);
+
+                badge.getStyleClass().addAll(
+                        "badge",
+                        "badge-" + type.toLowerCase().replace(' ', '-')
+                );
+
+                setGraphic(badge);
                 setText(null);
             }
         };

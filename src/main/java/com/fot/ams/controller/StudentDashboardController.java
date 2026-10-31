@@ -17,7 +17,7 @@ public class StudentDashboardController {
 
     private record Slot(String time, String code, String name, String hall, String status) {}
 
-    @FXML private Label lblCourses, lblAttendance, lblGpa, lblPending;
+    @FXML private Label lblCourses,lblGpa;
     @FXML private TableView<Slot> tblToday;
     @FXML private TableColumn<Slot, String> colTime;
     @FXML private TableColumn<Slot, String> colCode;

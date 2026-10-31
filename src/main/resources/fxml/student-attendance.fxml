@@ -3,41 +3,92 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.fot.ams.controller.StudentAttendanceController"
-      stylesheets="@../css/student-attendance.css" styleClass="page" spacing="20">
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.StudentAttendanceController"
+            stylesheets="@../css/student-attendance.css"
+            fitToWidth="true" hbarPolicy="NEVER">
 
-    <VBox spacing="4">
-        <Label text="ATTENDANCE" styleClass="page-heading"/>
-        <Label text="Check your attendance for each course" styleClass="page-subtitle"/>
-    </VBox>
+    <VBox styleClass="page" spacing="18">
 
-    <HBox spacing="12" alignment="BOTTOM_LEFT">
-        <VBox spacing="6">
-            <Label text="COURSE" styleClass="field-label"/>
-            <ComboBox fx:id="cmbCourse" prefWidth="280" styleClass="form-control"/>
+        <!-- ===== Heading ===== -->
+        <VBox spacing="4">
+            <Label text="ATTENDANCE" styleClass="page-heading"/>
+            <Label text="Check your attendance for each course" styleClass="page-subtitle"/>
         </VBox>
-        <Button text="Search" onAction="#handleSearch" styleClass="primary-button"/>
-    </HBox>
 
-    <VBox styleClass="section-card" spacing="10">
-        <HBox alignment="CENTER_LEFT" spacing="14">
-            <Label text="ATTENDANCE" styleClass="stat-label"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="lblCount" text="Present 24 / 28" styleClass="hint-label"/>
+        <!-- ===== Course selector ===== -->
+        <HBox spacing="12" alignment="BOTTOM_LEFT">
+            <VBox spacing="6">
+                <Label text="COURSE" styleClass="field-label"/>
+                <ComboBox fx:id="cmbCourse" prefWidth="300" styleClass="form-control"/>
+            </VBox>
+            <Button text="Search" onAction="#handleSearch" styleClass="primary-button"/>
         </HBox>
-        <Label fx:id="lblPercent" text="86%" styleClass="stat-value"/>
-        <ProgressBar fx:id="barAttendance" progress="0.86" maxWidth="Infinity" prefHeight="14"/>
-    </VBox>
 
-    <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
-        <Label text="Attendance Records" styleClass="section-title"/>
-        <TableView fx:id="tblAttendance" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colDate" text="Date"/>
-            <TableColumn fx:id="colSession" text="Session"/>
-            <TableColumn fx:id="colStatus" text="Status"/>
-        </columns>
-        </TableView>
+        <!-- ===== 4 summary cards ===== -->
+        <HBox spacing="16">
+            <VBox styleClass="stat-card, blue-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                <Label text="TOTAL SESSIONS" styleClass="stat-label"/>
+                <Label fx:id="lblTotal" text="0" styleClass="stat-value"/>
+                <Label text="Sessions held" styleClass="stat-hint"/>
+            </VBox>
+            <VBox styleClass="stat-card, green-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                <Label text="PRESENT" styleClass="stat-label"/>
+                <Label fx:id="lblPresent" text="0" styleClass="stat-value"/>
+                <Label text="Attended" styleClass="stat-hint"/>
+            </VBox>
+            <VBox styleClass="stat-card, red-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                <Label text="ABSENT" styleClass="stat-label"/>
+                <Label fx:id="lblAbsent" text="0" styleClass="stat-value"/>
+                <Label text="Missed" styleClass="stat-hint"/>
+            </VBox>
+            <VBox styleClass="stat-card, orange-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                <Label text="MEDICAL" styleClass="stat-label"/>
+                <Label fx:id="lblMedical" text="0" styleClass="stat-value"/>
+                <Label text="Medical leave" styleClass="stat-hint"/>
+            </VBox>
+        </HBox>
+
+        <!-- ===== Overall attendance ===== -->
+        <VBox styleClass="section-card" spacing="12">
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <VBox spacing="2">
+                    <Label text="OVERALL ATTENDANCE" styleClass="stat-label"/>
+                    <Label fx:id="lblPercent" text="0%" styleClass="big-percent"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblEligibility" text="-" styleClass="badge"/>
+            </HBox>
+            <ProgressBar fx:id="barAttendance" progress="0" maxWidth="Infinity" prefHeight="14"/>
+            <Label text="Minimum required attendance: 80%" styleClass="hint-label"/>
+        </VBox>
+
+        <!-- ===== Percentage by session type (replaces the records table) ===== -->
+        <VBox styleClass="section-card" spacing="16">
+            <Label text="Attendance by Session Type" styleClass="section-title"/>
+
+            <HBox spacing="32">
+                <VBox spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="LECTURES" styleClass="field-label"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblLecturePercent" text="0%" styleClass="percent-value"/>
+                    </HBox>
+                    <ProgressBar fx:id="barLecture" progress="0" maxWidth="Infinity" prefHeight="12"/>
+                    <Label fx:id="lblLecture" text="Present 0 / 0" styleClass="hint-label"/>
+                </VBox>
+
+                <VBox spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="PRACTICALS" styleClass="field-label"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblPracticalPercent" text="0%" styleClass="percent-value"/>
+                    </HBox>
+                    <ProgressBar fx:id="barPractical" progress="0" maxWidth="Infinity" prefHeight="12"/>
+                    <Label fx:id="lblPractical" text="Present 0 / 0" styleClass="hint-label"/>
+                </VBox>
+            </HBox>
+        </VBox>
+
     </VBox>
-</VBox>
+</ScrollPane>

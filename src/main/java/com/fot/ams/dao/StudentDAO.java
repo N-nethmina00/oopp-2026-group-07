@@ -1,5 +1,5 @@
-
 package com.fot.ams.dao;
+
 
 import com.fot.ams.util.DBConnection;
 
@@ -41,7 +41,6 @@ public class StudentDAO {
             try (ResultSet rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-
                     students.add(new String[]{
                             rs.getString("reg_no"),
                             rs.getString("course_code"),
@@ -56,3 +55,4 @@ public class StudentDAO {
         return students;
     }
 }
+

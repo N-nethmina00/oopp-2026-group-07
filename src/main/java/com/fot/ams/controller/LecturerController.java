@@ -1983,23 +1983,281 @@ public class LecturerController {
     }
 
 
+
     @FXML
     private void showAttendance() {
         displayPage(
                 "Attendance",
-                "View student attendance records.",
+                "View recorded attendance for students in your assigned courses.",
                 attendanceBtn
         );
+
+        Label heading = new Label("Student Attendance Records");
+
+        heading.setStyle(
+                "-fx-font-size: 20px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #17324D;"
+        );
+
+        // Course selection
+        ComboBox<String> courseComboBox = new ComboBox<>();
+        courseComboBox.setPromptText("Select Your Course");
+        courseComboBox.setPrefWidth(300);
+
+        // Attendance table
+        TableView<String[]> attendanceTable = createTable(
+                "Select a course to view recorded attendance.",
+                "Registration No",
+                "Session Date",
+                "Session Type",
+                "Time",
+                "Status"
+        );
+
+        attendanceTable.setPrefHeight(450);
+
+
+        // Load attendance when course is selected
+        courseComboBox.setOnAction(event -> {
+
+            String courseCode = courseComboBox.getValue();
+
+            attendanceTable.getItems().clear();
+
+            if (courseCode == null) {
+                return;
+            }
+
+            try {
+                LecturerRecordsDAO dao = new LecturerRecordsDAO();
+
+                List<String[]> records =
+                        dao.getAttendanceByLecturerCourse(
+                                lecturerId,
+                                courseCode
+                        );
+
+                attendanceTable.getItems().setAll(records);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+
+                new Alert(
+                        Alert.AlertType.ERROR,
+                        "Unable to load attendance records: "
+                                + e.getMessage()
+                ).showAndWait();
+            }
+        });
+
+        // Display page
+        contentArea.getChildren().addAll(
+                heading,
+                new Label("Select Course Module"),
+                courseComboBox,
+                attendanceTable
+        );
+
+        // Load lecturer's assigned courses
+        try {
+            CourseDAO courseDAO = new CourseDAO();
+
+            List<Course> courses =
+                    courseDAO.getCourseModelsByLecturer(lecturerId);
+
+            for (Course course : courses) {
+                courseComboBox.getItems().add(
+                        course.getCourseCode()
+                );
+            }
+
+            if (!courseComboBox.getItems().isEmpty()) {
+                courseComboBox.getSelectionModel().selectFirst();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load assigned courses."
+            ).showAndWait();
+        }
     }
+
+
 
     @FXML
     private void showMedicals() {
+
         displayPage(
                 "Medical Records",
-                "View student medical information.",
+                "View medical records for students in your assigned courses.",
                 medicalsBtn
         );
+
+        Label heading = new Label("Student Medical Records");
+
+        heading.setStyle(
+                "-fx-font-size: 20px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #17324D;"
+        );
+
+        // Course selection
+        ComboBox<String> courseComboBox = new ComboBox<>();
+        courseComboBox.setPromptText("Select Your Course");
+        courseComboBox.setPrefWidth(300);
+
+        // Medical status filter
+        ComboBox<String> statusFilter = new ComboBox<>();
+
+        statusFilter.getItems().addAll(
+                "All Statuses",
+                "Pending",
+                "Approved",
+                "Rejected"
+        );
+
+        statusFilter.setValue("All Statuses");
+        statusFilter.setPrefWidth(180);
+
+        HBox filters = new HBox(
+                12,
+                new Label("Course:"),
+                courseComboBox,
+                new Label("Status:"),
+                statusFilter
+        );
+
+        filters.setAlignment(
+                javafx.geometry.Pos.CENTER_LEFT
+        );
+
+        // Medical Records Table
+        TableView<String[]> medicalTable = createTable(
+                "Select a course to view student medical records.",
+                "Medical ID",
+                "Registration No",
+                "Date",
+                "Reason",
+                "Status"
+        );
+
+        medicalTable.setPrefHeight(450);
+
+        // Hide internal Medical ID
+        medicalTable.getColumns().get(0).setVisible(false);
+
+        // Load medical records and apply filters
+        Runnable reload = () -> {
+
+            medicalTable.getItems().clear();
+
+            String courseCode = courseComboBox.getValue();
+
+            if (courseCode == null) {
+                return;
+            }
+
+            try {
+                LecturerRecordsDAO dao =
+                        new LecturerRecordsDAO();
+
+                List<String[]> rows = new ArrayList<>();
+
+                String selectedStatus = statusFilter.getValue();
+
+                List<MedicalRecord> medicalRecords =
+                        dao.getMedicalsByLecturerCourse(
+                                lecturerId,
+                                courseCode
+                        );
+
+                for (MedicalRecord record : medicalRecords) {
+
+                    if (!"All Statuses".equals(selectedStatus)
+                            && !Objects.equals(
+                            selectedStatus,
+                            record.getStatus()
+                    )) {
+                        continue;
+                    }
+
+                    rows.add(new String[]{
+                            String.valueOf(record.getMedicalId()),
+                            record.getRegNo(),
+                            record.getMedicalDate() == null
+                                    ? ""
+                                    : record.getMedicalDate().toString(),
+                            record.getReason(),
+                            record.getStatus()
+                    });
+                }
+
+                medicalTable.getItems().setAll(rows);
+
+            } catch (SQLException e) {
+
+                e.printStackTrace();
+
+                new Alert(
+                        Alert.AlertType.ERROR,
+                        "Unable to load medical records: "
+                                + e.getMessage()
+                ).showAndWait();
+            }
+        };
+
+        // Refresh when course changes
+        courseComboBox.setOnAction(
+                event -> reload.run()
+        );
+
+        // Refresh when status filter changes
+        statusFilter.setOnAction(
+                event -> reload.run()
+        );
+
+        contentArea.getChildren().addAll(
+                heading,
+                filters,
+                medicalTable
+        );
+
+        // Load courses assigned to logged-in lecturer
+        try {
+
+            CourseDAO courseDAO = new CourseDAO();
+
+            List<Course> courses =
+                    courseDAO.getCourseModelsByLecturer(
+                            lecturerId
+                    );
+
+            for (Course course : courses) {
+
+                courseComboBox.getItems().add(
+                        course.getCourseCode()
+                );
+            }
+
+            if (!courseComboBox.getItems().isEmpty()) {
+                courseComboBox.getSelectionModel().selectFirst();
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load assigned courses."
+            ).showAndWait();
+        }
     }
+
 
 
     @FXML

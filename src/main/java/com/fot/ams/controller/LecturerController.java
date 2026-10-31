@@ -232,27 +232,79 @@ public class LecturerController {
                 dashboardBtn
         );
 
-        // Statistic cards
+        LecturerDashboardDAO dashboardDAO =
+                new LecturerDashboardDAO();
+
+        String studentsCount = "—";
+        String pendingMarksCount = "—";
+        String materialsCount = "—";
+
+        List<String[]> teachingSessions =
+                new java.util.ArrayList<>();
+
+        List<String[]> studentRecords =
+                new java.util.ArrayList<>();
+
+        // Load real dashboard data
+        try {
+            studentsCount = String.valueOf(
+                    dashboardDAO.countStudents(lecturerId)
+            );
+
+            pendingMarksCount = String.valueOf(
+                    dashboardDAO.countPendingMarks(lecturerId)
+            );
+
+            materialsCount = String.valueOf(
+                    dashboardDAO.countMaterials(lecturerId)
+            );
+
+            teachingSessions =
+                    dashboardDAO.getTeachingSessions(lecturerId);
+
+            studentRecords =
+                    dashboardDAO.getStudentOverview(lecturerId);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load some lecturer dashboard data."
+            ).showAndWait();
+        }
+
+        // Dashboard statistic cards
         HBox statsRow = new HBox(15);
 
         statsRow.getChildren().addAll(
+
                 createStatCard(
                         "My Courses",
                         loadMyCoursesCount(),
                         "Assigned courses"
                 ),
+
                 createStatCard(
-                        "Students", "—", "Enrolled"
+                        "Students",
+                        studentsCount,
+                        "Enrolled students"
                 ),
+
                 createStatCard(
-                        "Pending Marks", "—", "To complete"
+                        "Pending Marks",
+                        pendingMarksCount,
+                        "Incomplete results"
                 ),
+
                 createStatCard(
-                        "Materials", "—", "Uploaded"
+                        "Materials",
+                        materialsCount,
+                        "Uploaded materials"
                 )
         );
 
-        // Teaching schedule
+        // Teaching Schedule
         Label scheduleTitle =
                 new Label("Teaching Schedule");
 
@@ -262,13 +314,19 @@ public class LecturerController {
                         "-fx-text-fill: #17324D;"
         );
 
-        TableView<String[]> scheduleTable =
-                createTable(
-                        "No teaching schedule loaded",
-                        "Day", "Time", "Course", "Location"
-                );
+        TableView<String[]> scheduleTable = createTable(
+                "No teaching sessions found.",
+                "Day / Date",
+                "Time",
+                "Course",
+                "Session Type"
+        );
 
-        // Students overview
+        scheduleTable.setPrefHeight(250);
+
+        scheduleTable.getItems().setAll(teachingSessions);
+
+        // Students Overview
         Label studentsTitle =
                 new Label("Students Overview");
 
@@ -278,14 +336,18 @@ public class LecturerController {
                         "-fx-text-fill: #17324D;"
         );
 
-        TableView<String[]> studentsTable =
-                createTable(
-                        "No student records loaded",
-                        "ID", "Name", "Course",
-                        "Status", "Action"
-                );
+        TableView<String[]> studentsTable = createTable(
+                "No enrolled students found.",
+                "Registration No",
+                "Student Name",
+                "Course",
+                "Status"
+        );
 
-        // Add dashboard elements
+        studentsTable.setPrefHeight(350);
+
+        studentsTable.getItems().setAll(studentRecords);
+
         contentArea.setSpacing(22);
 
         contentArea.getChildren().addAll(
@@ -296,6 +358,7 @@ public class LecturerController {
                 studentsTable
         );
     }
+
 
 
     @FXML

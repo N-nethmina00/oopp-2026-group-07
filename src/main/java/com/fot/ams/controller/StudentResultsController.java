@@ -1,59 +1,219 @@
+
 package com.fot.ams.controller;
+
+import com.fot.ams.dao.StudentResultsDAO;
+import com.fot.ams.model.Student;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import java.util.List;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Locale;
+
 public class StudentResultsController {
 
-    private record Result(String code, String name, int credits, String grade, double gp) {}
+    @FXML private ComboBox<String> cmbYear;
+    @FXML private ComboBox<String> cmbSemester;
 
-    @FXML private ComboBox<String> cmbYear, cmbSemester;
-    @FXML private TableView<Result> tblResults;
-    @FXML private TableColumn<Result, String> colCode;
-    @FXML private TableColumn<Result, String> colName;
-    @FXML private TableColumn<Result, String> colCredits;
-    @FXML private TableColumn<Result, String> colGrade;
-    @FXML private TableColumn<Result, String> colGp;
+    @FXML private TableView<Student.CourseResult> tblResults;
+
+    @FXML private TableColumn<Student.CourseResult, String> colCode;
+    @FXML private TableColumn<Student.CourseResult, String> colName;
+    @FXML private TableColumn<Student.CourseResult, String> colCredits;
+    @FXML private TableColumn<Student.CourseResult, String> colGrade;
+    @FXML private TableColumn<Student.CourseResult, String> colGp;
+
     @FXML private Label lblGpa;
-    private final ObservableList<Result> data = FXCollections.observableArrayList();
+
+    private String loggedInUserId;
+    private int semesterCount;
+
+    private final StudentResultsDAO resultsDAO =
+            new StudentResultsDAO();
 
     @FXML
     private void initialize() {
-        cmbYear.getItems().addAll("2024", "2025", "2026");
-        cmbYear.getSelectionModel().select("2026");
-        cmbSemester.getItems().addAll("Semester 1", "Semester 2");
-        cmbSemester.getSelectionModel().selectFirst();
-        colCode.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().code()));
-        colName.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().name()));
-        colCredits.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().credits())));
-        colGrade.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().grade()));
-        colGp.setCellValueFactory(d -> new SimpleStringProperty(String.format("%.1f", d.getValue().gp())));
-        tblResults.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        tblResults.setPlaceholder(new Label("No records found"));
-        tblResults.setItems(data);
-        handleView();
+
+        colCode.setCellValueFactory(d ->
+                new SimpleStringProperty(
+                        d.getValue().getCourseCode()
+                )
+        );
+
+        colName.setCellValueFactory(d ->
+                new SimpleStringProperty(
+                        d.getValue().getCourseName()
+                )
+        );
+
+        colCredits.setCellValueFactory(d ->
+                new SimpleStringProperty(
+                        String.valueOf(d.getValue().getCredits())
+                )
+        );
+
+        colGrade.setCellValueFactory(d ->
+                new SimpleStringProperty(
+                        d.getValue().getGrade()
+                )
+        );
+
+        colGp.setCellValueFactory(d -> {
+
+            Double gp = d.getValue().getGradePoint();
+
+            return new SimpleStringProperty(
+                    gp == null ? "N/A"
+                            : String.format(Locale.US, "%.2f", gp)
+            );
+        });
+
+        tblResults.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
+        );
+
+        tblResults.setPlaceholder(
+                new Label("No results available")
+        );
+
+        lblGpa.setText("N/A");
+
+        // Update semesters when year changes
+        cmbYear.valueProperty().addListener(
+                (obs, oldYear, newYear) -> {
+
+                    cmbSemester.getItems().clear();
+                    tblResults.getItems().clear();
+                    lblGpa.setText("N/A");
+
+                    if (loggedInUserId != null
+                            && newYear != null) {
+
+                        loadSemesters(newYear);
+                    }
+                }
+        );
+    }
+
+    // Logged-in user ID from Layout Controller
+    public void loadResults(String userId) {
+
+        loggedInUserId = userId;
+
+        try {
+
+            semesterCount =
+                    resultsDAO.getSemesterCount(userId);
+
+            List<String> years =
+                    resultsDAO.getAcademicYears(userId);
+
+            cmbYear.getItems().setAll(years);
+
+            if (!years.isEmpty()) {
+                cmbYear.getSelectionModel().selectFirst();
+            } else {
+                cmbSemester.getItems().clear();
+                tblResults.getItems().clear();
+                lblGpa.setText("N/A");
+            }
+
+        } catch (SQLException e) {
+            showError(e);
+        }
+    }
+
+    private void loadSemesters(String year) {
+
+        try {
+
+            List<String> semesters =
+                    resultsDAO.getSemesters(
+                            loggedInUserId, year
+                    );
+
+            cmbSemester.getItems().setAll(semesters);
+
+            if (!semesters.isEmpty()) {
+                cmbSemester.getSelectionModel().selectFirst();
+                handleView();
+            }
+
+        } catch (SQLException e) {
+            showError(e);
+        }
     }
 
     @FXML
     private void handleView() {
-        // TODO: ResultDAO.find(year, semester, studentId)
-        List<Result> rows = "Semester 1".equals(cmbSemester.getValue())
-                ? List.of(new Result("CS101", "Object Oriented Programming", 3, "A",  4.0),
-                          new Result("MA101", "Discrete Mathematics",        3, "B+", 3.3),
-                          new Result("DB201", "Database Systems",            3, "A-", 3.7),
-                          new Result("NW201", "Computer Networks",           2, "B",  3.0),
-                          new Result("EN101", "Technical English",           2, "B+", 3.3))
-                : List.of(new Result("SE301", "Software Engineering", 3, "A", 4.0),
-                          new Result("CS202", "Data Structures",      3, "B", 3.0));
-        data.setAll(rows);
 
-        double pts = 0;
-        int credits = 0;
-        for (Result r : data) { pts += r.credits() * r.gp(); credits += r.credits(); }
-        lblGpa.setText(credits == 0 ? "-" : String.format("%.2f", pts / credits));
+        String year = cmbYear.getValue();
+        String semester = cmbSemester.getValue();
+
+        if (loggedInUserId == null
+                || year == null
+                || semester == null) {
+
+            tblResults.getItems().clear();
+            lblGpa.setText("N/A");
+            return;
+        }
+
+        try {
+
+            Student student =
+                    resultsDAO.getStudentResults(
+                            loggedInUserId,
+                            year,
+                            semester
+                    );
+
+            tblResults.setItems(
+                    FXCollections.observableArrayList(
+                            student.getSemesterResults()
+                    )
+            );
+
+            Double gpa = student.getGpa();
+
+            lblGpa.setText(
+                    gpa == null ? "N/A"
+                            : String.format(Locale.US, "%.2f", gpa)
+            );
+
+            if (semesterCount > 1) {
+
+                tblResults.setPlaceholder(new Label(
+                        "Course grades cannot be assigned " +
+                                "to a specific semester with " +
+                                "the current database structure."
+                ));
+
+            } else {
+
+                tblResults.setPlaceholder(
+                        new Label("No course grades available")
+                );
+            }
+
+        } catch (SQLException e) {
+
+            tblResults.getItems().clear();
+            lblGpa.setText("N/A");
+            showError(e);
+        }
+    }
+
+    private void showError(SQLException e) {
+
+        e.printStackTrace();
+
+        new Alert(
+                Alert.AlertType.ERROR,
+                "Database Error: " + e.getMessage()
+        ).showAndWait();
     }
 }

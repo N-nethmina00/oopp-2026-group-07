@@ -3,6 +3,7 @@ package com.fot.ams.controller;
 
 
 import com.fot.ams.dao.*;
+import com.fot.ams.model.*;
 
 import com.fot.ams.model.EligibilityRecord;
 import com.fot.ams.model.Notice;
@@ -13,6 +14,12 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
+import javafx.scene.shape.Circle;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 import java.awt.Desktop;
 import java.io.*;
@@ -20,9 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.sql.SQLException;
 import java.util.*;
-
-
-
 
 
 public class LecturerController {
@@ -293,14 +297,223 @@ public class LecturerController {
         );
     }
 
+
     @FXML
     private void showProfile() {
+
         displayPage(
                 "My Profile",
-                "Lecturer profile management.",
+                "View your personal and academic information.",
                 profileBtn
         );
+
+        Label heading = new Label("Lecturer Profile");
+
+        heading.setStyle(
+                "-fx-font-size: 22px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #17324D;"
+        );
+
+        try {
+
+            LecturerProfileDAO dao =
+                    new LecturerProfileDAO();
+
+            Lecturer lecturer =
+                    dao.getLecturerProfile(lecturerId);
+
+            if (lecturer == null) {
+                new Alert(
+                        Alert.AlertType.WARNING,
+                        "Lecturer profile not found."
+                ).showAndWait();
+                return;
+            }
+
+            User user = lecturer.getUser();
+
+            GridPane profileGrid = new GridPane();
+            profileGrid.setHgap(25);
+            profileGrid.setVgap(18);
+            profileGrid.setPadding(new Insets(25));
+
+            String[][] details = {
+                    {"Lecturer ID", lecturer.getLecturerId()},
+                    {"Full Name", user.getFullName()},
+                    {"Username", user.getUsername()},
+                    {"Email Address", user.getEmail()},
+                    {"Department", lecturer.getDepartmentName()},
+                    {"Role", user.getRole()}
+            };
+
+            for (int i = 0; i < details.length; i++) {
+
+                Label fieldName = new Label(details[i][0]);
+
+                fieldName.setStyle(
+                        "-fx-font-weight: bold;" +
+                                "-fx-text-fill: #526174;" +
+                                "-fx-font-size: 13px;"
+                );
+
+                Label fieldValue = new Label(
+                        details[i][1] == null
+                                ? "Not Available"
+                                : details[i][1]
+                );
+
+                fieldValue.setWrapText(true);
+
+                fieldValue.setStyle(
+                        "-fx-text-fill: #17324D;" +
+                                "-fx-font-size: 14px;"
+                );
+
+                profileGrid.add(fieldName, 0, i);
+                profileGrid.add(fieldValue, 1, i);
+            }
+
+            VBox profileCard = new VBox(15);
+            profileCard.setPadding(new Insets(20));
+
+            profileCard.setStyle(
+                    "-fx-background-color: white;" +
+                            "-fx-background-radius: 10;" +
+                            "-fx-border-color: #D5DCE5;" +
+                            "-fx-border-radius: 10;"
+            );
+
+            profileCard.getChildren().add(profileGrid);
+
+
+            String profileImagePath =
+                    dao.getProfileImagePath(lecturerId);
+
+// Show profile picture above the details
+            profileCard.getChildren().add(
+                    0,
+                    createLecturerPhoto(profileImagePath)
+            );
+
+// Edit Profile button
+            Button editProfileButton =
+                    new Button("Edit My Profile");
+
+            editProfileButton.setStyle(
+                    "-fx-background-color: #4c56cd;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 8;" +
+                            "-fx-padding: 11 20;"
+            );
+
+            editProfileButton.setOnAction(
+                    event -> showEditProfileDialog(lecturer)
+            );
+
+
+            contentArea.getChildren().addAll(
+                    heading,
+                    profileCard,
+                    editProfileButton
+            );
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load lecturer profile."
+            ).showAndWait();
+        }
     }
+
+    private javafx.scene.Node createLecturerPhoto(String storedPath) {
+
+        final double size = 120;
+
+        if (storedPath != null && !storedPath.isBlank()) {
+
+            Path root = Paths.get(
+                    System.getProperty("user.dir")
+            ).toAbsolutePath().normalize();
+
+            Path folder = root.resolve(
+                    "uploads/profiles"
+            ).normalize();
+
+            Path imagePath = root.resolve(storedPath).normalize();
+
+            if (imagePath.startsWith(folder) &&
+                    Files.isRegularFile(imagePath)) {
+
+                Image image = new Image(
+                        imagePath.toUri().toString()
+                );
+
+                if (!image.isError()) {
+
+                    ImageView imageView = new ImageView(image);
+
+                    // Crop the image to a centered square
+                    double imageWidth = image.getWidth();
+                    double imageHeight = image.getHeight();
+
+                    double cropSize = Math.min(
+                            imageWidth, imageHeight
+                    );
+
+                    imageView.setViewport(new Rectangle2D(
+                            (imageWidth - cropSize) / 2,
+                            (imageHeight - cropSize) / 2,
+                            cropSize,
+                            cropSize
+                    ));
+
+                    imageView.setFitWidth(size);
+                    imageView.setFitHeight(size);
+                    imageView.setPreserveRatio(true);
+                    imageView.setSmooth(true);
+
+                    // Make profile picture circular
+                    Circle circle = new Circle(
+                            size / 2,
+                            size / 2,
+                            size / 2
+                    );
+
+                    imageView.setClip(circle);
+
+                    return imageView;
+                }
+            }
+        }
+
+        // Circular placeholder when no picture exists
+        Label placeholder = new Label("👤");
+
+        placeholder.setAlignment(
+                javafx.geometry.Pos.CENTER
+        );
+
+        placeholder.setPrefSize(size, size);
+        placeholder.setMinSize(size, size);
+        placeholder.setMaxSize(size, size);
+
+        placeholder.setStyle(
+                "-fx-background-color: #E8EAFB;" +
+                        "-fx-background-radius: 60;" +
+                        "-fx-font-size: 42px;" +
+                        "-fx-text-fill: #4c56cd;"
+        );
+
+        return placeholder;
+    }
+
+
+
 
     @FXML
 
@@ -2016,4 +2229,268 @@ public class LecturerController {
         }
     }
 
+
+    private void showEditProfileDialog(Lecturer lecturer) {
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Edit My Profile");
+        dialog.setHeaderText("Update Lecturer Profile");
+
+        TextField usernameField =
+                new TextField(lecturer.getUser().getUsername());
+
+        PasswordField currentPasswordField = new PasswordField();
+        currentPasswordField.setPromptText("Enter current password");
+
+        PasswordField newPasswordField = new PasswordField();
+        newPasswordField.setPromptText("Leave blank to keep password");
+
+        PasswordField confirmPasswordField = new PasswordField();
+        confirmPasswordField.setPromptText("Confirm new password");
+
+        Label pictureLabel = new Label("No new picture selected");
+
+        final File[] selectedPicture = {null};
+
+        Button choosePictureButton =
+                new Button("Choose Profile Picture");
+
+        choosePictureButton.setOnAction(event -> {
+
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Select Profile Picture");
+
+            chooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter(
+                            "Image Files",
+                            "*.png", "*.jpg", "*.jpeg"
+                    )
+            );
+
+            File file = chooser.showOpenDialog(
+                    contentArea.getScene().getWindow()
+            );
+
+            if (file != null) {
+                selectedPicture[0] = file;
+                pictureLabel.setText(file.getName());
+            }
+        });
+
+        VBox form = new VBox(10);
+        form.setPadding(new Insets(18));
+
+        form.getChildren().addAll(
+                new Label("Username"),
+                usernameField,
+                new Label("Current Password"),
+                currentPasswordField,
+                new Label("New Password (Optional)"),
+                newPasswordField,
+                new Label("Confirm New Password"),
+                confirmPasswordField,
+                new Label("Profile Picture (Optional)"),
+                choosePictureButton,
+                pictureLabel
+        );
+
+        dialog.getDialogPane().setContent(form);
+        dialog.getDialogPane().setPrefWidth(450);
+
+        ButtonType saveType = new ButtonType(
+                "Save Changes",
+                ButtonBar.ButtonData.OK_DONE
+        );
+
+        dialog.getDialogPane().getButtonTypes().addAll(
+                saveType,
+                ButtonType.CANCEL
+        );
+
+        Button saveButton = (Button)
+                dialog.getDialogPane().lookupButton(saveType);
+
+        final boolean[] saved = {false};
+
+        saveButton.addEventFilter(
+                javafx.event.ActionEvent.ACTION,
+                event -> {
+
+                    Path copiedFile = null;
+
+                    try {
+
+                        String username =
+                                usernameField.getText().trim();
+
+                        String currentPassword =
+                                currentPasswordField.getText();
+
+                        String newPassword =
+                                newPasswordField.getText();
+
+                        String confirmPassword =
+                                confirmPasswordField.getText();
+
+                        if (!username.matches("[A-Za-z0-9._-]{3,50}")) {
+                            throw new IllegalArgumentException(
+                                    "Invalid username. Use 3-50 characters."
+                            );
+                        }
+
+                        if (currentPassword.isEmpty()) {
+                            throw new IllegalArgumentException(
+                                    "Current password is required."
+                            );
+                        }
+
+                        if (!newPassword.isEmpty()) {
+
+                            if (newPassword.isBlank() ||
+                                    newPassword.length() < 8) {
+
+                                throw new IllegalArgumentException(
+                                        "New password must have at least 8 characters."
+                                );
+                            }
+
+                            if (!newPassword.equals(confirmPassword)) {
+
+                                throw new IllegalArgumentException(
+                                        "Passwords do not match."
+                                );
+                            }
+
+                        } else if (!confirmPassword.isEmpty()) {
+
+                            throw new IllegalArgumentException(
+                                    "Enter a new password first."
+                            );
+                        }
+
+                        String newImagePath = null;
+
+                        if (selectedPicture[0] != null) {
+
+                            File source = selectedPicture[0];
+
+                            String name = source.getName()
+                                    .toLowerCase(java.util.Locale.ROOT);
+
+                            boolean png = name.endsWith(".png");
+                            boolean jpg = name.endsWith(".jpg")
+                                    || name.endsWith(".jpeg");
+
+                            if (!png && !jpg) {
+                                throw new IllegalArgumentException(
+                                        "Only PNG and JPG images allowed."
+                                );
+                            }
+
+                            long fileSize =
+                                    Files.size(source.toPath());
+
+                            if (fileSize == 0 ||
+                                    fileSize > 5L * 1024 * 1024) {
+
+                                throw new IllegalArgumentException(
+                                        "Image must be 5 MB or less."
+                                );
+                            }
+
+                            BufferedImage checkedImage =
+                                    ImageIO.read(source);
+
+                            if (checkedImage == null ||
+                                    checkedImage.getWidth() > 4096 ||
+                                    checkedImage.getHeight() > 4096) {
+
+                                throw new IllegalArgumentException(
+                                        "Invalid or oversized image."
+                                );
+                            }
+
+                            Path folder = Paths.get(
+                                    System.getProperty("user.dir"),
+                                    "uploads",
+                                    "profiles"
+                            );
+
+                            Files.createDirectories(folder);
+
+                            String filename = UUID.randomUUID() +
+                                    (png ? ".png" : ".jpg");
+
+                            copiedFile = folder.resolve(filename);
+
+                            Files.copy(
+                                    source.toPath(),
+                                    copiedFile
+                            );
+
+                            newImagePath =
+                                    "uploads/profiles/" + filename;
+                        }
+
+                        LecturerProfileDAO dao =
+                                new LecturerProfileDAO();
+
+                        boolean updated = dao.updateProfile(
+                                lecturer.getLecturerId(),
+                                username,
+                                currentPassword,
+                                newPassword,
+                                newImagePath
+                        );
+
+                        if (!updated) {
+                            throw new IllegalArgumentException(
+                                    "Current password is incorrect."
+                            );
+                        }
+
+                        saved[0] = true;
+
+                    } catch (Exception e) {
+
+                        if (copiedFile != null) {
+                            try {
+                                Files.deleteIfExists(copiedFile);
+                            } catch (IOException cleanupError) {
+                                e.addSuppressed(cleanupError);
+                            }
+                        }
+
+                        e.printStackTrace();
+
+                        String message =
+                                e instanceof java.sql.SQLIntegrityConstraintViolationException
+                                        ? "Username is already in use."
+                                        : e.getMessage();
+
+                        new Alert(
+                                Alert.AlertType.ERROR,
+                                "Unable to update profile: " + message
+                        ).showAndWait();
+
+                        event.consume();
+                    }
+                }
+        );
+
+        dialog.showAndWait();
+
+        if (saved[0]) {
+
+            new Alert(
+                    Alert.AlertType.INFORMATION,
+                    "Profile updated successfully!"
+            ).showAndWait();
+
+            showProfile();
+        }
+    }
+
+
 }
+

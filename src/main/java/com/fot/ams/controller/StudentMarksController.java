@@ -1,51 +1,144 @@
+
 package com.fot.ams.controller;
+
+import com.fot.ams.dao.StudentMarksDAO;
+import com.fot.ams.model.CAEvaluation;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Locale;
 
 public class StudentMarksController {
 
-    /** status = "Eligible" / "Not Eligible" / "Pending" */
-    private record Eligibility(String code, String name, String status) {}
+    @FXML
+    private TableView<CAEvaluation> tblMarks;
 
-    @FXML private TableView<Eligibility> tblMarks;
-    @FXML private TableColumn<Eligibility, String> colCode;
-    @FXML private TableColumn<Eligibility, String> colName;
-    @FXML private TableColumn<Eligibility, String> colEligibility;
+    @FXML
+    private TableColumn<CAEvaluation, String> colCode;
+
+    @FXML
+    private TableColumn<CAEvaluation, String> colName;
+
+    @FXML
+    private TableColumn<CAEvaluation, String> colEligibility;
+
+    private final StudentMarksDAO marksDAO =
+            new StudentMarksDAO();
 
     @FXML
     private void initialize() {
-        colCode.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().code()));
-        colName.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().name()));
-        colEligibility.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().status()));
-        colEligibility.setCellFactory(c -> badgeCell());
 
-        tblMarks.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        tblMarks.setPlaceholder(new Label("No records found"));
+        colCode.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getCourseCode()
+                )
+        );
 
-        // TODO: MarksDAO / EligibilityDAO eken real data ganna
-        tblMarks.setItems(FXCollections.observableArrayList(
-                new Eligibility("CS101", "Object Oriented Programming", "Eligible"),
-                new Eligibility("MA101", "Discrete Mathematics",        "Eligible"),
-                new Eligibility("DB201", "Database Systems",            "Eligible"),
-                new Eligibility("NW201", "Computer Networks",           "Not Eligible"),
-                new Eligibility("SE301", "Software Engineering",        "Pending")));
+        colName.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getCourseName()
+                )
+        );
+
+        colEligibility.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        getEligibilityText(data.getValue())
+                )
+        );
+
+        colEligibility.setCellFactory(
+                column -> badgeCell()
+        );
+
+        tblMarks.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
+        );
+
+        tblMarks.setPlaceholder(
+                new Label("No CA eligibility records found")
+        );
     }
 
-    /** Eligibility eka colour badge ekak widiyata pennanna */
-    private TableCell<Eligibility, String> badgeCell() {
+    // Get CA status from database model
+    private String getEligibilityText(CAEvaluation evaluation) {
+
+        String status = evaluation.getCaStatus();
+        Integer eligibility = evaluation.getEligibility();
+
+        if (status != null &&
+                status.equalsIgnoreCase("Pending Medical")) {
+            return "Pending";
+        }
+
+        if (eligibility == null) {
+            return "Pending";
+        }
+
+        if (eligibility == 1) {
+            return "Eligible";
+        }
+
+        return "Not Eligible";
+    }
+
+    // Load logged-in student's CA eligibility
+    public void loadMarks(String userId) {
+
+        try {
+
+            List<CAEvaluation> results =
+                    marksDAO.getStudentCAEligibility(userId);
+
+            tblMarks.setItems(
+                    FXCollections.observableArrayList(results)
+            );
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            tblMarks.getItems().clear();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load CA eligibility: "
+                            + e.getMessage()
+            ).showAndWait();
+        }
+    }
+
+    // Colour badges
+    private TableCell<CAEvaluation, String> badgeCell() {
+
         return new TableCell<>() {
-            @Override protected void updateItem(String s, boolean empty) {
-                super.updateItem(s, empty);
-                if (empty || s == null) { setGraphic(null); setText(null); return; }
-                Label l = new Label(s);
-                l.getStyleClass().addAll("badge", "badge-" + s.toLowerCase().replace(' ', '-'));
-                setGraphic(l);
+
+            @Override
+            protected void updateItem(
+                    String status, boolean empty) {
+
+                super.updateItem(status, empty);
+
+                if (empty || status == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+
+                Label label = new Label(status);
+
+                label.getStyleClass().addAll(
+                        "badge",
+                        "badge-" +
+                                status.toLowerCase(Locale.ROOT)
+                                        .replace(' ', '-')
+                );
+
+                setGraphic(label);
                 setText(null);
             }
         };

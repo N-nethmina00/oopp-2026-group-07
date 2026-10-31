@@ -1,4 +1,3 @@
-
 package com.fot.ams.controller;
 
 
@@ -609,10 +608,21 @@ public class LecturerController {
         CourseDAO courseDAO = new CourseDAO();
 
         try {
-            List<String[]> courses =
-                    courseDAO.getCoursesByLecturer(lecturerId);
+            List<Course> courses =
+                    courseDAO.getCourseModelsByLecturer(lecturerId);
 
-            coursesTable.getItems().setAll(courses);
+            List<String[]> rows = new ArrayList<>();
+
+            for (Course course : courses) {
+                rows.add(new String[]{
+                        course.getCourseCode(),
+                        course.getCourseName(),
+                        String.valueOf(course.getCredit()),
+                        course.getType()
+                });
+            }
+
+            coursesTable.getItems().setAll(rows);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -888,10 +898,24 @@ public class LecturerController {
         CourseMaterialDAO materialDAO = new CourseMaterialDAO();
 
         try {
-            List<String[]> materials =
-                    materialDAO.getMaterialsByLecturer(lecturerId);
+            List<CourseMaterial> materials =
+                    materialDAO.getMaterialModelsByLecturer(lecturerId);
 
-            materialsTable.getItems().setAll(materials);
+            List<String[]> rows = new ArrayList<>();
+
+            for (CourseMaterial material : materials) {
+                rows.add(new String[]{
+                        String.valueOf(material.getMaterialId()),
+                        material.getCourseCode(),
+                        material.getMaterialTitle(),
+                        material.getMaterialType(),
+                        material.getFileName(),
+                        material.getUploadedDate() == null
+                                ? "" : material.getUploadedDate().toString()
+                });
+            }
+
+            materialsTable.getItems().setAll(rows);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -910,242 +934,242 @@ public class LecturerController {
         );
     }
 
-        private void uploadMaterial() {
+    private void uploadMaterial() {
 
-            // Get assigned courses
-            ComboBox<String> courseComboBox = new ComboBox<>();
-            courseComboBox.setMaxWidth(Double.MAX_VALUE);
-            courseComboBox.setPromptText("Select Course");
+        // Get assigned courses
+        ComboBox<String> courseComboBox = new ComboBox<>();
+        courseComboBox.setMaxWidth(Double.MAX_VALUE);
+        courseComboBox.setPromptText("Select Course");
 
-            try {
-                CourseDAO courseDAO = new CourseDAO();
+        try {
+            CourseDAO courseDAO = new CourseDAO();
 
-                List<String[]> courses =
-                        courseDAO.getCoursesByLecturer(lecturerId);
+            List<Course> courses =
+                    courseDAO.getCourseModelsByLecturer(lecturerId);
 
-                for (String[] course : courses) {
-                    courseComboBox.getItems().add(course[0]);
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-
-                new Alert(
-                        Alert.AlertType.ERROR,
-                        "Unable to load assigned courses."
-                ).showAndWait();
-                return;
+            for (Course course : courses) {
+                courseComboBox.getItems().add(course.getCourseCode());
             }
 
-            if (courseComboBox.getItems().isEmpty()) {
-                new Alert(
-                        Alert.AlertType.INFORMATION,
-                        "No courses are assigned to this lecturer."
-                ).showAndWait();
-                return;
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
 
-            // Material title
-            TextField titleField = new TextField();
-            titleField.setPromptText("Enter material title");
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load assigned courses."
+            ).showAndWait();
+            return;
+        }
 
-            // Selected PDF
-            final File[] selectedPdf = {null};
+        if (courseComboBox.getItems().isEmpty()) {
+            new Alert(
+                    Alert.AlertType.INFORMATION,
+                    "No courses are assigned to this lecturer."
+            ).showAndWait();
+            return;
+        }
 
-            Label fileLabel = new Label("No PDF selected");
-            fileLabel.setWrapText(true);
+        // Material title
+        TextField titleField = new TextField();
+        titleField.setPromptText("Enter material title");
 
-            Button chooseFileButton = new Button("Choose PDF");
+        // Selected PDF
+        final File[] selectedPdf = {null};
 
-            chooseFileButton.setOnAction(event -> {
+        Label fileLabel = new Label("No PDF selected");
+        fileLabel.setWrapText(true);
 
-                FileChooser chooser = new FileChooser();
-                chooser.setTitle("Select Lecture PDF");
+        Button chooseFileButton = new Button("Choose PDF");
 
-                chooser.getExtensionFilters().add(
-                        new FileChooser.ExtensionFilter(
-                                "PDF Files", "*.pdf"
-                        )
-                );
+        chooseFileButton.setOnAction(event -> {
 
-                File file = chooser.showOpenDialog(
-                        contentArea.getScene().getWindow()
-                );
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Select Lecture PDF");
 
-                if (file != null) {
-                    selectedPdf[0] = file;
-                    fileLabel.setText(file.getName());
-                }
-            });
-
-            // Upload dialog layout
-            VBox form = new VBox(12);
-            form.setPadding(new Insets(15));
-
-            form.getChildren().addAll(
-                    new Label("Select Course"),
-                    courseComboBox,
-                    new Label("Material Title"),
-                    titleField,
-                    chooseFileButton,
-                    fileLabel
+            chooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter(
+                            "PDF Files", "*.pdf"
+                    )
             );
 
-            Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.setTitle("Upload Course Material");
-            dialog.setHeaderText("Add New PDF Material");
-
-            dialog.getDialogPane().setContent(form);
-
-            ButtonType uploadType = new ButtonType(
-                    "Upload",
-                    ButtonBar.ButtonData.OK_DONE
+            File file = chooser.showOpenDialog(
+                    contentArea.getScene().getWindow()
             );
 
-            dialog.getDialogPane()
-                    .getButtonTypes()
-                    .addAll(uploadType, ButtonType.CANCEL);
-
-            Optional<ButtonType> result = dialog.showAndWait();
-
-            if (result.isEmpty() ||
-                    result.get() != uploadType) {
-                return;
+            if (file != null) {
+                selectedPdf[0] = file;
+                fileLabel.setText(file.getName());
             }
+        });
 
-            String courseCode = courseComboBox.getValue();
-            String materialTitle = titleField.getText().trim();
+        // Upload dialog layout
+        VBox form = new VBox(12);
+        form.setPadding(new Insets(15));
 
-            // Validate input
-            if (courseCode == null ||
-                    materialTitle.isEmpty() ||
-                    selectedPdf[0] == null) {
+        form.getChildren().addAll(
+                new Label("Select Course"),
+                courseComboBox,
+                new Label("Material Title"),
+                titleField,
+                chooseFileButton,
+                fileLabel
+        );
 
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Upload Course Material");
+        dialog.setHeaderText("Add New PDF Material");
+
+        dialog.getDialogPane().setContent(form);
+
+        ButtonType uploadType = new ButtonType(
+                "Upload",
+                ButtonBar.ButtonData.OK_DONE
+        );
+
+        dialog.getDialogPane()
+                .getButtonTypes()
+                .addAll(uploadType, ButtonType.CANCEL);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+
+        if (result.isEmpty() ||
+                result.get() != uploadType) {
+            return;
+        }
+
+        String courseCode = courseComboBox.getValue();
+        String materialTitle = titleField.getText().trim();
+
+        // Validate input
+        if (courseCode == null ||
+                materialTitle.isEmpty() ||
+                selectedPdf[0] == null) {
+
+            new Alert(
+                    Alert.AlertType.WARNING,
+                    "Please select a course, enter a title, " +
+                            "and choose a PDF file."
+            ).showAndWait();
+            return;
+        }
+
+        if (materialTitle.length() > 150) {
+            new Alert(
+                    Alert.AlertType.WARNING,
+                    "Material title must be 150 characters or less."
+            ).showAndWait();
+            return;
+        }
+
+        File sourceFile = selectedPdf[0];
+
+        if (!sourceFile.getName().toLowerCase()
+                .endsWith(".pdf")) {
+            new Alert(
+                    Alert.AlertType.WARNING,
+                    "Only PDF files are allowed."
+            ).showAndWait();
+            return;
+        }
+
+        Path targetPath = null;
+
+        try {
+            // Maximum file size: 20 MB
+            long maxSize = 20L * 1024 * 1024;
+
+            long fileSize = Files.size(sourceFile.toPath());
+
+            if (fileSize == 0 || fileSize > maxSize) {
                 new Alert(
                         Alert.AlertType.WARNING,
-                        "Please select a course, enter a title, " +
-                                "and choose a PDF file."
+                        "PDF must be between 1 byte and 20 MB."
                 ).showAndWait();
                 return;
             }
 
-            if (materialTitle.length() > 150) {
-                new Alert(
-                        Alert.AlertType.WARNING,
-                        "Material title must be 150 characters or less."
-                ).showAndWait();
-                return;
-            }
+            // Basic PDF signature validation
+            try (InputStream input =
+                         Files.newInputStream(sourceFile.toPath())) {
 
-            File sourceFile = selectedPdf[0];
+                String signature = new String(
+                        input.readNBytes(5),
+                        StandardCharsets.US_ASCII
+                );
 
-            if (!sourceFile.getName().toLowerCase()
-                    .endsWith(".pdf")) {
-                new Alert(
-                        Alert.AlertType.WARNING,
-                        "Only PDF files are allowed."
-                ).showAndWait();
-                return;
-            }
-
-            Path targetPath = null;
-
-            try {
-                // Maximum file size: 20 MB
-                long maxSize = 20L * 1024 * 1024;
-
-                long fileSize = Files.size(sourceFile.toPath());
-
-                if (fileSize == 0 || fileSize > maxSize) {
+                if (!"%PDF-".equals(signature)) {
                     new Alert(
                             Alert.AlertType.WARNING,
-                            "PDF must be between 1 byte and 20 MB."
+                            "Selected file is not a valid PDF header."
                     ).showAndWait();
                     return;
                 }
-
-                // Basic PDF signature validation
-                try (InputStream input =
-                             Files.newInputStream(sourceFile.toPath())) {
-
-                    String signature = new String(
-                            input.readNBytes(5),
-                            StandardCharsets.US_ASCII
-                    );
-
-                    if (!"%PDF-".equals(signature)) {
-                        new Alert(
-                                Alert.AlertType.WARNING,
-                                "Selected file is not a valid PDF header."
-                        ).showAndWait();
-                        return;
-                    }
-                }
-
-                // Create upload directory
-                Path uploadDirectory = Paths.get(
-                        System.getProperty("user.dir"),
-                        "uploads",
-                        "materials"
-                );
-
-                Files.createDirectories(uploadDirectory);
-
-                // Unique filename prevents overwriting
-                String storedFileName =
-                        UUID.randomUUID() + ".pdf";
-
-                targetPath =
-                        uploadDirectory.resolve(storedFileName);
-
-                // Save PDF to local storage
-                Files.copy(
-                        sourceFile.toPath(),
-                        targetPath,
-                        StandardCopyOption.COPY_ATTRIBUTES
-                );
-
-                // Relative path stored in MySQL
-                String databasePath =
-                        "uploads/materials/" + storedFileName;
-
-                CourseMaterialDAO materialDAO = new CourseMaterialDAO();
-
-                materialDAO.addMaterial(
-                        lecturerId,
-                        courseCode,
-                        materialTitle,
-                        sourceFile.getName(),
-                        databasePath
-                );
-
-                new Alert(
-                        Alert.AlertType.INFORMATION,
-                        "PDF uploaded successfully!"
-                ).showAndWait();
-
-                // Refresh Course Materials table
-                showMaterials();
-
-            } catch (IOException | SQLException e) {
-
-                // Delete the copied file if database saving fails
-                if (targetPath != null) {
-                    try {
-                        Files.deleteIfExists(targetPath);
-                    } catch (IOException cleanupError) {
-                        e.addSuppressed(cleanupError);
-                    }
-                }
-
-                e.printStackTrace();
-
-                new Alert(
-                        Alert.AlertType.ERROR,
-                        "Unable to upload PDF: " + e.getMessage()
-                ).showAndWait();
             }
+
+            // Create upload directory
+            Path uploadDirectory = Paths.get(
+                    System.getProperty("user.dir"),
+                    "uploads",
+                    "materials"
+            );
+
+            Files.createDirectories(uploadDirectory);
+
+            // Unique filename prevents overwriting
+            String storedFileName =
+                    UUID.randomUUID() + ".pdf";
+
+            targetPath =
+                    uploadDirectory.resolve(storedFileName);
+
+            // Save PDF to local storage
+            Files.copy(
+                    sourceFile.toPath(),
+                    targetPath,
+                    StandardCopyOption.COPY_ATTRIBUTES
+            );
+
+            // Relative path stored in MySQL
+            String databasePath =
+                    "uploads/materials/" + storedFileName;
+
+            CourseMaterialDAO materialDAO = new CourseMaterialDAO();
+
+            materialDAO.addMaterial(
+                    lecturerId,
+                    courseCode,
+                    materialTitle,
+                    sourceFile.getName(),
+                    databasePath
+            );
+
+            new Alert(
+                    Alert.AlertType.INFORMATION,
+                    "PDF uploaded successfully!"
+            ).showAndWait();
+
+            // Refresh Course Materials table
+            showMaterials();
+
+        } catch (IOException | SQLException e) {
+
+            // Delete the copied file if database saving fails
+            if (targetPath != null) {
+                try {
+                    Files.deleteIfExists(targetPath);
+                } catch (IOException cleanupError) {
+                    e.addSuppressed(cleanupError);
+                }
+            }
+
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to upload PDF: " + e.getMessage()
+            ).showAndWait();
         }
+    }
 
 
 
@@ -1210,11 +1234,11 @@ public class LecturerController {
         try {
             CourseDAO courseDAO = new CourseDAO();
 
-            List<String[]> courses =
-                    courseDAO.getCoursesByLecturer(lecturerId);
+            List<Course> courses =
+                    courseDAO.getCourseModelsByLecturer(lecturerId);
 
-            for (String[] course : courses) {
-                courseComboBox.getItems().add(course[0]);
+            for (Course course : courses) {
+                courseComboBox.getItems().add(course.getCourseCode());
             }
 
         } catch (SQLException e) {
@@ -1897,11 +1921,11 @@ public class LecturerController {
 
             CourseDAO courseDAO = new CourseDAO();
 
-            List<String[]> courses =
-                    courseDAO.getCoursesByLecturer(lecturerId);
+            List<Course> courses =
+                    courseDAO.getCourseModelsByLecturer(lecturerId);
 
-            for (String[] course : courses) {
-                courseComboBox.getItems().add(course[0]);
+            for (Course course : courses) {
+                courseComboBox.getItems().add(course.getCourseCode());
             }
 
         } catch (SQLException e) {
@@ -2018,11 +2042,11 @@ public class LecturerController {
         try {
             CourseDAO courseDAO = new CourseDAO();
 
-            List<String[]> courses =
-                    courseDAO.getCoursesByLecturer(lecturerId);
+            List<Course> courses =
+                    courseDAO.getCourseModelsByLecturer(lecturerId);
 
-            for (String[] course : courses) {
-                courseComboBox.getItems().add(course[0]);
+            for (Course course : courses) {
+                courseComboBox.getItems().add(course.getCourseCode());
             }
 
         } catch (SQLException e) {
@@ -2048,28 +2072,49 @@ public class LecturerController {
             try {
                 MarksDAO marksDAO = new MarksDAO();
 
-                List<String[]> marks =
-                        marksDAO.getMarksByLecturerCourse(
-                                lecturerId,
-                                courseCode
+                List<Grade> grades =
+                        marksDAO.getGradeModelsByLecturerCourse(
+                                lecturerId, courseCode
                         );
 
-                List<String[]> results = new java.util.ArrayList<>();
+                List<Mark> markModels =
+                        marksDAO.getMarkModelsByLecturerCourse(
+                                lecturerId, courseCode
+                        );
 
-                for (String[] row : marks) {
+                List<CAEvaluation> caModels =
+                        marksDAO.getCAEvaluationsByLecturerCourse(
+                                lecturerId, courseCode
+                        );
 
-                    // Only display students with saved results
-                    if (row[11] == null || row[12] == null) {
+                Map<Integer, Mark> markByEnrollment = new HashMap<>();
+                for (Mark mark : markModels) {
+                    markByEnrollment.put(mark.getEnrollmentId(), mark);
+                }
+
+                Map<Integer, CAEvaluation> caByEnrollment = new HashMap<>();
+                for (CAEvaluation ca : caModels) {
+                    caByEnrollment.put(ca.getEnrollmentId(), ca);
+                }
+
+                List<String[]> results = new ArrayList<>();
+
+                for (Grade grade : grades) {
+                    // Only show saved final results
+                    if (grade.getTotalMarks() == null || grade.getGrade() == null) {
                         continue;
                     }
 
+                    CAEvaluation ca = caByEnrollment.get(grade.getEnrollmentId());
+                    Mark mark = markByEnrollment.get(grade.getEnrollmentId());
+
                     results.add(new String[]{
-                            row[1],   // Registration No
-                            row[9],   // Raw CA
-                            row[10],  // End Exam
-                            row[11],  // Final Total
-                            row[12],  // Grade
-                            row[13]   // Grade Point
+                            grade.getRegistrationNo(),
+                            formatMark(ca == null ? null : ca.getTotalCAMarks()),
+                            formatMark(mark == null ? null : mark.getEndExamMarks()),
+                            formatMark(grade.getTotalMarks()),
+                            grade.getGrade(),
+                            formatMark(grade.getGradePoint())
                     });
                 }
 
@@ -2555,5 +2600,7 @@ public class LecturerController {
     }
 
 
+    private static String formatMark(Double value) {
+        return value == null ? "" : String.format(Locale.US, "%.2f", value);
+    }
 }
-

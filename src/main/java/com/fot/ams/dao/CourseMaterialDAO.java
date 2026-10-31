@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import com.fot.ams.model.CourseMaterial;
 
 public class CourseMaterialDAO {
 
@@ -151,6 +152,67 @@ public class CourseMaterialDAO {
             return stmt.executeUpdate() == 1;
         }
     }
+
+
+    public List<CourseMaterial> getMaterialModelsByLecturer(
+            String lecturerId) throws SQLException {
+
+        List<CourseMaterial> materials = new ArrayList<>();
+
+        String sql = """
+            SELECT
+                cm.material_id,
+                cm.course_id,
+                c.course_code,
+                cm.lecturer_id,
+                cm.material_title,
+                cm.material_type,
+                cm.file_name,
+                cm.`file` AS file_path,
+                cm.uploaded_date
+            FROM course_material cm
+            JOIN course c
+                ON cm.course_id = c.course_id
+            WHERE cm.lecturer_id = ?
+              AND c.lecturer_id = ?
+            ORDER BY
+                cm.uploaded_date DESC,
+                cm.material_id DESC
+            """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, lecturerId);
+            stmt.setString(2, lecturerId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+
+                    java.sql.Date date =
+                            rs.getDate("uploaded_date");
+
+                    CourseMaterial material = new CourseMaterial(
+                            rs.getInt("material_id"),
+                            rs.getInt("course_id"),
+                            rs.getString("course_code"),
+                            rs.getString("lecturer_id"),
+                            rs.getString("material_title"),
+                            rs.getString("material_type"),
+                            rs.getString("file_name"),
+                            rs.getString("file_path"),
+                            date == null ? null : date.toLocalDate()
+                    );
+
+                    materials.add(material);
+                }
+            }
+        }
+
+        return materials;
+    }
+
 
 
 }

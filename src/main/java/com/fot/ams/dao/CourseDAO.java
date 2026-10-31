@@ -208,4 +208,56 @@ public class CourseDAO {
         return courses;
     }
 
+
+    public List<Course> getCourseModelsByLecturer(
+            String lecturerId) throws SQLException {
+
+        List<Course> courses = new ArrayList<>();
+
+        String sql = """
+            SELECT
+                c.course_id,
+                c.course_code,
+                c.course_name,
+                c.credit,
+                c.type,
+                c.lecturer_id,
+                c.dept_id,
+                d.dept_name
+            FROM course c
+            LEFT JOIN department d
+                ON c.dept_id = d.dept_id
+            WHERE c.lecturer_id = ?
+            ORDER BY c.course_code
+            """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, lecturerId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+
+                    Course course = new Course(
+                            rs.getInt("course_id"),
+                            rs.getString("course_code"),
+                            rs.getString("course_name"),
+                            rs.getInt("credit"),
+                            rs.getString("type"),
+                            rs.getString("lecturer_id"),
+                            rs.getInt("dept_id"),
+                            rs.getString("dept_name")
+                    );
+
+                    courses.add(course);
+                }
+            }
+        }
+
+        return courses;
+    }
+
+
 }

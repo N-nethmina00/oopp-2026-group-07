@@ -9,10 +9,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import com.fot.ams.model.Mark;
+import com.fot.ams.model.CAEvaluation;
+import com.fot.ams.model.Grade;
 
 public class MarksDAO {
 
     // Get students and marks for a lecturer's course
+
     public List<String[]> getMarksByLecturerCourse(
             String lecturerId,
             String courseCode) throws SQLException {
@@ -20,36 +24,48 @@ public class MarksDAO {
         List<String[]> marks = new ArrayList<>();
 
         String sql = """
-                SELECT
-                    e.enrollment_id,
-                    e.reg_no,
-                    ce.quiz1_marks,
-                    ce.quiz2_marks,
-                    ce.quiz3_marks,
-                    ce.assignment1_marks,
-                    ce.assignment2_marks,
-                    ce.mid_exam_marks,
-                    ce.total_quiz_marks,
-                    ce.total_CA_marks,
-                    m.end_exam_marks,
-                    m.total_marks,
-                    m.grade,
-                    m.grade_point
-                FROM enrollment e
-                JOIN course c
-                    ON e.course_id = c.course_id
-                LEFT JOIN ca_evaluation ce
-                    ON e.enrollment_id = ce.enrollment_id
-                LEFT JOIN `mark` m
-                    ON e.enrollment_id = m.enrollment_id
-                WHERE c.lecturer_id = ?
-                  AND c.course_code = ?
-                ORDER BY e.reg_no
-                """;
+            SELECT
+                e.enrollment_id,
+                e.reg_no,
+
+                ce.evaluation_id,
+                ce.quiz1_marks,
+                ce.quiz2_marks,
+                ce.quiz3_marks,
+                ce.quiz_marks,
+                ce.total_quiz_marks,
+                ce.assignment1_marks,
+                ce.assignment2_marks,
+                ce.mid_exam_marks,
+                ce.total_CA_marks AS raw_ca,
+                ce.CA_status,
+                ce.eligibility,
+
+                m.mark_id,
+                m.end_exam_marks,
+                m.total_CA_marks AS weighted_ca,
+                m.total_marks,
+                m.grade,
+                m.grade_point
+
+            FROM enrollment e
+            JOIN course c
+                ON e.course_id = c.course_id
+
+            LEFT JOIN ca_evaluation ce
+                ON ce.enrollment_id = e.enrollment_id
+
+            LEFT JOIN `mark` m
+                ON m.enrollment_id = e.enrollment_id
+
+            WHERE c.lecturer_id = ?
+              AND c.course_code = ?
+
+            ORDER BY e.reg_no
+            """;
 
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement stmt =
-                     con.prepareStatement(sql)) {
+             PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
             stmt.setString(2, courseCode);
@@ -58,21 +74,96 @@ public class MarksDAO {
 
                 while (rs.next()) {
 
+                    int enrollmentId =
+                            rs.getInt("enrollment_id");
+
+                    String regNo =
+                            rs.getString("reg_no");
+
+                    // Create CA Model
+                    CAEvaluation ca = null;
+
+                    if (rs.getObject("evaluation_id") != null) {
+
+                        int flag = rs.getInt("eligibility");
+
+                        Integer eligibility =
+                                rs.wasNull() ? null : flag;
+
+                        ca = new CAEvaluation(
+                                rs.getInt("evaluation_id"),
+                                enrollmentId,
+                                nullableDouble(rs, "quiz1_marks"),
+                                nullableDouble(rs, "quiz2_marks"),
+                                nullableDouble(rs, "quiz3_marks"),
+                                nullableDouble(rs, "quiz_marks"),
+                                nullableDouble(rs, "total_quiz_marks"),
+                                nullableDouble(rs, "assignment1_marks"),
+                                nullableDouble(rs, "assignment2_marks"),
+                                nullableDouble(rs, "mid_exam_marks"),
+                                nullableDouble(rs, "raw_ca"),
+                                rs.getString("CA_status"),
+                                eligibility
+                        );
+                    }
+
+                    // Create Mark Model
+                    Mark mark = null;
+
+                    if (rs.getObject("mark_id") != null) {
+
+                        mark = new Mark(
+                                rs.getInt("mark_id"),
+                                enrollmentId,
+                                nullableDouble(rs, "end_exam_marks"),
+                                nullableDouble(rs, "weighted_ca"),
+                                nullableDouble(rs, "total_marks"),
+                                rs.getString("grade"),
+                                nullableDouble(rs, "grade_point")
+                        );
+                    }
+
+                    // Convert Models to existing table format
                     marks.add(new String[]{
-                            rs.getString("enrollment_id"),
-                            rs.getString("reg_no"),
-                            rs.getString("quiz1_marks"),
-                            rs.getString("quiz2_marks"),
-                            rs.getString("quiz3_marks"),
-                            rs.getString("assignment1_marks"),
-                            rs.getString("assignment2_marks"),
-                            rs.getString("mid_exam_marks"),
-                            rs.getString("total_quiz_marks"),
-                            rs.getString("total_CA_marks"),
-                            rs.getString("end_exam_marks"),
-                            rs.getString("total_marks"),
-                            rs.getString("grade"),
-                            rs.getString("grade_point")
+
+                            String.valueOf(enrollmentId),
+                            regNo,
+
+                            ca == null ? null :
+                                    value(ca.getQuiz1Marks()),
+
+                            ca == null ? null :
+                                    value(ca.getQuiz2Marks()),
+
+                            ca == null ? null :
+                                    value(ca.getQuiz3Marks()),
+
+                            ca == null ? null :
+                                    value(ca.getAssignment1Marks()),
+
+                            ca == null ? null :
+                                    value(ca.getAssignment2Marks()),
+
+                            ca == null ? null :
+                                    value(ca.getMidExamMarks()),
+
+                            ca == null ? null :
+                                    value(ca.getTotalQuizMarks()),
+
+                            ca == null ? null :
+                                    value(ca.getTotalCAMarks()),
+
+                            mark == null ? null :
+                                    value(mark.getEndExamMarks()),
+
+                            mark == null ? null :
+                                    value(mark.getTotalMarks()),
+
+                            mark == null ? null :
+                                    mark.getGrade(),
+
+                            mark == null ? null :
+                                    value(mark.getGradePoint())
                     });
                 }
             }
@@ -80,6 +171,7 @@ public class MarksDAO {
 
         return marks;
     }
+
 
 
     // Add or update marks for a student
@@ -367,8 +459,8 @@ public class MarksDAO {
     private static String gradeFor(
             double total, double ca, double end) {
 
-        // Provisional component pass checks:
-        // CA >= 40% of 70; End >= 35% of 30
+        // Provisional component pass thresholds:
+        // CA >= 28/70 and End Exam >= 35/100
         if (ca < 28.0 && end < 35.0) return "E";
         if (ca < 28.0) return "EC";
         if (end < 35.0) return "EE";
@@ -463,6 +555,200 @@ public class MarksDAO {
                 gradePoint
         );
     }
+
+
+    public List<Mark> getMarkModelsByLecturerCourse(
+            String lecturerId,
+            String courseCode) throws SQLException {
+
+        List<Mark> marks = new ArrayList<>();
+
+        String sql = """
+            SELECT
+                m.mark_id,
+                m.enrollment_id,
+                m.end_exam_marks,
+                m.total_CA_marks,
+                m.total_marks,
+                m.grade,
+                m.grade_point
+            FROM `mark` m
+            JOIN enrollment e
+                ON m.enrollment_id = e.enrollment_id
+            JOIN course c
+                ON e.course_id = c.course_id
+            WHERE c.lecturer_id = ?
+              AND c.course_code = ?
+            ORDER BY e.reg_no
+            """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, lecturerId);
+            stmt.setString(2, courseCode);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+
+                    Mark mark = new Mark(
+                            rs.getInt("mark_id"),
+                            rs.getInt("enrollment_id"),
+                            nullableDouble(rs, "end_exam_marks"),
+                            nullableDouble(rs, "total_CA_marks"),
+                            nullableDouble(rs, "total_marks"),
+                            rs.getString("grade"),
+                            nullableDouble(rs, "grade_point")
+                    );
+
+                    marks.add(mark);
+                }
+            }
+        }
+
+        return marks;
+    }
+
+
+    public List<CAEvaluation> getCAEvaluationsByLecturerCourse(
+            String lecturerId,
+            String courseCode) throws SQLException {
+
+        List<CAEvaluation> evaluations = new ArrayList<>();
+
+        String sql = """
+            SELECT
+                ce.evaluation_id,
+                ce.enrollment_id,
+                ce.quiz1_marks,
+                ce.quiz2_marks,
+                ce.quiz3_marks,
+                ce.quiz_marks,
+                ce.total_quiz_marks,
+                ce.assignment1_marks,
+                ce.assignment2_marks,
+                ce.mid_exam_marks,
+                ce.total_CA_marks,
+                ce.CA_status,
+                ce.eligibility
+            FROM ca_evaluation ce
+            JOIN enrollment e
+                ON ce.enrollment_id = e.enrollment_id
+            JOIN course c
+                ON e.course_id = c.course_id
+            WHERE c.lecturer_id = ?
+              AND c.course_code = ?
+            ORDER BY e.reg_no
+            """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, lecturerId);
+            stmt.setString(2, courseCode);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+
+                    int eligibility = rs.getInt("eligibility");
+
+                    Integer eligibilityValue =
+                            rs.wasNull() ? null : eligibility;
+
+                    CAEvaluation evaluation = new CAEvaluation(
+                            rs.getInt("evaluation_id"),
+                            rs.getInt("enrollment_id"),
+                            nullableDouble(rs, "quiz1_marks"),
+                            nullableDouble(rs, "quiz2_marks"),
+                            nullableDouble(rs, "quiz3_marks"),
+                            nullableDouble(rs, "quiz_marks"),
+                            nullableDouble(rs, "total_quiz_marks"),
+                            nullableDouble(rs, "assignment1_marks"),
+                            nullableDouble(rs, "assignment2_marks"),
+                            nullableDouble(rs, "mid_exam_marks"),
+                            nullableDouble(rs, "total_CA_marks"),
+                            rs.getString("CA_status"),
+                            eligibilityValue
+                    );
+
+                    evaluations.add(evaluation);
+                }
+            }
+        }
+
+        return evaluations;
+    }
+
+    private static Double nullableDouble(
+            ResultSet rs, String column) throws SQLException {
+
+        java.math.BigDecimal value = rs.getBigDecimal(column);
+
+        return value == null ? null : value.doubleValue();
+    }
+
+    private static String value(Double number) {
+        return number == null ? null : number.toString();
+    }
+
+
+    public List<Grade> getGradeModelsByLecturerCourse(
+            String lecturerId,
+            String courseCode) throws SQLException {
+
+        List<Grade> grades = new ArrayList<>();
+
+        String sql = """
+            SELECT
+                e.enrollment_id,
+                e.reg_no,
+                c.course_code,
+                m.total_marks,
+                m.grade,
+                m.grade_point
+
+            FROM enrollment e
+            JOIN course c
+                ON e.course_id = c.course_id
+
+            LEFT JOIN `mark` m
+                ON m.enrollment_id = e.enrollment_id
+
+            WHERE c.lecturer_id = ?
+              AND c.course_code = ?
+
+            ORDER BY e.reg_no
+            """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, lecturerId);
+            stmt.setString(2, courseCode);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+
+                    Grade grade = new Grade(
+                            rs.getInt("enrollment_id"),
+                            rs.getString("reg_no"),
+                            rs.getString("course_code"),
+                            nullableDouble(rs, "total_marks"),
+                            rs.getString("grade"),
+                            nullableDouble(rs, "grade_point")
+                    );
+
+                    grades.add(grade);
+                }
+            }
+        }
+
+        return grades;
+    }
+
 
 
 }

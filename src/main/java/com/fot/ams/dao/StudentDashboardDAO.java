@@ -21,7 +21,7 @@ public class StudentDashboardDAO {
             AND role = 'Undergraduate'
             """;
 
-        try (Connection con = DBConnection.getStudentConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, userId);

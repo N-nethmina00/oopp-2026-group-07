@@ -33,7 +33,7 @@ public class StudentDAO {
                 ORDER BY u.reg_no, c.course_code
                 """;
 
-        try (Connection con = DBConnection.getLecturerConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);

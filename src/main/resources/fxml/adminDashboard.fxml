@@ -17,6 +17,7 @@
             prefHeight="600.0"
             prefWidth="900.0"
             style="-fx-background-color: #F3F6FA;"
+            stylesheets="@../css/admin-dashboard.css"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.fot.ams.controller.AdminController">
@@ -69,45 +70,45 @@
          </padding>
 
          <VBox spacing="10"
-               style="-fx-background-color: #4c56cd; -fx-background-radius: 18;"
+               styleClass="admin-sidebar"
                VBox.vgrow="ALWAYS">
             <padding>
                <Insets bottom="15" left="10" right="10" top="18" />
             </padding>
 
-            <Button maxWidth="Infinity"
+            <Button fx:id="dashboardBtn" maxWidth="Infinity"
                     mnemonicParsing="false"
                     onAction="#showDashboard"
                     prefHeight="38"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;"
+                    styleClass="nav-button, selected"
                     text="Dashboard" />
 
-            <Button maxWidth="Infinity"
+            <Button fx:id="usersBtn" maxWidth="Infinity"
                     mnemonicParsing="false"
                     onAction="#showUsers"
                     prefHeight="38"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;"
+                    styleClass="nav-button"
                     text="Users" />
 
-            <Button maxWidth="Infinity"
+            <Button fx:id="coursesBtn" maxWidth="Infinity"
                     mnemonicParsing="false"
                     onAction="#showCourses"
                     prefHeight="38"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;"
+                    styleClass="nav-button"
                     text="Courses" />
 
-            <Button maxWidth="Infinity"
+            <Button fx:id="noticesBtn" maxWidth="Infinity"
                     mnemonicParsing="false"
                     onAction="#showNotices"
                     prefHeight="38"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;"
+                    styleClass="nav-button"
                     text="Notices" />
 
-            <Button maxWidth="Infinity"
+            <Button fx:id="timetablesBtn" maxWidth="Infinity"
                     mnemonicParsing="false"
                     onAction="#showTimetables"
                     prefHeight="38"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-background-radius: 8;"
+                    styleClass="nav-button"
                     text="Time Tables" />
 
             <Region VBox.vgrow="ALWAYS" />
@@ -117,7 +118,7 @@
                     mnemonicParsing="false"
                     onAction="#handleLogout"
                     prefHeight="38"
-                    style="-fx-background-color: #FFFFFF; -fx-text-fill: #4c56cd; -fx-background-radius: 8;"
+                    styleClass="logout-button"
                     text="Log Out">
                <font>
                   <Font name="System Bold" size="12.0" />

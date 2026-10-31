@@ -1,6 +1,12 @@
 package com.fot.ams.controller;
 
+import com.fot.ams.model.User;
 import com.fot.ams.util.DBConnection;
+
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -22,67 +29,222 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 public class AdminController {
 
-    @FXML
-    private BorderPane mainPane;
+    @FXML private BorderPane mainPane;
 
-    @FXML
-    private Label lblUserCount;
+    @FXML private Label lblUserCount;
+    @FXML private Label lblCourseCount;
+    @FXML private Label lblDepartmentCount;
+    @FXML private Label lblPendingMedicalCount;
+    @FXML private Label lblDashboardStatus;
 
-    @FXML
-    private Label lblCourseCount;
-
-    @FXML
-    private Label lblDepartmentCount;
-
-    @FXML
-    private Label lblPendingMedicalCount;
-
-    @FXML
-    private Label lblDashboardStatus;
-
-    @FXML
-    private Button btnRefresh;
+    @FXML private Button btnRefresh;
+    @FXML private Button dashboardBtn;
+    @FXML private Button usersBtn;
+    @FXML private Button coursesBtn;
+    @FXML private Button noticesBtn;
+    @FXML private Button timetablesBtn;
+    @FXML private Button accountBtn;
 
     private Node dashboardContent;
+    private String loggedInUserId;
     private boolean loadingDashboard;
+    private Button selectedMenuButton;
+    private Timeline menuAnimation;
 
     @FXML
     private void initialize() {
-        if (mainPane != null
-                && lblUserCount != null
-                && lblCourseCount != null
-                && lblDepartmentCount != null
-                && lblPendingMedicalCount != null
-                && lblDashboardStatus != null
-                && btnRefresh != null) {
-            dashboardContent = mainPane.getCenter();
-            refreshDashboard();
+        dashboardContent = mainPane.getCenter();
+        selectMenu(dashboardBtn, false);
+    }
+
+    public void setLoggedInUser(User user) {
+        if (user == null || !"Admin".equals(user.getRole())) {
+            throw new IllegalArgumentException(
+                    "A valid admin account is required."
+            );
         }
+
+        loggedInUserId = user.getUserId();
+        refreshDashboard();
+    }
+
+    private void selectMenu(Button target, boolean animate) {
+        if (target == null || target == selectedMenuButton) {
+            return;
+        }
+
+        if (menuAnimation != null) {
+            menuAnimation.stop();
+        }
+
+        Button[] buttons = {
+                dashboardBtn,
+                usersBtn,
+                coursesBtn,
+                noticesBtn,
+                timetablesBtn,
+                accountBtn
+        };
+
+        for (Button button : buttons) {
+            if (button != null) {
+                button.getStyleClass().removeAll("selected");
+                button.setTranslateX(0);
+                button.setScaleX(1);
+                button.setScaleY(1);
+                button.setOpacity(1);
+            }
+        }
+
+        target.getStyleClass().add("selected");
+        selectedMenuButton = target;
+
+        if (!animate) {
+            return;
+        }
+
+        menuAnimation = new Timeline(
+                new KeyFrame(
+                        Duration.ZERO,
+                        new KeyValue(target.translateXProperty(), -5),
+                        new KeyValue(target.scaleXProperty(), 0.96),
+                        new KeyValue(target.scaleYProperty(), 0.96),
+                        new KeyValue(target.opacityProperty(), 0.65)
+                ),
+                new KeyFrame(
+                        Duration.millis(140),
+                        new KeyValue(
+                                target.translateXProperty(),
+                                3,
+                                Interpolator.EASE_OUT
+                        ),
+                        new KeyValue(
+                                target.scaleXProperty(),
+                                1,
+                                Interpolator.EASE_OUT
+                        ),
+                        new KeyValue(
+                                target.scaleYProperty(),
+                                1,
+                                Interpolator.EASE_OUT
+                        ),
+                        new KeyValue(
+                                target.opacityProperty(),
+                                1,
+                                Interpolator.EASE_OUT
+                        )
+                ),
+                new KeyFrame(
+                        Duration.millis(240),
+                        new KeyValue(
+                                target.translateXProperty(),
+                                0,
+                                Interpolator.EASE_BOTH
+                        )
+                )
+        );
+
+        menuAnimation.play();
     }
 
     @FXML
     private void showDashboard() {
-        if (dashboardContent == null) {
-            loadPage("adminDashboard.fxml");
-            return;
-        }
-
         mainPane.setCenter(dashboardContent);
+        selectMenu(dashboardBtn, true);
         refreshDashboard();
     }
 
     @FXML
+    private void showUsers() {
+        openPage("adminUserManagement.fxml", usersBtn);
+    }
+
+    @FXML
+    private void showCourses() {
+        openPage("adminCourseManagement.fxml", coursesBtn);
+    }
+
+    @FXML
+    private void showNotices() {
+        openPage("adminNoticeManagement.fxml", noticesBtn);
+    }
+
+    @FXML
+    private void showTimetables() {
+        openPage("adminTimetableManagement.fxml", timetablesBtn);
+    }
+
+    @FXML
+    private void showAccount() {
+        openPage("adminAccount.fxml", accountBtn);
+    }
+
+    private void openPage(String fileName, Button button) {
+        if (loggedInUserId == null || loggedInUserId.isBlank()) {
+            showError(
+                    "Session Required",
+                    "Please log in again."
+            );
+            return;
+        }
+
+        try {
+            URL resource = getClass().getResource(
+                    "/fxml/" + fileName
+            );
+
+            if (resource == null) {
+                throw new IllegalStateException(
+                        "Cannot find /fxml/" + fileName
+                );
+            }
+
+            FXMLLoader loader = new FXMLLoader(resource);
+            Node page = loader.load();
+
+            Object controller = loader.getController();
+
+            if (controller instanceof AdminAccountController account) {
+                account.setUserId(loggedInUserId);
+            }
+
+            if (page instanceof BorderPane borderPane) {
+                Node content = borderPane.getCenter();
+
+                if (content == null) {
+                    throw new IllegalStateException(
+                            fileName + " has no center content."
+                    );
+                }
+
+                borderPane.setCenter(null);
+                mainPane.setCenter(content);
+            } else {
+                mainPane.setCenter(page);
+            }
+
+            selectMenu(button, true);
+
+        } catch (Exception e) {
+            showError(
+                    "Unable to Open Page",
+                    fileName + "\n" + e.getMessage()
+            );
+        }
+    }
+
+    @FXML
     private void refreshDashboard() {
-        if (dashboardContent == null || loadingDashboard) {
+        if (loadingDashboard || loggedInUserId == null) {
             return;
         }
 
         loadingDashboard = true;
         btnRefresh.setDisable(true);
+
         clearCounts();
 
         lblDashboardStatus.setTextFill(Color.web("#526174"));
@@ -103,12 +265,16 @@ public class AdminController {
             lblDepartmentCount.setText(Long.toString(counts[2]));
             lblPendingMedicalCount.setText(Long.toString(counts[3]));
 
-            String updatedTime = LocalTime.now().format(
-                    DateTimeFormatter.ofPattern("hh:mm:ss a")
-            );
-
             lblDashboardStatus.setTextFill(Color.web("#526174"));
-            lblDashboardStatus.setText("Last updated: " + updatedTime);
+
+            lblDashboardStatus.setText(
+                    "Last updated: "
+                            + LocalTime.now().format(
+                            DateTimeFormatter.ofPattern(
+                                    "hh:mm:ss a"
+                            )
+                    )
+            );
 
             loadingDashboard = false;
             btnRefresh.setDisable(false);
@@ -118,13 +284,14 @@ public class AdminController {
             clearCounts();
 
             Throwable error = task.getException();
-            String message = error == null || error.getMessage() == null
-                    ? "Unknown database error."
-                    : error.getMessage();
 
             lblDashboardStatus.setTextFill(Color.web("#C62828"));
+
             lblDashboardStatus.setText(
-                    "Unable to load dashboard: " + message
+                    "Unable to load dashboard: "
+                            + (error == null
+                            ? "Unknown database error."
+                            : error.getMessage())
                             + " Click Refresh to try again."
             );
 
@@ -149,23 +316,29 @@ public class AdminController {
 
         try (Connection connection = DBConnection.getConnection()) {
             if (connection == null) {
-                throw new SQLException("Database connection is unavailable.");
+                throw new SQLException(
+                        "Database connection is unavailable."
+                );
             }
 
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
+
                 statement.setString(1, "Pending");
                 statement.setQueryTimeout(15);
 
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    if (!resultSet.next()) {
-                        throw new SQLException("No dashboard data was returned.");
+                try (ResultSet result = statement.executeQuery()) {
+                    if (!result.next()) {
+                        throw new SQLException(
+                                "No dashboard data was returned."
+                        );
                     }
 
                     return new long[]{
-                            resultSet.getLong("user_count"),
-                            resultSet.getLong("course_count"),
-                            resultSet.getLong("department_count"),
-                            resultSet.getLong("pending_medical_count")
+                            result.getLong("user_count"),
+                            result.getLong("course_count"),
+                            result.getLong("department_count"),
+                            result.getLong("pending_medical_count")
                     };
                 }
             }
@@ -180,53 +353,42 @@ public class AdminController {
     }
 
     @FXML
-    private void showUsers() {
-        loadPage("adminUserManagement.fxml");
-    }
-
-    @FXML
-    private void showCourses() {
-        loadPage("adminCourseManagement.fxml");
-    }
-
-    @FXML
-    private void showNotices() {
-        loadPage("adminNoticeManagement.fxml");
-    }
-
-    @FXML
-    private void showTimetables() {
-        loadPage("adminTimetableManagement.fxml");
-    }
-
-    @FXML
     private void handleLogout() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+
         alert.setTitle("Logout");
         alert.setHeaderText("Are you sure you want to log out?");
-        alert.setContentText("You will be redirected to the login page.");
+        alert.setContentText(
+                "You will be redirected to the login page."
+        );
 
-        Optional<ButtonType> result = alert.showAndWait();
-
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            navigateToLogin();
+        if (alert.showAndWait()
+                .orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            return;
         }
-    }
 
-    private void navigateToLogin() {
         try {
-            URL url = getClass().getResource("/fxml/login.fxml");
+            URL resource = getClass().getResource(
+                    "/fxml/login.fxml"
+            );
 
-            if (url == null) {
-                showError(
-                        "FXML File Not Found",
+            if (resource == null) {
+                throw new IllegalStateException(
                         "Cannot find /fxml/login.fxml"
                 );
-                return;
             }
 
-            Parent root = FXMLLoader.load(url);
-            Stage stage = (Stage) mainPane.getScene().getWindow();
+            Parent root = FXMLLoader.load(resource);
+
+            Stage stage = (Stage) mainPane
+                    .getScene()
+                    .getWindow();
+
+            if (menuAnimation != null) {
+                menuAnimation.stop();
+            }
+
+            loggedInUserId = null;
 
             stage.setScene(new Scene(root, 1000, 600));
             stage.setTitle("AMS - Login");
@@ -236,55 +398,14 @@ public class AdminController {
         } catch (Exception e) {
             showError(
                     "Unable to Open Login Page",
-                    e.getClass().getSimpleName() + ": " + e.getMessage()
-            );
-        }
-    }
-
-    private void loadPage(String fileName) {
-        URL url = getClass().getResource("/fxml/" + fileName);
-
-        if (url == null) {
-            showError(
-                    "FXML File Not Found",
-                    "Cannot find /fxml/" + fileName
-            );
-            return;
-        }
-
-        try {
-            FXMLLoader loader = new FXMLLoader(url);
-            Node page = loader.load();
-
-            if (page instanceof BorderPane borderPane) {
-                Node content = borderPane.getCenter();
-
-                if (content == null) {
-                    showError(
-                            "Page Error",
-                            fileName + " has no center content."
-                    );
-                    return;
-                }
-
-                borderPane.setCenter(null);
-                mainPane.setCenter(content);
-            } else {
-                mainPane.setCenter(page);
-            }
-
-        } catch (Exception e) {
-            showError(
-                    "Unable to Open Page",
-                    fileName + "\n"
-                            + e.getClass().getSimpleName()
-                            + ": " + e.getMessage()
+                    e.getMessage()
             );
         }
     }
 
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
+
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

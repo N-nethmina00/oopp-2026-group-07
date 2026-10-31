@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fot.ams.controller.AdminAccountController"
+            fitToWidth="true"
+            fitToHeight="false"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            minWidth="0"
+            style="-fx-background-color: transparent;
+                   -fx-background: #F3F6FA;
+                   -fx-padding: 0;">
+
+    <content>
+        <VBox spacing="20" minWidth="0">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
+
+            <VBox spacing="6">
+                <Label text="ACCOUNT SETTINGS"
+                       wrapText="true"
+                       style="-fx-font-size: 24px;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: #17324D;"/>
+
+                <Label text="Manage your personal information, profile picture and password."
+                       wrapText="true"
+                       style="-fx-text-fill: #7B8797;"/>
+            </VBox>
+
+            <VBox spacing="22"
+                  minHeight="-Infinity"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 12;
+                         -fx-border-color: #D5DCE5;
+                         -fx-border-radius: 12;">
+
+                <padding>
+                    <Insets top="24" right="24" bottom="24" left="24"/>
+                </padding>
+
+                <Label text="Personal Information"
+                       style="-fx-font-size: 17px;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: #17324D;"/>
+
+                <VBox spacing="12" alignment="TOP_CENTER">
+                    <StackPane minWidth="140"
+                               minHeight="140"
+                               prefWidth="140"
+                               prefHeight="140"
+                               maxWidth="140"
+                               maxHeight="140">
+
+                        <Label fx:id="lblPhoto"
+                               text="A"
+                               alignment="CENTER"
+                               minWidth="138"
+                               minHeight="138"
+                               prefWidth="138"
+                               prefHeight="138"
+                               maxWidth="138"
+                               maxHeight="138"
+                               style="-fx-background-color: #EEF0FF;
+                                      -fx-background-radius: 100;
+                                      -fx-font-size: 48px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: #4C56CD;"/>
+
+                        <ImageView fx:id="imgProfile"
+                                   fitWidth="138"
+                                   fitHeight="138"
+                                   preserveRatio="false"
+                                   smooth="true"
+                                   visible="false">
+                            <clip>
+                                <Circle radius="69"
+                                        centerX="69"
+                                        centerY="69"/>
+                            </clip>
+                        </ImageView>
+                    </StackPane>
+
+                    <Button fx:id="btnChangePhoto"
+                            text="Change Photo"
+                            onAction="#handleChangePhoto"
+                            mnemonicParsing="false"
+                            disable="true"
+                            style="-fx-background-color: #EEF0FF;
+                                   -fx-text-fill: #4C56CD;
+                                   -fx-background-radius: 7;
+                                   -fx-padding: 9 16;
+                                   -fx-cursor: hand;"/>
+
+                    <Label text="PNG or JPG, up to 5 MB."
+                           style="-fx-font-size: 11px;
+                                  -fx-text-fill: #7B8797;"/>
+                </VBox>
+
+                <GridPane hgap="16" vgap="16" minWidth="0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50"
+                                           minWidth="0"
+                                           hgrow="ALWAYS"/>
+                        <ColumnConstraints percentWidth="50"
+                                           minWidth="0"
+                                           hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <children>
+                        <VBox spacing="7" minWidth="0"
+                              GridPane.columnIndex="0"
+                              GridPane.rowIndex="0">
+                            <Label text="FIRST NAME"
+                                   style="-fx-font-size: 11px;
+                                          -fx-font-weight: bold;
+                                          -fx-text-fill: #526174;"/>
+
+                            <TextField fx:id="txtFirstName"
+                                       promptText="Enter first name"
+                                       minWidth="0"
+                                       maxWidth="Infinity"
+                                       prefHeight="40"/>
+                        </VBox>
+
+                        <VBox spacing="7" minWidth="0"
+                              GridPane.columnIndex="1"
+                              GridPane.rowIndex="0">
+                            <Label text="LAST NAME"
+                                   style="-fx-font-size: 11px;
+                                          -fx-font-weight: bold;
+                                          -fx-text-fill: #526174;"/>
+
+                            <TextField fx:id="txtLastName"
+                                       promptText="Enter last name"
+                                       minWidth="0"
+                                       maxWidth="Infinity"
+                                       prefHeight="40"/>
+                        </VBox>
+
+                        <VBox spacing="7" minWidth="0"
+                              GridPane.columnIndex="0"
+                              GridPane.columnSpan="2"
+                              GridPane.rowIndex="1">
+                            <Label text="EMAIL"
+                                   style="-fx-font-size: 11px;
+                                          -fx-font-weight: bold;
+                                          -fx-text-fill: #526174;"/>
+
+                            <TextField fx:id="txtEmail"
+                                       promptText="Enter email address"
+                                       minWidth="0"
+                                       maxWidth="Infinity"
+                                       prefHeight="40"/>
+                        </VBox>
+
+                        <VBox spacing="7" minWidth="0"
+                              GridPane.columnIndex="0"
+                              GridPane.rowIndex="2">
+                            <Label text="USER ID"
+                                   style="-fx-font-size: 11px;
+                                          -fx-font-weight: bold;
+                                          -fx-text-fill: #526174;"/>
+
+                            <TextField fx:id="txtUserId"
+                                       editable="false"
+                                       minWidth="0"
+                                       maxWidth="Infinity"
+                                       prefHeight="40"
+                                       style="-fx-background-color: #F1F5F9;
+                                              -fx-text-fill: #64748B;"/>
+                        </VBox>
+
+                        <VBox spacing="7" minWidth="0"
+                              GridPane.columnIndex="1"
+                              GridPane.rowIndex="2">
+                            <Label text="USERNAME"
+                                   style="-fx-font-size: 11px;
+                                          -fx-font-weight: bold;
+                                          -fx-text-fill: #526174;"/>
+
+                            <TextField fx:id="txtUsername"
+                                       editable="false"
+                                       minWidth="0"
+                                       maxWidth="Infinity"
+                                       prefHeight="40"
+                                       style="-fx-background-color: #F1F5F9;
+                                              -fx-text-fill: #64748B;"/>
+                        </VBox>
+                    </children>
+                </GridPane>
+
+                <Label fx:id="lblMessage"
+                       visible="false"
+                       managed="false"
+                       wrapText="true"
+                       maxWidth="Infinity"/>
+
+                <HBox alignment="CENTER_RIGHT">
+                    <Button fx:id="btnSave"
+                            text="Save Changes"
+                            onAction="#handleSave"
+                            mnemonicParsing="false"
+                            disable="true"
+                            prefHeight="40"
+                            style="-fx-background-color: #4C56CD;
+                                   -fx-text-fill: white;
+                                   -fx-font-weight: bold;
+                                   -fx-background-radius: 7;
+                                   -fx-padding: 10 20;
+                                   -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+
+            <VBox spacing="18"
+                  minHeight="-Infinity"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 12;
+                         -fx-border-color: #D5DCE5;
+                         -fx-border-radius: 12;">
+
+                <padding>
+                    <Insets top="24" right="24" bottom="24" left="24"/>
+                </padding>
+
+                <VBox spacing="6">
+                    <Label text="Change Password"
+                           style="-fx-font-size: 17px;
+                                  -fx-font-weight: bold;
+                                  -fx-text-fill: #17324D;"/>
+
+                    <Label text="Use at least 8 characters. Numbers, letters and symbols are allowed."
+                           wrapText="true"
+                           style="-fx-font-size: 12px;
+                                  -fx-text-fill: #7B8797;"/>
+                </VBox>
+
+                <VBox spacing="7">
+                    <Label text="CURRENT PASSWORD"
+                           style="-fx-font-size: 11px;
+                                  -fx-font-weight: bold;
+                                  -fx-text-fill: #526174;"/>
+
+                    <StackPane>
+                        <PasswordField fx:id="txtCurrentPassword"
+                                       promptText="Enter current password"
+                                       prefHeight="40"
+                                       minWidth="0"
+                                       maxWidth="Infinity"/>
+
+                        <TextField fx:id="txtCurrentPasswordVisible"
+                                   promptText="Enter current password"
+                                   prefHeight="40"
+                                   minWidth="0"
+                                   maxWidth="Infinity"
+                                   visible="false"
+                                   managed="false"/>
+                    </StackPane>
+                </VBox>
+
+                <GridPane hgap="16" vgap="16" minWidth="0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50"
+                                           minWidth="0"
+                                           hgrow="ALWAYS"/>
+                        <ColumnConstraints percentWidth="50"
+                                           minWidth="0"
+                                           hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <children>
+                        <VBox spacing="7" minWidth="0"
+                              GridPane.columnIndex="0">
+                            <Label text="NEW PASSWORD"
+                                   style="-fx-font-size: 11px;
+                                          -fx-font-weight: bold;
+                                          -fx-text-fill: #526174;"/>
+
+                            <StackPane>
+                                <PasswordField fx:id="txtNewPassword"
+                                               promptText="Enter new password"
+                                               prefHeight="40"
+                                               minWidth="0"
+                                               maxWidth="Infinity"/>
+
+                                <TextField fx:id="txtNewPasswordVisible"
+                                           promptText="Enter new password"
+                                           prefHeight="40"
+                                           minWidth="0"
+                                           maxWidth="Infinity"
+                                           visible="false"
+                                           managed="false"/>
+                            </StackPane>
+                        </VBox>
+
+                        <VBox spacing="7" minWidth="0"
+                              GridPane.columnIndex="1">
+                            <Label text="CONFIRM NEW PASSWORD"
+                                   wrapText="true"
+                                   style="-fx-font-size: 11px;
+                                          -fx-font-weight: bold;
+                                          -fx-text-fill: #526174;"/>
+
+                            <StackPane>
+                                <PasswordField fx:id="txtConfirmPassword"
+                                               promptText="Re-enter new password"
+                                               prefHeight="40"
+                                               minWidth="0"
+                                               maxWidth="Infinity"/>
+
+                                <TextField fx:id="txtConfirmPasswordVisible"
+                                           promptText="Re-enter new password"
+                                           prefHeight="40"
+                                           minWidth="0"
+                                           maxWidth="Infinity"
+                                           visible="false"
+                                           managed="false"/>
+                            </StackPane>
+                        </VBox>
+                    </children>
+                </GridPane>
+
+                <CheckBox fx:id="chkShowPasswords"
+                          text="Show passwords"
+                          style="-fx-text-fill: #526174;"/>
+
+                <Label fx:id="lblPasswordMessage"
+                       visible="false"
+                       managed="false"
+                       wrapText="true"
+                       maxWidth="Infinity"/>
+
+                <HBox alignment="CENTER_RIGHT">
+                    <Button fx:id="btnChangePassword"
+                            text="Change Password"
+                            onAction="#handleChangePassword"
+                            mnemonicParsing="false"
+                            disable="true"
+                            prefHeight="40"
+                            style="-fx-background-color: #4C56CD;
+                                   -fx-text-fill: white;
+                                   -fx-font-weight: bold;
+                                   -fx-background-radius: 7;
+                                   -fx-padding: 10 20;
+                                   -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

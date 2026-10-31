@@ -1,187 +1,357 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-        <?import javafx.geometry.Insets?>
-        <?import javafx.scene.control.*?>
-        <?import javafx.scene.layout.*?>
-        <?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane minHeight="600.0" minWidth="850.0"
-            prefHeight="720.0" prefWidth="1100.0"
+<BorderPane minHeight="0.0"
+            minWidth="0.0"
+            prefHeight="720.0"
+            prefWidth="1100.0"
             style="-fx-background-color: #F3F6FA;"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.fot.ams.controller.AdminTimetableManagementController">
 
     <center>
-        <VBox spacing="14">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
+        <ScrollPane fitToWidth="true"
+                    fitToHeight="false"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    pannable="false"
+                    minWidth="0.0"
+                    style="-fx-background-color: transparent;
+                           -fx-background: #F3F6FA;
+                           -fx-padding: 0;">
 
-            <Label text="Timetable Management" textFill="#17324D">
-                <font>
-                    <Font name="System Bold" size="22"/>
-                </font>
-            </Label>
+            <content>
+                <VBox spacing="18.0"
+                      minWidth="0.0"
+                      fillWidth="true"
+                      style="-fx-background-color: #F3F6FA;">
 
-            <Label text="Add, view, update and delete timetable entries."
-                   textFill="#7B8797"/>
+                    <padding>
+                        <Insets top="24" right="24"
+                                bottom="24" left="24"/>
+                    </padding>
 
-            <VBox spacing="12"
-                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D5DCE5; -fx-border-radius: 8;">
-                <padding>
-                    <Insets top="16" right="16" bottom="16" left="16"/>
-                </padding>
+                    <VBox spacing="6">
+                        <Label text="Timetable Management"
+                               textFill="#17324D"
+                               wrapText="true">
+                            <font>
+                                <Font name="System Bold" size="24"/>
+                            </font>
+                        </Label>
 
-                <Label text="Timetable Details" textFill="#17324D">
-                    <font>
-                        <Font name="System Bold" size="15"/>
-                    </font>
-                </Label>
-
-                <HBox spacing="12">
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Entry ID"/>
-                        <TextField fx:id="entryIdField"
-                                   promptText="Auto-generated"
-                                   prefHeight="34"/>
+                        <Label text="Add, view, update and delete timetable entries."
+                               textFill="#7B8797"
+                               wrapText="true"/>
                     </VBox>
 
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Course"/>
-                        <ComboBox fx:id="courseComboBox"
-                                  promptText="Select course"
-                                  maxWidth="Infinity"
-                                  prefHeight="34"/>
+                    <!-- Entry form -->
+                    <VBox spacing="16"
+                          minWidth="0"
+                          minHeight="-Infinity"
+                          style="-fx-background-color: white;
+                                 -fx-background-radius: 12;
+                                 -fx-border-color: #D5DCE5;
+                                 -fx-border-radius: 12;">
+
+                        <padding>
+                            <Insets top="20" right="20"
+                                    bottom="20" left="20"/>
+                        </padding>
+
+                        <Label text="Timetable Details"
+                               textFill="#17324D">
+                            <font>
+                                <Font name="System Bold" size="16"/>
+                            </font>
+                        </Label>
+
+                        <GridPane hgap="14"
+                                  vgap="16"
+                                  minWidth="0">
+
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="30"
+                                                   minWidth="0"
+                                                   hgrow="ALWAYS"/>
+                                <ColumnConstraints percentWidth="40"
+                                                   minWidth="0"
+                                                   hgrow="ALWAYS"/>
+                                <ColumnConstraints percentWidth="30"
+                                                   minWidth="0"
+                                                   hgrow="ALWAYS"/>
+                            </columnConstraints>
+
+                            <children>
+                                <VBox spacing="7" minWidth="0"
+                                      GridPane.columnIndex="0"
+                                      GridPane.rowIndex="0">
+                                    <Label text="Entry ID"
+                                           textFill="#526174"/>
+                                    <TextField fx:id="entryIdField"
+                                               editable="false"
+                                               focusTraversable="false"
+                                               promptText="Auto-generated"
+                                               minWidth="0"
+                                               maxWidth="Infinity"
+                                               prefHeight="38"
+                                               style="-fx-background-color: #F1F5F9;
+                                                      -fx-text-fill: #64748B;"/>
+                                </VBox>
+
+                                <VBox spacing="7" minWidth="0"
+                                      GridPane.columnIndex="1"
+                                      GridPane.rowIndex="0">
+                                    <Label text="Course"
+                                           textFill="#526174"/>
+                                    <ComboBox fx:id="courseComboBox"
+                                              promptText="Select course"
+                                              minWidth="0"
+                                              maxWidth="Infinity"
+                                              prefHeight="38"
+                                              visibleRowCount="8"/>
+                                </VBox>
+
+                                <VBox spacing="7" minWidth="0"
+                                      GridPane.columnIndex="2"
+                                      GridPane.rowIndex="0">
+                                    <Label text="Day"
+                                           textFill="#526174"/>
+                                    <ComboBox fx:id="dayComboBox"
+                                              promptText="Select day"
+                                              minWidth="0"
+                                              maxWidth="Infinity"
+                                              prefHeight="38"/>
+                                </VBox>
+
+                                <VBox spacing="7" minWidth="0"
+                                      GridPane.columnIndex="0"
+                                      GridPane.rowIndex="1">
+                                    <Label text="Start Time (24-hour)"
+                                           wrapText="true"
+                                           textFill="#526174"/>
+                                    <TextField fx:id="startTimeField"
+                                               promptText="08:30"
+                                               minWidth="0"
+                                               maxWidth="Infinity"
+                                               prefHeight="38"/>
+                                </VBox>
+
+                                <VBox spacing="7" minWidth="0"
+                                      GridPane.columnIndex="1"
+                                      GridPane.rowIndex="1">
+                                    <Label text="End Time (24-hour)"
+                                           wrapText="true"
+                                           textFill="#526174"/>
+                                    <TextField fx:id="endTimeField"
+                                               promptText="10:30"
+                                               minWidth="0"
+                                               maxWidth="Infinity"
+                                               prefHeight="38"/>
+                                </VBox>
+
+                                <VBox spacing="7" minWidth="0"
+                                      GridPane.columnIndex="2"
+                                      GridPane.rowIndex="1">
+                                    <Label text="Venue / Lecture Hall"
+                                           wrapText="true"
+                                           textFill="#526174"/>
+                                    <TextField fx:id="venueField"
+                                               promptText="LT-01 / Lab-02"
+                                               minWidth="0"
+                                               maxWidth="Infinity"
+                                               prefHeight="38"/>
+                                </VBox>
+
+                                <VBox spacing="7" minWidth="0"
+                                      GridPane.columnIndex="0"
+                                      GridPane.rowIndex="2">
+                                    <Label text="Session Type"
+                                           textFill="#526174"/>
+                                    <ComboBox fx:id="sessionTypeComboBox"
+                                              promptText="Select type"
+                                              minWidth="0"
+                                              maxWidth="Infinity"
+                                              prefHeight="38"/>
+                                </VBox>
+
+                                <VBox spacing="7" minWidth="0"
+                                      GridPane.columnIndex="1"
+                                      GridPane.rowIndex="2">
+                                    <Label text="Academic Year"
+                                           textFill="#526174"/>
+                                    <TextField fx:id="academicYearField"
+                                               promptText="2026/2027"
+                                               minWidth="0"
+                                               maxWidth="Infinity"
+                                               prefHeight="38"/>
+                                </VBox>
+
+                                <VBox spacing="7" minWidth="0"
+                                      GridPane.columnIndex="2"
+                                      GridPane.rowIndex="2">
+                                    <Label text="Semester"
+                                           textFill="#526174"/>
+                                    <ComboBox fx:id="semesterComboBox"
+                                              promptText="Select semester"
+                                              minWidth="0"
+                                              maxWidth="Infinity"
+                                              prefHeight="38"/>
+                                </VBox>
+                            </children>
+                        </GridPane>
+
+                        <FlowPane hgap="10"
+                                  vgap="10"
+                                  alignment="CENTER_LEFT">
+
+                            <Button text="Add Entry"
+                                    onAction="#handleAdd"
+                                    mnemonicParsing="false"
+                                    prefHeight="38"
+                                    minWidth="100"
+                                    style="-fx-background-color: #4c56cd;
+                                           -fx-text-fill: white;
+                                           -fx-font-weight: bold;
+                                           -fx-background-radius: 7;
+                                           -fx-padding: 9 16;
+                                           -fx-cursor: hand;"/>
+
+                            <Button text="Update"
+                                    onAction="#handleUpdate"
+                                    mnemonicParsing="false"
+                                    prefHeight="38"
+                                    minWidth="90"
+                                    style="-fx-background-color: #EEF0FF;
+                                           -fx-text-fill: #4c56cd;
+                                           -fx-background-radius: 7;
+                                           -fx-padding: 9 16;
+                                           -fx-cursor: hand;"/>
+
+                            <Button text="Delete"
+                                    onAction="#handleDelete"
+                                    mnemonicParsing="false"
+                                    prefHeight="38"
+                                    minWidth="90"
+                                    style="-fx-background-color: #FCE8E8;
+                                           -fx-text-fill: #B42318;
+                                           -fx-background-radius: 7;
+                                           -fx-padding: 9 16;
+                                           -fx-cursor: hand;"/>
+
+                            <Button text="Clear"
+                                    onAction="#handleClear"
+                                    mnemonicParsing="false"
+                                    prefHeight="38"
+                                    minWidth="90"
+                                    style="-fx-background-color: #EEF0FF;
+                                           -fx-text-fill: #4c56cd;
+                                           -fx-background-radius: 7;
+                                           -fx-padding: 9 16;
+                                           -fx-cursor: hand;"/>
+                        </FlowPane>
+
+                        <Label fx:id="messageLabel"
+                               wrapText="true"
+                               minHeight="-Infinity"
+                               maxWidth="Infinity"
+                               textFill="#526174"/>
                     </VBox>
 
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Day"/>
-                        <ComboBox fx:id="dayComboBox"
-                                  promptText="Select day"
-                                  maxWidth="Infinity"
-                                  prefHeight="34"/>
+                    <!-- Table height is calculated by the controller -->
+                    <VBox spacing="14"
+                          minWidth="0"
+                          minHeight="-Infinity"
+                          style="-fx-background-color: white;
+                                 -fx-background-radius: 12;
+                                 -fx-border-color: #D5DCE5;
+                                 -fx-border-radius: 12;">
+
+                        <padding>
+                            <Insets top="20" right="20"
+                                    bottom="20" left="20"/>
+                        </padding>
+
+                        <Label text="Timetable List"
+                               textFill="#17324D">
+                            <font>
+                                <Font name="System Bold" size="16"/>
+                            </font>
+                        </Label>
+
+                        <TableView fx:id="timetableTable"
+                                   fixedCellSize="38"
+                                   minHeight="-Infinity"
+                                   maxHeight="-Infinity"
+                                   prefHeight="260"
+                                   minWidth="0"
+                                   maxWidth="Infinity"
+                                   style="-fx-font-size: 11px;
+                                          -fx-background-color: white;
+                                          -fx-border-color: #E2E8F0;
+                                          -fx-background-radius: 7;
+                                          -fx-border-radius: 7;
+                                          -fx-padding: 0;">
+
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                            </columnResizePolicy>
+
+                            <placeholder>
+                                <Label text="No timetable entries available."
+                                       textFill="#7B8797"/>
+                            </placeholder>
+
+                            <columns>
+                                <TableColumn fx:id="entryIdColumn"
+                                             text="Entry ID"
+                                             minWidth="45"
+                                             prefWidth="65"/>
+
+                                <TableColumn fx:id="courseColumn"
+                                             text="Course Code"
+                                             minWidth="65"
+                                             prefWidth="100"/>
+
+                                <TableColumn fx:id="dayColumn"
+                                             text="Day"
+                                             minWidth="60"
+                                             prefWidth="90"/>
+
+                                <TableColumn fx:id="timeColumn"
+                                             text="Time"
+                                             minWidth="90"
+                                             prefWidth="120"/>
+
+                                <TableColumn fx:id="venueColumn"
+                                             text="Venue"
+                                             minWidth="55"
+                                             prefWidth="95"/>
+
+                                <TableColumn fx:id="sessionTypeColumn"
+                                             text="Session"
+                                             minWidth="60"
+                                             prefWidth="85"/>
+
+                                <TableColumn fx:id="yearColumn"
+                                             text="Academic Year"
+                                             minWidth="80"
+                                             prefWidth="110"/>
+
+                                <TableColumn fx:id="semesterColumn"
+                                             text="Semester"
+                                             minWidth="70"
+                                             prefWidth="100"/>
+                            </columns>
+                        </TableView>
                     </VBox>
-                </HBox>
-
-                <HBox spacing="12">
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Start Time (24-hour)"/>
-                        <TextField fx:id="startTimeField"
-                                   promptText="08:30"
-                                   prefHeight="34"/>
-                    </VBox>
-
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="End Time (24-hour)"/>
-                        <TextField fx:id="endTimeField"
-                                   promptText="10:30"
-                                   prefHeight="34"/>
-                    </VBox>
-
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Venue / Lecture Hall"/>
-                        <TextField fx:id="venueField"
-                                   promptText="LT-01 / Lab-02"
-                                   prefHeight="34"/>
-                    </VBox>
-                </HBox>
-
-                <HBox spacing="12">
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Session Type"/>
-                        <ComboBox fx:id="sessionTypeComboBox"
-                                  promptText="Select type"
-                                  maxWidth="Infinity"
-                                  prefHeight="34"/>
-                    </VBox>
-
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Academic Year"/>
-                        <TextField fx:id="academicYearField"
-                                   promptText="2026/2027"
-                                   prefHeight="34"/>
-                    </VBox>
-
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Semester"/>
-                        <ComboBox fx:id="semesterComboBox"
-                                  promptText="Select semester"
-                                  maxWidth="Infinity"
-                                  prefHeight="34"/>
-                    </VBox>
-                </HBox>
-
-                <HBox spacing="8">
-                    <Button text="Add Entry"
-                            onAction="#handleAdd"
-                            prefHeight="34"
-                            style="-fx-background-color: #4c56cd; -fx-text-fill: white; -fx-background-radius: 5;"/>
-
-                    <Button text="Update"
-                            onAction="#handleUpdate"
-                            prefHeight="34"
-                            style="-fx-background-color: #EEF0FF; -fx-text-fill: #4c56cd; -fx-background-radius: 5;"/>
-
-                    <Button text="Delete"
-                            onAction="#handleDelete"
-                            prefHeight="34"
-                            style="-fx-background-color: #FCE8E8; -fx-text-fill: #B42318; -fx-background-radius: 5;"/>
-
-                    <Button text="Clear"
-                            onAction="#handleClear"
-                            prefHeight="34"
-                            style="-fx-background-color: #EEF0FF; -fx-text-fill: #4c56cd; -fx-background-radius: 5;"/>
-                </HBox>
-
-                <Label fx:id="messageLabel"
-                       wrapText="true"
-                       textFill="#526174"/>
-            </VBox>
-
-            <VBox spacing="10" VBox.vgrow="ALWAYS"
-                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #D5DCE5; -fx-border-radius: 8;">
-                <padding>
-                    <Insets top="14" right="14" bottom="14" left="14"/>
-                </padding>
-
-                <Label text="Timetable List" textFill="#17324D">
-                    <font>
-                        <Font name="System Bold" size="15"/>
-                    </font>
-                </Label>
-
-                <TableView fx:id="timetableTable"
-                           VBox.vgrow="ALWAYS"
-                           prefHeight="300">
-                    <columns>
-                        <TableColumn fx:id="entryIdColumn"
-                                     text="Entry ID"
-                                     prefWidth="75"/>
-                        <TableColumn fx:id="courseColumn"
-                                     text="Course Code"
-                                     prefWidth="105"/>
-                        <TableColumn fx:id="dayColumn"
-                                     text="Day"
-                                     prefWidth="95"/>
-                        <TableColumn fx:id="timeColumn"
-                                     text="Time"
-                                     prefWidth="115"/>
-                        <TableColumn fx:id="venueColumn"
-                                     text="Venue"
-                                     prefWidth="105"/>
-                        <TableColumn fx:id="sessionTypeColumn"
-                                     text="Session"
-                                     prefWidth="90"/>
-                        <TableColumn fx:id="yearColumn"
-                                     text="Academic Year"
-                                     prefWidth="110"/>
-                        <TableColumn fx:id="semesterColumn"
-                                     text="Semester"
-                                     prefWidth="100"/>
-                    </columns>
-                </TableView>
-            </VBox>
-        </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
     </center>
 </BorderPane>

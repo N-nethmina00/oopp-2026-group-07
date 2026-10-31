@@ -8,8 +8,6 @@ import javafx.stage.Stage;
 import com.fot.ams.util.DBConnection;
 import java.sql.Connection;
 
-
-
 public class Main extends Application {
 
     @Override
@@ -27,7 +25,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
 
-        try (Connection connection = DBConnection.getStudentConnection()) {
+        try (Connection connection = DBConnection.getConnection()) {
             System.out.println("Database Connected Successfully!");
         } catch (Exception e) {
             e.printStackTrace();

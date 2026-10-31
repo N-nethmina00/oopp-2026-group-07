@@ -120,22 +120,29 @@ public class StudentResultsDAO {
             """;
 
         String marksSql = """
-            SELECT
-                c.course_code,
-                c.course_name,
-                c.credit,
-                m.grade,
-                m.grade_point
-            FROM mark m
-            JOIN enrollment e
-                ON m.enrollment_id = e.enrollment_id
-            JOIN undergraduate u
-                ON e.reg_no = u.reg_no
-            JOIN course c
-                ON e.course_id = c.course_id
-            WHERE u.user_id = ?
-            ORDER BY c.course_code
-            """;
+    SELECT
+        c.course_code,
+        c.course_name,
+        c.credit,
+        m.grade,
+        m.grade_point
+    FROM mark m
+    JOIN enrollment e
+        ON m.enrollment_id = e.enrollment_id
+    JOIN undergraduate u
+        ON e.reg_no = u.reg_no
+    JOIN course c
+        ON e.course_id = c.course_id
+    WHERE u.user_id = ?
+      AND EXISTS (
+          SELECT 1
+          FROM timetable t
+          WHERE t.course_id = c.course_id
+            AND t.academic_year = ?
+            AND t.semester = ?
+      )
+    ORDER BY c.course_code
+    """;
 
         try (Connection con = DBConnection.getStudentConnection()) {
 
@@ -169,12 +176,14 @@ public class StudentResultsDAO {
 
             // Only associate course marks when this
             // student has exactly one recorded semester.
-            if (periodExists && getSemesterCount(userId) == 1) {
+            if (periodExists) {
 
                 try (PreparedStatement ps =
                              con.prepareStatement(marksSql)) {
 
                     ps.setString(1, userId);
+                    ps.setString(2, year);
+                    ps.setString(3, semester);
 
                     try (ResultSet rs = ps.executeQuery()) {
 

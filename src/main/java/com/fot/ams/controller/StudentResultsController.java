@@ -186,11 +186,9 @@ public class StudentResultsController {
 
             if (semesterCount > 1) {
 
-                tblResults.setPlaceholder(new Label(
-                        "Course grades cannot be assigned " +
-                                "to a specific semester with " +
-                                "the current database structure."
-                ));
+                tblResults.setPlaceholder(
+                        new Label("No course results found for selected semester")
+                );
 
             } else {
 

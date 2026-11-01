@@ -222,6 +222,7 @@ public class AdminController {
 
                 borderPane.setCenter(null);
                 mainPane.setCenter(content);
+
             } else {
                 mainPane.setCenter(page);
             }
@@ -231,7 +232,9 @@ public class AdminController {
         } catch (Exception e) {
             showError(
                     "Unable to Open Page",
-                    fileName + "\n" + e.getMessage()
+                    fileName + "\n"
+                            + e.getClass().getSimpleName()
+                            + ": " + e.getMessage()
             );
         }
     }

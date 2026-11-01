@@ -15,27 +15,27 @@
     <HBox spacing="18">
         <VBox styleClass="stat-card, blue-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
             <Label text="ENROLLED COURSES" styleClass="stat-label"/>
-            <Label fx:id="lblCourses" text="6" styleClass="stat-value"/>
+            <Label fx:id="lblCourses" text="--" styleClass="stat-value"/>
             <Label text="This semester" styleClass="stat-hint"/>
         </VBox>
 
         <VBox styleClass="stat-card, green-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
             <Label text="GPA" styleClass="stat-label"/>
-            <Label fx:id="lblGpa" text="3.42" styleClass="stat-value"/>
+            <Label fx:id="lblGpa" text="--" styleClass="stat-value"/>
             <Label text="Current" styleClass="stat-hint"/>
         </VBox>
 
     </HBox>
 
     <VBox styleClass="section-card" spacing="14" VBox.vgrow="ALWAYS">
-        <Label text="Today's Timetable" styleClass="section-title"/>
+        <Label text="Course Timetable" styleClass="section-title"/>
         <TableView fx:id="tblToday" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="colTime" text="Time"/>
                 <TableColumn fx:id="colCode" text="Code"/>
                 <TableColumn fx:id="colCourse" text="Course"/>
                 <TableColumn fx:id="colHall" text="Hall"/>
-                <TableColumn fx:id="colStatus" text="Status"/>
+                <TableColumn fx:id="colStatus" text="Session Type"/>
             </columns>
         </TableView>
     </VBox>

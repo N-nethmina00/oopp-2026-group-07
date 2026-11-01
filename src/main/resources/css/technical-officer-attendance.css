@@ -1,0 +1,108 @@
+/* TG2070 - Compact attendance page */
+.attendance-page {
+    -fx-background-color: #F3F6FA;
+    -fx-padding: 16 20 16 10;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 13px;
+}
+
+.attendance-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #17324D;
+}
+
+.attendance-subtitle {
+    -fx-text-fill: #7B8797;
+    -fx-font-size: 12px;
+}
+
+.attendance-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 8;
+    -fx-padding: 14;
+}
+
+.attendance-section-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #17324D;
+}
+
+/* TG2070 - Smaller selection controls */
+.attendance-page .combo-box,
+.attendance-page .date-picker {
+    -fx-pref-height: 34;
+    -fx-background-color: white;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.attendance-primary-button {
+    -fx-background-color: #4C56CD;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 9 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.attendance-primary-button:hover {
+    -fx-background-color: #3D46B5;
+}
+
+.attendance-secondary-button {
+    -fx-background-color: #ECEEFC;
+    -fx-text-fill: #4C56CD;
+    -fx-font-weight: bold;
+    -fx-padding: 9 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.attendance-secondary-button:hover {
+    -fx-background-color: #DDE1FA;
+}
+
+.attendance-page .table-view {
+    -fx-background-color: white;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.attendance-page .table-view .column-header-background,
+.attendance-page .table-view .column-header,
+.attendance-page .table-view .filler {
+    -fx-background-color: #ECEEFC;
+}
+
+.attendance-page .table-view .column-header {
+    -fx-pref-height: 36;
+}
+
+.attendance-page .table-view .column-header .label {
+    -fx-text-fill: #17324D;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 10;
+}
+
+.attendance-page .table-row-cell {
+    -fx-cell-size: 36;
+}
+
+.attendance-page .table-cell {
+    -fx-text-fill: #526174;
+}
+
+.attendance-page .table-row-cell:filled:hover {
+    -fx-background-color: #F0F1FD;
+}
+
+.attendance-page .table-row-cell:filled:selected {
+    -fx-background-color: #DDE1FA;
+}

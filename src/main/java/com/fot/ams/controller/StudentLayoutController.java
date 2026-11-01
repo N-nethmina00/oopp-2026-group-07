@@ -23,6 +23,7 @@ import com.fot.ams.model.Student;
 public class StudentLayoutController {
 
     private static final String ACTIVE = "nav-button-active";
+    private String loggedInUserId;
 
     @FXML private VBox navBox;
     @FXML private StackPane contentArea;
@@ -58,15 +59,105 @@ public class StudentLayoutController {
     }
 
     private void open(Button btn) {
+
         String page = (String) btn.getUserData();
+
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/fxml/" + page + ".fxml"));
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/fxml/" + page + ".fxml"
+                    )
+            );
+
+            Parent root = loader.load();
+
+            // Load dashboard data for logged-in student
+            if ("student-dashboard".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentDashboardController controller =
+                        loader.getController();
+
+                controller.loadDashboard(loggedInUserId);
+            }
+            // Load logged-in student's enrolled courses
+            if ("student-courses".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentCoursesController controller =
+                        loader.getController();
+
+                controller.loadCourses(loggedInUserId);
+            }
+            // Load profile for logged-in student
+            if ("student-profile".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentProfileController controller =
+                        loader.getController();
+
+                controller.loadProfile(loggedInUserId);
+            }
+            // Load semester results of logged-in student
+            if ("student-results".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentResultsController controller =
+                        loader.getController();
+
+                controller.loadResults(loggedInUserId);
+            }
+            if ("student-medical".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentMedicalController controller =
+                        loader.getController();
+
+                controller.loadMedical(loggedInUserId);
+            }
+            if ("student-marks".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentMarksController controller =
+                        loader.getController();
+
+                controller.loadMarks(loggedInUserId);
+            }
+            if ("student-materials".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentMaterialsController controller =
+                        loader.getController();
+
+                controller.loadMaterials(loggedInUserId);
+            }
+            if ("student-attendance".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentAttendanceController controller =
+                        loader.getController();
+
+                controller.loadAttendance(loggedInUserId);
+            }
+
             contentArea.getChildren().setAll(root);
-            navBox.getChildren().forEach(n -> n.getStyleClass().remove(ACTIVE));
+
+            // Update active sidebar button
+            navBox.getChildren().forEach(
+                    n -> n.getStyleClass().remove(ACTIVE)
+            );
+
             btn.getStyleClass().add(ACTIVE);
+
         } catch (IOException | NullPointerException ex) {
+
             ex.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Cannot load page: " + page + ".fxml").showAndWait();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Cannot load page: " + page + ".fxml"
+            ).showAndWait();
         }
     }
 
@@ -74,21 +165,22 @@ public class StudentLayoutController {
 
     public void loadStudentName(String userId) {
 
+        // Save logged-in user ID
+        this.loggedInUserId = userId;
+
         StudentDashboardDAO dao = new StudentDashboardDAO();
 
         try {
 
-            // Get Student object from DAO
             Student student = dao.getStudentByUserId(userId);
 
-            if (student != null && !student.getFullName().isBlank()) {
+            if (student != null
+                    && !student.getFullName().isBlank()) {
 
-                // Get name and role from Student Model
-                String name = student.getFullName();
-                String role = student.getRole();
-
-                // Display in Student Layout
-                setUser(name, role);
+                setUser(
+                        student.getFullName(),
+                        student.getRole()
+                );
 
             } else {
 
@@ -100,8 +192,10 @@ public class StudentLayoutController {
             e.printStackTrace();
             setUser("Student", "Undergraduate");
         }
-    }
 
+        // Reload dashboard using actual logged-in user ID
+        open((Button) navBox.getChildren().get(0));
+    }
 
 
     @FXML

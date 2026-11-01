@@ -2,6 +2,7 @@ package com.fot.ams.controller;
 
 import com.fot.ams.dao.CourseDAO;
 import com.fot.ams.model.Course;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
@@ -35,8 +36,6 @@ public class AdminCourseManagementController {
     private final CourseDAO dao = new CourseDAO();
 
     private static final double TABLE_ROW_HEIGHT = 38.0;
-
-    // Space for the table header and borders.
     private static final double TABLE_HEADER_HEIGHT = 40.0;
 
     private final ListChangeListener<Course> tableRowsListener =
@@ -99,7 +98,6 @@ public class AdminCourseManagementController {
     private void configureTableHeight() {
         coursesTable.setFixedCellSize(TABLE_ROW_HEIGHT);
 
-        // Keep the table at its calculated preferred height.
         // The outer ScrollPane handles vertical scrolling.
         coursesTable.setMinHeight(Region.USE_PREF_SIZE);
         coursesTable.setMaxHeight(Region.USE_PREF_SIZE);
@@ -108,7 +106,7 @@ public class AdminCourseManagementController {
             coursesTable.getItems().addListener(tableRowsListener);
         }
 
-        // loadCourses() replaces the items list, so observe replacements too.
+        // Observe the new list when loadCourses replaces table items.
         coursesTable.itemsProperty().addListener(
                 (observable, oldItems, newItems) -> {
                     if (oldItems != null) {
@@ -131,7 +129,7 @@ public class AdminCourseManagementController {
                 ? 0
                 : coursesTable.getItems().size();
 
-        // Leave room for the placeholder when the table is empty.
+        // Leave space for the placeholder when there are no courses.
         int visibleRows = Math.max(rowCount, 1);
 
         double tableHeight =
@@ -171,14 +169,11 @@ public class AdminCourseManagementController {
                     )
             );
 
-            messageLabel.setText(
-                    "Courses loaded successfully."
-            );
+            messageLabel.setText("Courses loaded successfully.");
 
         } catch (SQLException e) {
             showError(
-                    "Unable to load courses: "
-                            + e.getMessage()
+                    "Unable to load courses: " + e.getMessage()
             );
         }
     }
@@ -192,15 +187,12 @@ public class AdminCourseManagementController {
                 loadCourses();
                 handleClear();
 
-                messageLabel.setText(
-                        "Course added successfully."
-                );
+                messageLabel.setText("Course added successfully.");
             }
 
         } catch (Exception e) {
             showError(
-                    "Unable to add course: "
-                            + e.getMessage()
+                    "Unable to add course: " + e.getMessage()
             );
         }
     }
@@ -213,9 +205,7 @@ public class AdminCourseManagementController {
                     .getSelectedItem();
 
             if (selected == null) {
-                showError(
-                        "Select a course from the table first."
-                );
+                showError("Select a course from the table first.");
                 return;
             }
 
@@ -224,24 +214,19 @@ public class AdminCourseManagementController {
             if (!course.getCourseCode()
                     .equals(selected.getCourseCode())) {
 
-                showError(
-                        "Course ID cannot be changed during update."
-                );
+                showError("Course ID cannot be changed during update.");
                 return;
             }
 
             if (dao.updateCourse(course)) {
                 loadCourses();
 
-                messageLabel.setText(
-                        "Course updated successfully."
-                );
+                messageLabel.setText("Course updated successfully.");
             }
 
         } catch (Exception e) {
             showError(
-                    "Unable to update course: "
-                            + e.getMessage()
+                    "Unable to update course: " + e.getMessage()
             );
         }
     }
@@ -253,18 +238,13 @@ public class AdminCourseManagementController {
                 .getSelectedItem();
 
         if (selected == null) {
-            showError(
-                    "Select a course from the table first."
-            );
+            showError("Select a course from the table first.");
             return;
         }
 
-        Alert confirm = new Alert(
-                Alert.AlertType.CONFIRMATION
-        );
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
 
         confirm.setTitle("Delete Course");
-
         confirm.setHeaderText(
                 "Delete " + selected.getCourseCode() + "?"
         );
@@ -284,15 +264,12 @@ public class AdminCourseManagementController {
                 loadCourses();
                 handleClear();
 
-                messageLabel.setText(
-                        "Course deleted successfully."
-                );
+                messageLabel.setText("Course deleted successfully.");
             }
 
         } catch (SQLException e) {
             showError(
-                    "Unable to delete course: "
-                            + e.getMessage()
+                    "Unable to delete course: " + e.getMessage()
             );
         }
     }
@@ -310,7 +287,6 @@ public class AdminCourseManagementController {
         coursesTable.getSelectionModel().clearSelection();
 
         courseIdField.setEditable(true);
-
         messageLabel.setText("");
     }
 
@@ -371,29 +347,13 @@ public class AdminCourseManagementController {
     }
 
     private void fillForm(Course course) {
-        courseIdField.setText(
-                course.getCourseCode()
-        );
+        courseIdField.setText(course.getCourseCode());
+        courseNameField.setText(course.getCourseName());
+        creditField.setText(String.valueOf(course.getCredit()));
 
-        courseNameField.setText(
-                course.getCourseName()
-        );
-
-        creditField.setText(
-                String.valueOf(course.getCredit())
-        );
-
-        typeComboBox.setValue(
-                course.getType()
-        );
-
-        departmentComboBox.setValue(
-                course.getDepartmentName()
-        );
-
-        lecturerComboBox.setValue(
-                course.getLecturerId()
-        );
+        typeComboBox.setValue(course.getType());
+        departmentComboBox.setValue(course.getDepartmentName());
+        lecturerComboBox.setValue(course.getLecturerId());
 
         courseIdField.setEditable(false);
     }
@@ -401,9 +361,7 @@ public class AdminCourseManagementController {
     private void showError(String message) {
         messageLabel.setText(message);
 
-        Alert alert = new Alert(
-                Alert.AlertType.ERROR
-        );
+        Alert alert = new Alert(Alert.AlertType.ERROR);
 
         alert.setTitle("Course Management");
         alert.setHeaderText("Operation failed");

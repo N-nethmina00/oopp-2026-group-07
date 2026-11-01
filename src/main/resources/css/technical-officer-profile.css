@@ -1,0 +1,96 @@
+.profile-scroll,
+.profile-scroll > .viewport {
+    -fx-background-color: #F3F6FA;
+}
+
+.profile-scroll {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.profile-page {
+    -fx-background-color: #F3F6FA;
+    -fx-padding: 25 25 25 10;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 13px;
+}
+
+.profile-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #17324D;
+}
+
+.profile-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7B8797;
+}
+
+.profile-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 8;
+    -fx-padding: 20;
+}
+
+.profile-section-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #17324D;
+}
+
+.profile-avatar {
+    -fx-background-color: #ECEEFC;
+    -fx-background-radius: 50;
+    -fx-min-width: 90;
+    -fx-max-width: 90;
+    -fx-min-height: 90;
+    -fx-max-height: 90;
+}
+
+.profile-avatar-text {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4C56CD;
+}
+
+.profile-page .text-field {
+    -fx-pref-height: 40;
+    -fx-background-color: white;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: #334155;
+}
+
+.profile-page .text-field.profile-readonly {
+    -fx-background-color: #F0F2F6;
+    -fx-text-fill: #64748B;
+}
+
+.profile-primary-button {
+    -fx-background-color: #4C56CD;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 11 18;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.profile-primary-button:hover {
+    -fx-background-color: #3D46B5;
+}
+
+.profile-secondary-button {
+    -fx-background-color: #ECEEFC;
+    -fx-text-fill: #4C56CD;
+    -fx-font-weight: bold;
+    -fx-padding: 11 18;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.profile-secondary-button:hover {
+    -fx-background-color: #DDE1FA;
+}

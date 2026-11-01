@@ -1,0 +1,122 @@
+.medical-scroll,
+.medical-scroll > .viewport {
+    -fx-background-color: #F3F6FA;
+}
+
+.medical-scroll {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.medical-page {
+    -fx-background-color: #F3F6FA;
+    -fx-padding: 25 25 25 10;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 13px;
+}
+
+.medical-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #17324D;
+}
+
+.medical-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7B8797;
+}
+
+.medical-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 8;
+    -fx-padding: 20;
+}
+
+.medical-section-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #17324D;
+}
+
+.medical-page .text-field,
+.medical-page .combo-box,
+.medical-page .date-picker {
+    -fx-pref-height: 38;
+    -fx-background-color: white;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.medical-page .text-area {
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.medical-page .text-area .content {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+}
+
+.medical-primary-button {
+    -fx-background-color: #4C56CD;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 11 18;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.medical-primary-button:hover {
+    -fx-background-color: #3D46B5;
+}
+
+.medical-secondary-button {
+    -fx-background-color: #ECEEFC;
+    -fx-text-fill: #4C56CD;
+    -fx-font-weight: bold;
+    -fx-padding: 11 18;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.medical-secondary-button:hover {
+    -fx-background-color: #DDE1FA;
+}
+
+.medical-page .table-view {
+    -fx-background-color: white;
+    -fx-border-color: #D5DCE5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.medical-page .table-view .column-header-background,
+.medical-page .table-view .column-header,
+.medical-page .table-view .filler {
+    -fx-background-color: #ECEEFC;
+}
+
+.medical-page .table-view .column-header {
+    -fx-pref-height: 40;
+}
+
+.medical-page .table-view .column-header .label {
+    -fx-text-fill: #17324D;
+    -fx-font-weight: bold;
+}
+
+.medical-page .table-row-cell {
+    -fx-cell-size: 40;
+}
+
+.medical-page .table-row-cell:filled:hover {
+    -fx-background-color: #F0F1FD;
+}
+
+.medical-page .table-row-cell:filled:selected {
+    -fx-background-color: #DDE1FA;
+}

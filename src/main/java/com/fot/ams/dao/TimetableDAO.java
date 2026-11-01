@@ -4,7 +4,11 @@ import com.fot.ams.model.Course;
 import com.fot.ams.model.Timetable;
 import com.fot.ams.util.DBConnection;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,6 +145,7 @@ public class TimetableDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
+
             return ps.executeUpdate() > 0;
         }
     }
@@ -154,4 +159,75 @@ public class TimetableDAO {
 
         return time;
     }
+
+    // TG2070 - START: Read timetable for logged-in TO's department
+    public List<Timetable> getTimetablesForTechnicalOfficer(
+            String technicalOfficerId) throws SQLException {
+
+        if (technicalOfficerId == null
+                || technicalOfficerId.isBlank()) {
+            throw new SQLException(
+                    "Please log in as a Technical Officer."
+            );
+        }
+
+        List<Timetable> entries = new ArrayList<>();
+
+        String sql = """
+                SELECT t.timetable_id, t.admin_id, t.course_id,
+                       c.course_code, c.course_name, t.day_of_week,
+                       TIME_FORMAT(t.start_time, '%H:%i') AS start_time,
+                       TIME_FORMAT(t.end_time, '%H:%i') AS end_time,
+                       t.lecture_hall, t.session_type,
+                       t.academic_year, t.semester
+                FROM timetable t
+                JOIN course c ON t.course_id = c.course_id
+                JOIN technical_officer officer
+                    ON officer.dept_id = c.dept_id
+                WHERE officer.to_id = ?
+                ORDER BY t.academic_year, t.semester,
+                         CASE t.day_of_week
+                             WHEN 'Monday' THEN 1
+                             WHEN 'Tuesday' THEN 2
+                             WHEN 'Wednesday' THEN 3
+                             WHEN 'Thursday' THEN 4
+                             WHEN 'Friday' THEN 5
+                             WHEN 'Saturday' THEN 6
+                             WHEN 'Sunday' THEN 7
+                             ELSE 8
+                         END,
+                         t.start_time, c.course_code, t.timetable_id
+                """;
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, technicalOfficerId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Timetable entry = new Timetable(
+                            resultSet.getInt("timetable_id"),
+                            resultSet.getString("admin_id"),
+                            resultSet.getInt("course_id"),
+                            resultSet.getString("course_code"),
+                            resultSet.getString("course_name"),
+                            resultSet.getString("day_of_week"),
+                            resultSet.getString("start_time"),
+                            resultSet.getString("end_time"),
+                            resultSet.getString("lecture_hall"),
+                            resultSet.getString("session_type"),
+                            resultSet.getString("academic_year"),
+                            resultSet.getString("semester")
+                    );
+
+                    entries.add(entry);
+                }
+            }
+        }
+
+        return entries;
+    }
+    // TG2070 - END
 }

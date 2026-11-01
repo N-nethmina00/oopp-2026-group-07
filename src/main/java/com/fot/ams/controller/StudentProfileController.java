@@ -1,6 +1,9 @@
 
 package com.fot.ams.controller;
 
+import com.fot.ams.dao.StudentProfileDAO;
+import com.fot.ams.model.Student;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -9,6 +12,12 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
+import java.util.UUID;
 
 public class StudentProfileController {
 
@@ -16,40 +25,204 @@ public class StudentProfileController {
     private Label lblPhoto, lblMessage;
 
     @FXML
-    private TextField txtFirstName, txtLastName, txtEmail, txtRegNo;
+    private TextField txtFirstName, txtLastName,
+            txtEmail, txtRegNo;
 
     @FXML
     private ImageView imgProfile;
 
+    private String loggedInUserId;
+    private String currentPhotoPath;
     private File selectedPhotoFile;
+
+    private final StudentProfileDAO profileDAO =
+            new StudentProfileDAO();
 
     @FXML
     private void initialize() {
 
-        // TODO: Load real student data from DAO
-        txtFirstName.setText("Sample");
-        txtLastName.setText("User");
-        txtEmail.setText("user@mail.com");
-        txtRegNo.setText("TG/2023/001");
-
-        // Only contact details and photo can be updated
+        // Only email and profile picture can be edited
         txtFirstName.setEditable(false);
         txtLastName.setEditable(false);
         txtRegNo.setEditable(false);
-
-        lblPhoto.setText(
-                txtFirstName.getText()
-                        .substring(0, 1)
-                        .toUpperCase()
-        );
 
         txtEmail.textProperty().addListener(
                 (obs, oldValue, newValue) -> hideMessage()
         );
     }
 
+    // Called from StudentLayoutController
+    public void loadProfile(String userId) {
+
+        this.loggedInUserId = userId;
+
+        try {
+
+            Student student =
+                    profileDAO.getStudentProfile(userId);
+
+            if (student == null) {
+                showMessage("Student profile not found.", false);
+                return;
+            }
+
+            // Load student information from Model
+            txtFirstName.setText(student.getFirstName());
+            txtLastName.setText(student.getLastName());
+            txtEmail.setText(student.getEmail());
+            txtRegNo.setText(student.getRegNo());
+
+            currentPhotoPath = student.getProfileImage();
+            selectedPhotoFile = null;
+
+            // Set avatar letter
+            String firstName = student.getFirstName();
+
+            lblPhoto.setText(
+                    firstName == null || firstName.isBlank()
+                            ? "?"
+                            : firstName.substring(0, 1).toUpperCase()
+            );
+
+            // Load saved profile picture
+            displayPhoto(currentPhotoPath);
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            showMessage(
+                    "Unable to load profile: " + e.getMessage(),
+                    false
+            );
+        }
+    }
+
+    // Display image or default avatar
+    private void displayPhoto(String path) {
+
+        imgProfile.setImage(null);
+        imgProfile.setVisible(false);
+        lblPhoto.setVisible(true);
+
+        if (path == null || path.isBlank()) {
+            return;
+        }
+
+        try {
+
+            File file = Path.of(
+                    System.getProperty("user.dir"),
+                    path
+            ).toFile();
+
+            if (!file.isFile()) {
+                return;
+            }
+
+            Image image = new Image(
+                    file.toURI().toString(),
+                    false
+            );
+
+            if (!image.isError()) {
+
+                imgProfile.setImage(image);
+                imgProfile.setVisible(true);
+                lblPhoto.setVisible(false);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Select new profile picture
+    @FXML
+    private void handleChangePhoto() {
+
+        FileChooser chooser = new FileChooser();
+
+        chooser.setTitle("Select Profile Picture");
+
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Image Files",
+                        "*.png", "*.jpg", "*.jpeg"
+                )
+        );
+
+        File file = chooser.showOpenDialog(
+                imgProfile.getScene().getWindow()
+        );
+
+        if (file == null) {
+            return;
+        }
+
+        try {
+
+            // Maximum 5 MB, non-empty
+            if (file.length() == 0 ||
+                    file.length() > 5 * 1024 * 1024) {
+
+                showMessage(
+                        "Image must be between 1 byte and 5 MB.",
+                        false
+                );
+                return;
+            }
+
+            String name = file.getName().toLowerCase();
+
+            if (!(name.endsWith(".png") ||
+                    name.endsWith(".jpg") ||
+                    name.endsWith(".jpeg"))) {
+
+                showMessage("Select JPG or PNG image.", false);
+                return;
+            }
+
+            Image image = new Image(
+                    file.toURI().toString(),
+                    false
+            );
+
+            if (image.isError() ||
+                    image.getWidth() <= 0 ||
+                    image.getHeight() <= 0) {
+
+                showMessage("Invalid image file.", false);
+                return;
+            }
+
+            selectedPhotoFile = file;
+
+            // Preview only, not saved yet
+            imgProfile.setImage(image);
+            imgProfile.setVisible(true);
+            lblPhoto.setVisible(false);
+
+            showMessage(
+                    "Photo selected. Click Save Changes.",
+                    true
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            showMessage("Unable to open photo.", false);
+        }
+    }
+
+    // Save email and picture
     @FXML
     private void handleSave() {
+
+        if (loggedInUserId == null) {
+            showMessage("Student is not logged in.", false);
+            return;
+        }
 
         String email = txtEmail.getText().trim();
 
@@ -63,97 +236,110 @@ public class StudentProfileController {
             return;
         }
 
-        // TODO: Save email and selectedPhotoFile using DAO.
-        // Do not show success until database save succeeds.
-
-        showMessage(
-                "Profile changes are not saved to the database yet.",
-                false
-        );
-    }
-
-    @FXML
-    private void handleChangePhoto() {
-
-        FileChooser fileChooser = new FileChooser();
-
-        fileChooser.setTitle("Select Profile Picture");
-
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(
-                        "Image Files",
-                        "*.png", "*.jpg", "*.jpeg"
-                )
-        );
-
-        File file = fileChooser.showOpenDialog(
-                imgProfile.getScene().getWindow()
-        );
-
-        if (file == null) {
-            return;
-        }
+        String newPhotoPath = currentPhotoPath;
+        Path newlyCopiedFile = null;
 
         try {
 
-            // Limit selected image to 5 MB
-            if (file.length() > 5 * 1024 * 1024) {
-                showMessage(
-                        "Image size must be less than 5 MB.",
-                        false
+            if (selectedPhotoFile != null) {
+
+                // Save images in application data folder
+                Path photoDirectory = Path.of(
+                        System.getProperty("user.dir"),
+                        "images",
+                        "profiles"
                 );
-                return;
+
+                Files.createDirectories(photoDirectory);
+
+                String lowerName =
+                        selectedPhotoFile.getName().toLowerCase();
+
+                String extension = lowerName.endsWith(".png")
+                        ? ".png" : ".jpg";
+
+                String uniqueName =
+                        loggedInUserId + "_profile_" +
+                                UUID.randomUUID() + extension;
+
+                Path destination =
+                        photoDirectory.resolve(uniqueName);
+
+                Files.copy(
+                        selectedPhotoFile.toPath(),
+                        destination,
+                        StandardCopyOption.REPLACE_EXISTING
+                );
+
+                newlyCopiedFile = destination;
+                newPhotoPath = Path.of(
+                        "images",
+                        "profiles",
+                        uniqueName
+                ).toString();
             }
 
-            Image image = new Image(
-                    file.toURI().toString(),
-                    false
-            );
+            // Update database only after photo copy succeeds
+            boolean updated =
+                    profileDAO.updateStudentProfile(
+                            loggedInUserId,
+                            email,
+                            newPhotoPath
+                    );
 
-            if (image.isError()) {
+            if (updated) {
+
+                currentPhotoPath = newPhotoPath;
+                selectedPhotoFile = null;
+
+                displayPhoto(currentPhotoPath);
+
                 showMessage(
-                        "Unable to load selected image.",
-                        false
+                        "Profile updated successfully!",
+                        true
                 );
-                return;
+
+            } else {
+
+                // Remove unsaved copy
+                if (newlyCopiedFile != null) {
+                    Files.deleteIfExists(newlyCopiedFile);
+                }
+
+                showMessage("Profile update failed.", false);
             }
 
-            imgProfile.setImage(image);
-            imgProfile.setVisible(true);
-
-            lblPhoto.setVisible(false);
-
-            selectedPhotoFile = file;
-
-            showMessage(
-                    "Profile picture selected. Save it after database integration.",
-                    true
-            );
-
-        } catch (Exception e) {
-
-            showMessage(
-                    "Failed to load profile picture.",
-                    false
-            );
+        } catch (SQLException | IOException e) {
 
             e.printStackTrace();
+
+            if (newlyCopiedFile != null) {
+                try {
+                    Files.deleteIfExists(newlyCopiedFile);
+                } catch (IOException cleanupError) {
+                    cleanupError.printStackTrace();
+                }
+            }
+
+            showMessage(
+                    "Unable to save profile: " + e.getMessage(),
+                    false
+            );
         }
     }
 
-    private void showMessage(String msg, boolean ok) {
+    private void showMessage(String message, boolean success) {
 
         lblMessage.getStyleClass().setAll(
-                ok ? "success-label" : "error-label"
+                success ? "success-label" : "error-label"
         );
 
-        lblMessage.setText(msg);
+        lblMessage.setText(message);
         lblMessage.setVisible(true);
         lblMessage.setManaged(true);
     }
 
     private void hideMessage() {
-
         lblMessage.setVisible(false);
         lblMessage.setManaged(false);
     }

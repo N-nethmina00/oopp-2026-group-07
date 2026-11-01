@@ -21,13 +21,20 @@ public class LoginController {
     private static final String FOCUSED_STYLE =
             "input-box-focused";
 
-    @FXML private HBox boxUsername;
-    @FXML private HBox boxPassword;
+    @FXML
+    private HBox boxUsername;
 
-    @FXML private TextField txtUsername;
-    @FXML private PasswordField txtPassword;
+    @FXML
+    private HBox boxPassword;
 
-    @FXML private Label lblError;
+    @FXML
+    private TextField txtUsername;
+
+    @FXML
+    private PasswordField txtPassword;
+
+    @FXML
+    private Label lblError;
 
     private final UserDAO userDAO = new UserDAO();
 
@@ -35,7 +42,6 @@ public class LoginController {
     private void initialize() {
         txtUsername.clear();
         txtPassword.clear();
-
         hideError();
 
         bindFocusStyle(txtUsername, boxUsername);
@@ -62,8 +68,7 @@ public class LoginController {
         field.focusedProperty().addListener(
                 (observable, oldValue, focused) -> {
                     if (focused) {
-                        if (!box.getStyleClass()
-                                .contains(FOCUSED_STYLE)) {
+                        if (!box.getStyleClass().contains(FOCUSED_STYLE)) {
                             box.getStyleClass().add(FOCUSED_STYLE);
                         }
                     } else {
@@ -110,10 +115,9 @@ public class LoginController {
                 case "Undergraduate" ->
                         navigateToStudentDashboard(user);
 
-                case "Technical_Officer" -> navigateToDashboard(
-                        "/fxml/technical-officer-dashboard.fxml",
-                        "AMS - TO Dashboard"
-                );
+                // TG2070 - Open dashboard with authenticated TO ID
+                case "Technical_Officer" ->
+                        navigateToTechnicalOfficerDashboard(user);
 
                 default -> showError(
                         "Invalid user role detected: "
@@ -121,9 +125,12 @@ public class LoginController {
                 );
             }
 
-        } catch (Exception e) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
             showError(
-                    "Unable to log in: " + e.getMessage()
+                    "Unable to log in: "
+                            + exception.getMessage()
             );
         }
     }
@@ -176,10 +183,12 @@ public class LoginController {
                     680
             );
 
-        } catch (Exception e) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
             showError(
                     "Failed to load Admin Dashboard: "
-                            + e.getMessage()
+                            + exception.getMessage()
             );
         }
     }
@@ -213,10 +222,12 @@ public class LoginController {
                     750
             );
 
-        } catch (Exception e) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
             showError(
                     "Failed to load Lecturer Dashboard: "
-                            + e.getMessage()
+                            + exception.getMessage()
             );
         }
     }
@@ -241,13 +252,60 @@ public class LoginController {
                     680
             );
 
-        } catch (Exception e) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
             showError(
                     "Failed to load Student Dashboard: "
-                            + e.getMessage()
+                            + exception.getMessage()
             );
         }
     }
+
+    // TG2070 - START: Pass authenticated TO ID to dashboard
+    private void navigateToTechnicalOfficerDashboard(User user) {
+        try {
+            String technicalOfficerId =
+                    userDAO.getTechnicalOfficerIdByUserId(
+                            user.getUserId()
+                    );
+
+            if (technicalOfficerId == null
+                    || technicalOfficerId.isBlank()) {
+                showError(
+                        "No Technical Officer record found for this account."
+                );
+                return;
+            }
+
+            FXMLLoader loader = createLoader(
+                    "/fxml/technical-officer-dashboard.fxml"
+            );
+
+            Parent root = loader.load();
+
+            TechnicalOfficerController controller =
+                    loader.getController();
+
+            controller.setTechnicalOfficerId(technicalOfficerId);
+
+            openScene(
+                    root,
+                    "AMS - Technical Officer Dashboard",
+                    1200,
+                    750
+            );
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
+            showError(
+                    "Failed to load Technical Officer Dashboard: "
+                            + exception.getMessage()
+            );
+        }
+    }
+    // TG2070 - END
 
     private void navigateToDashboard(
             String path,
@@ -258,10 +316,12 @@ public class LoginController {
 
             openScene(root, title, 1100, 680);
 
-        } catch (Exception e) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
             showError(
                     "Failed to load dashboard interface: "
-                            + e.getMessage()
+                            + exception.getMessage()
             );
         }
     }

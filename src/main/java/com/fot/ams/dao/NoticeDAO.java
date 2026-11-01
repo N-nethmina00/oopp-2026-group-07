@@ -112,4 +112,56 @@ public class NoticeDAO {
             return statement.executeUpdate() > 0;
         }
     }
+    // TG2070 - START: Read published notices and search by title
+    public List<Notice> getPublishedNotices(String searchText)
+            throws SQLException {
+
+        List<Notice> notices = new ArrayList<>();
+
+        String sql =
+                "SELECT notice_id, title, content, " +
+                        "published_date, created_date " +
+                        "FROM notice " +
+                        "WHERE published_date IS NOT NULL " +
+                        "AND published_date <= CURRENT_DATE() " +
+                        "AND title LIKE ? " +
+                        "ORDER BY published_date DESC, notice_id DESC";
+
+        if (searchText == null) {
+            searchText = "";
+        }
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, "%" + searchText.trim() + "%");
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+
+                    Date publishedDate =
+                            resultSet.getDate("published_date");
+
+                    Date createdDate =
+                            resultSet.getDate("created_date");
+
+                    Notice notice = new Notice(
+                            resultSet.getInt("notice_id"),
+                            resultSet.getString("title"),
+                            resultSet.getString("content"),
+                            publishedDate.toLocalDate(),
+                            createdDate == null
+                                    ? null
+                                    : createdDate.toLocalDate()
+                    );
+
+                    notices.add(notice);
+                }
+            }
+        }
+
+        return notices;
+    }
+    // TG2070 - END
 }

@@ -1,6 +1,5 @@
 package com.fot.ams.dao;
 
-
 import com.fot.ams.util.DBConnection;
 
 import java.sql.Connection;
@@ -39,7 +38,6 @@ public class StudentDAO {
             stmt.setString(1, lecturerId);
 
             try (ResultSet rs = stmt.executeQuery()) {
-
                 while (rs.next()) {
                     students.add(new String[]{
                             rs.getString("reg_no"),
@@ -55,4 +53,3 @@ public class StudentDAO {
         return students;
     }
 }
-

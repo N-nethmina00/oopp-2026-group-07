@@ -25,36 +25,45 @@
             <Button text="Search" onAction="#handleSearch" styleClass="primary-button"/>
         </HBox>
 
-        <!-- ===== 4 summary cards ===== -->
+        <!-- ===== 3 summary cards ===== -->
         <HBox spacing="16">
-            <VBox styleClass="stat-card, blue-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+
+            <VBox styleClass="stat-card, blue-card"
+                  spacing="4"
+                  HBox.hgrow="ALWAYS"
+                  maxWidth="Infinity">
                 <Label text="TOTAL SESSIONS" styleClass="stat-label"/>
                 <Label fx:id="lblTotal" text="0" styleClass="stat-value"/>
                 <Label text="Sessions held" styleClass="stat-hint"/>
             </VBox>
-            <VBox styleClass="stat-card, green-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+
+            <VBox styleClass="stat-card, green-card"
+                  spacing="4"
+                  HBox.hgrow="ALWAYS"
+                  maxWidth="Infinity">
                 <Label text="PRESENT" styleClass="stat-label"/>
                 <Label fx:id="lblPresent" text="0" styleClass="stat-value"/>
                 <Label text="Attended" styleClass="stat-hint"/>
             </VBox>
-            <VBox styleClass="stat-card, red-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+
+            <VBox styleClass="stat-card, red-card"
+                  spacing="4"
+                  HBox.hgrow="ALWAYS"
+                  maxWidth="Infinity">
                 <Label text="ABSENT" styleClass="stat-label"/>
                 <Label fx:id="lblAbsent" text="0" styleClass="stat-value"/>
-                <Label text="Missed" styleClass="stat-hint"/>
+                <Label text="Absent / Late" styleClass="stat-hint"/>
             </VBox>
-            <VBox styleClass="stat-card, orange-card" spacing="4" HBox.hgrow="ALWAYS" maxWidth="Infinity">
-                <Label text="MEDICAL" styleClass="stat-label"/>
-                <Label fx:id="lblMedical" text="0" styleClass="stat-value"/>
-                <Label text="Medical leave" styleClass="stat-hint"/>
-            </VBox>
+
         </HBox>
+
 
         <!-- ===== Overall attendance ===== -->
         <VBox styleClass="section-card" spacing="12">
             <HBox alignment="CENTER_LEFT" spacing="12">
                 <VBox spacing="2">
                     <Label text="OVERALL ATTENDANCE" styleClass="stat-label"/>
-                    <Label fx:id="lblPercent" text="0%" styleClass="big-percent"/>
+                    <Label fx:id="lblPercent" text="N/A" styleClass="big-percent"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label fx:id="lblEligibility" text="-" styleClass="badge"/>

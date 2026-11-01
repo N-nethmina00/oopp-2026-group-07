@@ -1,6 +1,16 @@
 package com.fot.ams.model;
 
+import java.util.regex.Pattern;
+
 public class Course {
+
+    private static final Pattern COURSE_CODE_PATTERN =
+            Pattern.compile("[A-Z]{3}[0-9]{4}");
+
+    public static final String COURSE_CODE_ERROR =
+            "Course code must contain exactly 3 uppercase English letters "
+                    + "followed by 4 digits. Example: ICT1124. "
+                    + "Spaces, lowercase letters and symbols are not allowed.";
 
     private int courseId;
     private String courseCode;
@@ -22,6 +32,17 @@ public class Course {
         this.lecturerId = lecturerId;
         this.deptId = deptId;
         this.departmentName = departmentName;
+    }
+
+    public static boolean isValidCourseCode(String courseCode) {
+        return courseCode != null
+                && COURSE_CODE_PATTERN.matcher(courseCode).matches();
+    }
+
+    public static void validateCourseCode(String courseCode) {
+        if (!isValidCourseCode(courseCode)) {
+            throw new IllegalArgumentException(COURSE_CODE_ERROR);
+        }
     }
 
     public int getCourseId() {

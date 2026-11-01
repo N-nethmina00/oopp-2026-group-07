@@ -41,10 +41,14 @@
                     <!-- Page heading -->
                     <VBox spacing="6.0">
                         <Label text="Notice Management"
-                               textFill="#17324D"
-                               wrapText="true">
+                               textFill="#12346B"
+                               wrapText="true"
+                               style="-fx-font-family: 'System';
+                                      -fx-font-size: 34px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: #12346B;">
                             <font>
-                                <Font name="System Bold" size="24.0"/>
+                                <Font name="System Bold" size="34.0"/>
                             </font>
                         </Label>
 
@@ -160,6 +164,7 @@
 
                         <VBox spacing="7.0"
                               minWidth="0.0">
+
                             <Label text="Content"
                                    textFill="#526174"/>
 
@@ -172,7 +177,6 @@
                                       wrapText="true"/>
                         </VBox>
 
-                        <!-- Wrap buttons instead of clipping them -->
                         <FlowPane alignment="CENTER_LEFT"
                                   hgap="10.0"
                                   vgap="10.0">

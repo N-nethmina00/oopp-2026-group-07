@@ -25,10 +25,16 @@
                      -fx-background-radius: 0 0 18 18;">
 
          <padding>
-            <Insets top="10" right="20" bottom="10" left="20"/>
+            <Insets top="10"
+                    right="20"
+                    bottom="10"
+                    left="20"/>
          </padding>
 
-         <Label text="UMS" textFill="WHITE">
+         <Label text="UMS"
+                textFill="WHITE"
+                style="-fx-font-size: 22px;
+                          -fx-font-weight: bold;">
             <font>
                <Font name="System Bold" size="22"/>
             </font>
@@ -36,19 +42,31 @@
 
          <Region HBox.hgrow="ALWAYS"/>
 
-         <VBox alignment="CENTER_RIGHT" spacing="3">
-            <Label text="Welcome, Admin" textFill="WHITE">
+         <VBox alignment="CENTER_RIGHT"
+               spacing="3">
+
+            <Label text="Welcome, Admin"
+                   textFill="WHITE"
+                   style="-fx-font-weight: bold;">
                <font>
                   <Font name="System Bold" size="13"/>
                </font>
             </Label>
-            <Label text="Administrator" textFill="#DCEEFF"/>
+
+            <Label text="Administrator"
+                   textFill="#DCEEFF"/>
          </VBox>
 
-         <StackPane minWidth="40" minHeight="40"
-                    prefWidth="40" prefHeight="40">
-            <Circle radius="19" fill="WHITE"/>
-            <Label text="A" textFill="#4C56CD">
+         <StackPane minWidth="40"
+                    minHeight="40"
+                    prefWidth="40"
+                    prefHeight="40">
+
+            <Circle radius="19"
+                    fill="WHITE"/>
+
+            <Label text="A"
+                   textFill="#4C56CD">
                <font>
                   <Font name="System Bold" size="18"/>
                </font>
@@ -58,9 +76,14 @@
    </top>
 
    <left>
-      <VBox prefWidth="185" spacing="10">
+      <VBox prefWidth="185"
+            spacing="10">
+
          <padding>
-            <Insets top="18" right="12" bottom="15" left="12"/>
+            <Insets top="18"
+                    right="12"
+                    bottom="15"
+                    left="12"/>
          </padding>
 
          <VBox spacing="10"
@@ -68,7 +91,10 @@
                VBox.vgrow="ALWAYS">
 
             <padding>
-               <Insets top="18" right="10" bottom="15" left="10"/>
+               <Insets top="18"
+                       right="10"
+                       bottom="15"
+                       left="10"/>
             </padding>
 
             <Button fx:id="dashboardBtn"
@@ -134,22 +160,33 @@
    <center>
       <ScrollPane fitToWidth="true"
                   hbarPolicy="NEVER"
+                  vbarPolicy="AS_NEEDED"
+                  minWidth="0"
                   style="-fx-background-color: transparent;
                            -fx-background: #F3F6FA;">
 
          <content>
-            <VBox spacing="20" fillWidth="true">
+            <VBox spacing="20"
+                  minWidth="0"
+                  fillWidth="true">
+
                <padding>
-                  <Insets top="25" right="22"
-                          bottom="22" left="10"/>
+                  <Insets top="25"
+                          right="22"
+                          bottom="22"
+                          left="10"/>
                </padding>
 
-               <HBox alignment="CENTER_LEFT" spacing="12">
+               <HBox alignment="CENTER_LEFT"
+                     spacing="12">
+
                   <Label text="ADMIN DASHBOARD"
                          textFill="#17324D"
-                         wrapText="true">
+                         wrapText="true"
+                         style="-fx-font-size: 24px;
+                                      -fx-font-weight: bold;">
                      <font>
-                        <Font name="System Bold" size="20"/>
+                        <Font name="System Bold" size="24"/>
                      </font>
                   </Label>
 
@@ -160,84 +197,112 @@
                           onAction="#refreshDashboard"
                           mnemonicParsing="false"
                           prefHeight="34"
+                          minWidth="75"
                           style="-fx-background-color: white;
                                        -fx-text-fill: #4C56CD;
                                        -fx-background-radius: 8;
                                        -fx-border-color: #4C56CD;
-                                       -fx-border-radius: 8;"/>
+                                       -fx-border-radius: 8;
+                                       -fx-cursor: hand;"/>
                </HBox>
 
-               <GridPane hgap="14" vgap="14">
+               <GridPane hgap="14"
+                         vgap="14"
+                         minWidth="0">
+
                   <columnConstraints>
                      <ColumnConstraints percentWidth="50"
                                         minWidth="0"
                                         hgrow="ALWAYS"/>
+
                      <ColumnConstraints percentWidth="50"
                                         minWidth="0"
                                         hgrow="ALWAYS"/>
                   </columnConstraints>
 
                   <children>
+
+                     <!-- Users -->
                      <VBox spacing="10"
                            prefHeight="125"
                            minWidth="0"
                            styleClass="stat-card"
                            GridPane.columnIndex="0"
                            GridPane.rowIndex="0">
+
                         <Label text="Users"
                                styleClass="stat-heading"/>
+
                         <Label fx:id="lblUserCount"
                                text="—"
                                styleClass="stat-number"/>
+
                         <Label text="Registered users"
+                               wrapText="true"
                                styleClass="stat-description"/>
                      </VBox>
 
+                     <!-- Courses -->
                      <VBox spacing="10"
                            prefHeight="125"
                            minWidth="0"
                            styleClass="stat-card"
                            GridPane.columnIndex="1"
                            GridPane.rowIndex="0">
+
                         <Label text="Courses"
                                styleClass="stat-heading"/>
+
                         <Label fx:id="lblCourseCount"
                                text="—"
                                styleClass="stat-number"/>
+
                         <Label text="Total courses"
+                               wrapText="true"
                                styleClass="stat-description"/>
                      </VBox>
 
+                     <!-- Notices -->
                      <VBox spacing="10"
                            prefHeight="125"
                            minWidth="0"
                            styleClass="stat-card"
                            GridPane.columnIndex="0"
                            GridPane.rowIndex="1">
-                        <Label text="Departments"
+
+                        <Label text="Notices"
                                styleClass="stat-heading"/>
-                        <Label fx:id="lblDepartmentCount"
+
+                        <Label fx:id="lblNoticeCount"
                                text="—"
                                styleClass="stat-number"/>
-                        <Label text="Total departments"
+
+                        <Label text="Total notices"
+                               wrapText="true"
                                styleClass="stat-description"/>
                      </VBox>
 
+                     <!-- Timetable entries -->
                      <VBox spacing="10"
                            prefHeight="125"
                            minWidth="0"
                            styleClass="stat-card"
                            GridPane.columnIndex="1"
                            GridPane.rowIndex="1">
-                        <Label text="Pending Medical"
+
+                        <Label text="Timetable Entries"
                                wrapText="true"
                                styleClass="stat-heading"/>
-                        <Label fx:id="lblPendingMedicalCount"
+
+                        <Label fx:id="lblTimetableCount"
                                text="—"
                                styleClass="stat-number"/>
-                        <Label text="Need review"
+
+                        <Label text="Scheduled timetable entries"
+                               wrapText="true"
                                styleClass="stat-description"/>
                      </VBox>
+
                   </children>
                </GridPane>
 

@@ -10,10 +10,14 @@ import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UserDAO {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(UserDAO.class.getName());
 
     private static final String ID_LOCK = "com.fot.ams.user_ids";
 
@@ -163,11 +167,10 @@ public class UserDAO {
             next = firstNumber;
         }
 
-        String id = prefix + String.format(
-                Locale.ROOT,
-                "%0" + digits + "d",
-                next
-        );
+        String number = Long.toString(next);
+        String id = prefix
+                + "0".repeat(Math.max(0, digits - number.length()))
+                + number;
 
         if (id.length() > maxLength) {
             throw new IllegalArgumentException(
@@ -193,7 +196,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "User authentication query failed.", e);
             return null;
         }
     }
@@ -357,30 +360,30 @@ public class UserDAO {
             Integer batchId
     ) throws SQLException {
 
-        String sql = switch (role) {
-            case "Admin" -> """
-                INSERT INTO admin (admin_id, user_id)
-                VALUES (?, ?)
-                """;
+        String sql;
 
-            case "Lecturer" -> """
-                INSERT INTO lecturer (lecturer_id, user_id, dept_id)
-                VALUES (?, ?, ?)
-                """;
+        if ("Admin".equals(role)) {
+            sql = "INSERT INTO `admin` (`admin_id`, `user_id`) "
+                    + "VALUES (?, ?)";
 
-            case "Technical_Officer" -> """
-                INSERT INTO technical_officer (to_id, user_id, dept_id)
-                VALUES (?, ?, ?)
-                """;
+        } else if ("Lecturer".equals(role)) {
+            sql = "INSERT INTO `lecturer` "
+                    + "(`lecturer_id`, `user_id`, `dept_id`) "
+                    + "VALUES (?, ?, ?)";
 
-            case "Undergraduate" -> """
-                INSERT INTO undergraduate
-                    (reg_no, user_id, dept_id, batch_id)
-                VALUES (?, ?, ?, ?)
-                """;
+        } else if ("Technical_Officer".equals(role)) {
+            sql = "INSERT INTO `technical_officer` "
+                    + "(`to_id`, `user_id`, `dept_id`) "
+                    + "VALUES (?, ?, ?)";
 
-            default -> throw new IllegalArgumentException("Invalid role.");
-        };
+        } else if ("Undergraduate".equals(role)) {
+            sql = "INSERT INTO `undergraduate` "
+                    + "(`reg_no`, `user_id`, `dept_id`, `batch_id`) "
+                    + "VALUES (?, ?, ?, ?)";
+
+        } else {
+            throw new IllegalArgumentException("Invalid role.");
+        }
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, ids.roleSpecificId());
@@ -504,7 +507,7 @@ public class UserDAO {
                 }
             }
 
-            if (adminUsers.contains(userId) && adminUsers.size() <= 1) {
+            if (adminUsers.contains(userId) && adminUsers.size() == 1) {
                 throw new IllegalArgumentException(
                         "The last administrator cannot be deleted."
                 );
@@ -656,12 +659,14 @@ public class UserDAO {
 
             ps.setString(1, ID_LOCK);
 
-            try (ResultSet ignored = ps.executeQuery()) {
-                // Closing the result set completes the release query.
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next() || rs.getInt(1) != 1) {
+                    LOGGER.warning("The user ID generation lock was not released.");
+                }
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "Could not release the user ID lock.", e);
         }
     }
 

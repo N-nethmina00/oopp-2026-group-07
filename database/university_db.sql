@@ -37,7 +37,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`admin_id`, `user_id`) VALUES
-    ('A001', 'A001');
+    ('A001', 'U001');
 
 -- --------------------------------------------------------
 
@@ -3165,11 +3165,11 @@ CREATE TABLE `lecturer` (
 --
 
 INSERT INTO `lecturer` (`lecturer_id`, `user_id`, `dept_id`) VALUES
-                                                                 ('L001', 'L001', 1),
-                                                                 ('L002', 'L002', 1),
-                                                                 ('L003', 'L003', 1),
-                                                                 ('L004', 'L004', 1),
-                                                                 ('L005', 'L005', 1);
+                                                                 ('L001', 'U002', 1),
+                                                                 ('L002', 'U003', 1),
+                                                                 ('L003', 'U004', 1),
+                                                                 ('L004', 'U005', 1),
+                                                                 ('L005', 'U006', 1);
 
 -- --------------------------------------------------------
 
@@ -3642,10 +3642,10 @@ CREATE TABLE `technical_officer` (
 --
 
 INSERT INTO `technical_officer` (`to_id`, `user_id`, `dept_id`) VALUES
-                                                                    ('T001', 'T001', 1),
-                                                                    ('T002', 'T002', 1),
-                                                                    ('T003', 'T003', 1),
-                                                                    ('T004', 'T004', 1);
+                                                                    ('T001', 'U007', 1),
+                                                                    ('T002', 'U008', 1),
+                                                                    ('T003', 'U009', 1),
+                                                                    ('T004', 'U010', 1);
 
 -- --------------------------------------------------------
 
@@ -3704,26 +3704,26 @@ CREATE TABLE `undergraduate` (
 --
 
 INSERT INTO `undergraduate` (`reg_no`, `user_id`, `batch_id`, `dept_id`, `is_repeat`, `is_batchmissed`) VALUES
-                                                                                                            ('TG2000', 'U001', 2, 1, 0, 0),
-                                                                                                            ('TG2001', 'U002', 2, 1, 0, 0),
-                                                                                                            ('TG2002', 'U003', 2, 1, 0, 0),
-                                                                                                            ('TG2003', 'U004', 2, 1, 0, 0),
-                                                                                                            ('TG2004', 'U005', 2, 1, 0, 0),
-                                                                                                            ('TG2005', 'U006', 2, 1, 0, 0),
-                                                                                                            ('TG2006', 'U007', 2, 1, 0, 0),
-                                                                                                            ('TG2007', 'U008', 2, 1, 0, 0),
-                                                                                                            ('TG2008', 'U009', 2, 1, 0, 0),
-                                                                                                            ('TG2009', 'U010', 2, 1, 0, 0),
-                                                                                                            ('TG2010', 'U011', 2, 1, 0, 0),
-                                                                                                            ('TG2011', 'U012', 2, 1, 0, 0),
-                                                                                                            ('TG2012', 'U013', 1, 1, 1, 0),
-                                                                                                            ('TG2013', 'U014', 1, 1, 1, 0),
-                                                                                                            ('TG2014', 'U015', 1, 1, 1, 0),
-                                                                                                            ('TG2015', 'U016', 1, 1, 1, 0),
-                                                                                                            ('TG2016', 'U017', 1, 1, 1, 0),
-                                                                                                            ('TG2017', 'U018', 2, 1, 0, 1),
-                                                                                                            ('TG2018', 'U019', 2, 1, 0, 1),
-                                                                                                            ('TG2019', 'U020', 2, 1, 0, 1);
+                                                                                                            ('TG2000', 'U011', 2, 1, 0, 0),
+                                                                                                            ('TG2001', 'U012', 2, 1, 0, 0),
+                                                                                                            ('TG2002', 'U013', 2, 1, 0, 0),
+                                                                                                            ('TG2003', 'U014', 2, 1, 0, 0),
+                                                                                                            ('TG2004', 'U015', 2, 1, 0, 0),
+                                                                                                            ('TG2005', 'U016', 2, 1, 0, 0),
+                                                                                                            ('TG2006', 'U017', 2, 1, 0, 0),
+                                                                                                            ('TG2007', 'U018', 2, 1, 0, 0),
+                                                                                                            ('TG2008', 'U019', 2, 1, 0, 0),
+                                                                                                            ('TG2009', 'U020', 2, 1, 0, 0),
+                                                                                                            ('TG2010', 'U021', 2, 1, 0, 0),
+                                                                                                            ('TG2011', 'U022', 2, 1, 0, 0),
+                                                                                                            ('TG2012', 'U023', 1, 1, 1, 0),
+                                                                                                            ('TG2013', 'U024', 1, 1, 1, 0),
+                                                                                                            ('TG2014', 'U025', 1, 1, 1, 0),
+                                                                                                            ('TG2015', 'U026', 1, 1, 1, 0),
+                                                                                                            ('TG2016', 'U027', 1, 1, 1, 0),
+                                                                                                            ('TG2017', 'U028', 2, 1, 0, 1),
+                                                                                                            ('TG2018', 'U029', 2, 1, 0, 1),
+                                                                                                            ('TG2019', 'U030', 2, 1, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -3747,36 +3747,36 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`user_id`, `user_name`, `password`, `first_name`, `last_name`, `email`, `profile_image`, `role`) VALUES
-                                                                                                                         ('A001', 'admin01', 'Admin@123', 'Pradeep', 'Wijesinghe', 'admin01@example.com', NULL, 'Admin'),
-                                                                                                                         ('L001', 'lecturer01', 'Lecturer@123', 'Anura', 'Gunawardena', 'lecturer01@example.com', NULL, 'Lecturer'),
-                                                                                                                         ('L002', 'lecturer02', 'Lecturer@123', 'Malini', 'Rathnayake', 'lecturer02@example.com', NULL, 'Lecturer'),
-                                                                                                                         ('L003', 'lecturer03', 'Lecturer@123', 'Suresh', 'Abeysekara', 'lecturer03@example.com', NULL, 'Lecturer'),
-                                                                                                                         ('L004', 'lecturer04', 'Lecturer@123', 'Nadeesha', 'Karunaratne', 'lecturer04@example.com', NULL, 'Lecturer'),
-                                                                                                                         ('L005', 'lecturer05', 'Lecturer@123', 'Chamara', 'Rajapaksha', 'lecturer05@example.com', NULL, 'Lecturer'),
-                                                                                                                         ('T001', 'tech01', 'Tech@123', 'Ruwan', 'Samarasinghe', 'tech01@example.com', NULL, 'Technical_Officer'),
-                                                                                                                         ('T002', 'tech02', 'Tech@123', 'Ishara', 'Madushani', 'tech02@example.com', NULL, 'Technical_Officer'),
-                                                                                                                         ('T003', 'tech03', 'Tech@123', 'Prasanna', 'Ekanayake', 'tech03@example.com', NULL, 'Technical_Officer'),
-                                                                                                                         ('T004', 'tech04', 'Tech@123', 'Dilrukshi', 'Weerasinghe', 'tech04@example.com', NULL, 'Technical_Officer'),
-                                                                                                                         ('U001', 'student01', 'Student@123', 'Sahan', 'Fernando', 'student01@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U002', 'student02', 'Student@123', 'Nethmi', 'Perera', 'student02@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U003', 'student03', 'Student@123', 'Avishka', 'Silva', 'student03@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U004', 'student04', 'Student@123', 'Dinithi', 'Jayawardena', 'student04@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U005', 'student05', 'Student@123', 'Kavindu', 'Bandara', 'student05@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U006', 'student06', 'Student@123', 'Senuri', 'Dissanayake', 'student06@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U007', 'student07', 'Student@123', 'Pasindu', 'Herath', 'student07@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U008', 'student08', 'Student@123', 'Oshadi', 'Wickramasinghe', 'student08@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U009', 'student09', 'Student@123', 'Tharindu', 'Senanayake', 'student09@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U010', 'student10', 'Student@123', 'Hiruni', 'Gamage', 'student10@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U011', 'student11', 'Student@123', 'Janith', 'Karunathilaka', 'student11@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U012', 'student12', 'Student@123', 'Piumi', 'Wijeratne', 'student12@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U013', 'student13', 'Student@123', 'Lakshan', 'Gunasekara', 'student13@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U014', 'student14', 'Student@123', 'Sandali', 'Amarasinghe', 'student14@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U015', 'student15', 'Student@123', 'Isuru', 'Rathnayake', 'student15@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U016', 'student16', 'Student@123', 'Dewmini', 'Samarakoon', 'student16@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U017', 'student17', 'Student@123', 'Nipun', 'Abeywickrama', 'student17@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U018', 'student18', 'Student@123', 'Sachini', 'Weerakoon', 'student18@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U019', 'student19', 'Student@123', 'Yasiru', 'Pathirana', 'student19@example.com', NULL, 'Undergraduate'),
-                                                                                                                         ('U020', 'student20', 'Student@123', 'Imasha', 'Jayasekara', 'student20@example.com', NULL, 'Undergraduate');
+                                                                                                                         ('U001', 'admin01', 'Admin@123', 'Pradeep', 'Wijesinghe', 'admin01@example.com', NULL, 'Admin'),
+                                                                                                                         ('U002', 'lecturer01', 'Lecturer@123', 'Anura', 'Gunawardena', 'lecturer01@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('U003', 'lecturer02', 'Lecturer@123', 'Malini', 'Rathnayake', 'lecturer02@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('U004', 'lecturer03', 'Lecturer@123', 'Suresh', 'Abeysekara', 'lecturer03@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('U005', 'lecturer04', 'Lecturer@123', 'Nadeesha', 'Karunaratne', 'lecturer04@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('U006', 'lecturer05', 'Lecturer@123', 'Chamara', 'Rajapaksha', 'lecturer05@example.com', NULL, 'Lecturer'),
+                                                                                                                         ('U007', 'tech01', 'Tech@123', 'Ruwan', 'Samarasinghe', 'tech01@example.com', NULL, 'Technical_Officer'),
+                                                                                                                         ('U008', 'tech02', 'Tech@123', 'Ishara', 'Madushani', 'tech02@example.com', NULL, 'Technical_Officer'),
+                                                                                                                         ('U009', 'tech03', 'Tech@123', 'Prasanna', 'Ekanayake', 'tech03@example.com', NULL, 'Technical_Officer'),
+                                                                                                                         ('U010', 'tech04', 'Tech@123', 'Dilrukshi', 'Weerasinghe', 'tech04@example.com', NULL, 'Technical_Officer'),
+                                                                                                                         ('U011', 'student01', 'Student@123', 'Sahan', 'Fernando', 'student01@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U012', 'student02', 'Student@123', 'Nethmi', 'Perera', 'student02@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U013', 'student03', 'Student@123', 'Avishka', 'Silva', 'student03@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U014', 'student04', 'Student@123', 'Dinithi', 'Jayawardena', 'student04@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U015', 'student05', 'Student@123', 'Kavindu', 'Bandara', 'student05@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U016', 'student06', 'Student@123', 'Senuri', 'Dissanayake', 'student06@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U017', 'student07', 'Student@123', 'Pasindu', 'Herath', 'student07@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U018', 'student08', 'Student@123', 'Oshadi', 'Wickramasinghe', 'student08@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U019', 'student09', 'Student@123', 'Tharindu', 'Senanayake', 'student09@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U020', 'student10', 'Student@123', 'Hiruni', 'Gamage', 'student10@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U021', 'student11', 'Student@123', 'Janith', 'Karunathilaka', 'student11@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U022', 'student12', 'Student@123', 'Piumi', 'Wijeratne', 'student12@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U023', 'student13', 'Student@123', 'Lakshan', 'Gunasekara', 'student13@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U024', 'student14', 'Student@123', 'Sandali', 'Amarasinghe', 'student14@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U025', 'student15', 'Student@123', 'Isuru', 'Rathnayake', 'student15@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U026', 'student16', 'Student@123', 'Dewmini', 'Samarakoon', 'student16@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U027', 'student17', 'Student@123', 'Nipun', 'Abeywickrama', 'student17@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U028', 'student18', 'Student@123', 'Sachini', 'Weerakoon', 'student18@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U029', 'student19', 'Student@123', 'Yasiru', 'Pathirana', 'student19@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U030', 'student20', 'Student@123', 'Imasha', 'Jayasekara', 'student20@example.com', NULL, 'Undergraduate');
 
 -- --------------------------------------------------------
 
@@ -3953,10 +3953,7 @@ ALTER TABLE `user`
 --
 -- AUTO_INCREMENT for dumped tables
 --
-ALTER TABLE `timetable`
-  ADD PRIMARY KEY (`timetable_id`),
-  ADD KEY `idx_timetable_admin` (`admin_id`),
-  ADD KEY `idx_timetable_course` (`course_id`);
+
 
 --
 -- AUTO_INCREMENT for table `attendance`

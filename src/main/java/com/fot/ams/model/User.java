@@ -1,6 +1,7 @@
 package com.fot.ams.model;
 
 public class User {
+
     private String userId;
     private String roleSpecificId;
     private String username;
@@ -13,9 +14,16 @@ public class User {
     public User() {
     }
 
-    public User(String userId, String roleSpecificId, String username,
-                String password, String firstName, String lastName,
-                String email, String role) {
+    public User(
+            String userId,
+            String roleSpecificId,
+            String username,
+            String password,
+            String firstName,
+            String lastName,
+            String email,
+            String role
+    ) {
         this.userId = userId;
         this.roleSpecificId = roleSpecificId;
         this.username = username;
@@ -77,6 +85,7 @@ public class User {
     public String getFullName() {
         String first = firstName == null ? "" : firstName;
         String last = lastName == null ? "" : lastName;
+
         return (first + " " + last).trim();
     }
 

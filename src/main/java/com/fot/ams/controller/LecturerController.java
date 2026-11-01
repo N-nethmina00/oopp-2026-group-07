@@ -1983,23 +1983,281 @@ public class LecturerController {
     }
 
 
+
     @FXML
     private void showAttendance() {
         displayPage(
                 "Attendance",
-                "View student attendance records.",
+                "View recorded attendance for students in your assigned courses.",
                 attendanceBtn
         );
+
+        Label heading = new Label("Student Attendance Records");
+
+        heading.setStyle(
+                "-fx-font-size: 20px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #17324D;"
+        );
+
+        // Course selection
+        ComboBox<String> courseComboBox = new ComboBox<>();
+        courseComboBox.setPromptText("Select Your Course");
+        courseComboBox.setPrefWidth(300);
+
+        // Attendance table
+        TableView<String[]> attendanceTable = createTable(
+                "Select a course to view recorded attendance.",
+                "Registration No",
+                "Session Date",
+                "Session Type",
+                "Time",
+                "Status"
+        );
+
+        attendanceTable.setPrefHeight(450);
+
+
+        // Load attendance when course is selected
+        courseComboBox.setOnAction(event -> {
+
+            String courseCode = courseComboBox.getValue();
+
+            attendanceTable.getItems().clear();
+
+            if (courseCode == null) {
+                return;
+            }
+
+            try {
+                LecturerRecordsDAO dao = new LecturerRecordsDAO();
+
+                List<String[]> records =
+                        dao.getAttendanceByLecturerCourse(
+                                lecturerId,
+                                courseCode
+                        );
+
+                attendanceTable.getItems().setAll(records);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+
+                new Alert(
+                        Alert.AlertType.ERROR,
+                        "Unable to load attendance records: "
+                                + e.getMessage()
+                ).showAndWait();
+            }
+        });
+
+        // Display page
+        contentArea.getChildren().addAll(
+                heading,
+                new Label("Select Course Module"),
+                courseComboBox,
+                attendanceTable
+        );
+
+        // Load lecturer's assigned courses
+        try {
+            CourseDAO courseDAO = new CourseDAO();
+
+            List<Course> courses =
+                    courseDAO.getCourseModelsByLecturer(lecturerId);
+
+            for (Course course : courses) {
+                courseComboBox.getItems().add(
+                        course.getCourseCode()
+                );
+            }
+
+            if (!courseComboBox.getItems().isEmpty()) {
+                courseComboBox.getSelectionModel().selectFirst();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load assigned courses."
+            ).showAndWait();
+        }
     }
+
+
 
     @FXML
     private void showMedicals() {
+
         displayPage(
                 "Medical Records",
-                "View student medical information.",
+                "View medical records for students in your assigned courses.",
                 medicalsBtn
         );
+
+        Label heading = new Label("Student Medical Records");
+
+        heading.setStyle(
+                "-fx-font-size: 20px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #17324D;"
+        );
+
+        // Course selection
+        ComboBox<String> courseComboBox = new ComboBox<>();
+        courseComboBox.setPromptText("Select Your Course");
+        courseComboBox.setPrefWidth(300);
+
+        // Medical status filter
+        ComboBox<String> statusFilter = new ComboBox<>();
+
+        statusFilter.getItems().addAll(
+                "All Statuses",
+                "Pending",
+                "Approved",
+                "Rejected"
+        );
+
+        statusFilter.setValue("All Statuses");
+        statusFilter.setPrefWidth(180);
+
+        HBox filters = new HBox(
+                12,
+                new Label("Course:"),
+                courseComboBox,
+                new Label("Status:"),
+                statusFilter
+        );
+
+        filters.setAlignment(
+                javafx.geometry.Pos.CENTER_LEFT
+        );
+
+        // Medical Records Table
+        TableView<String[]> medicalTable = createTable(
+                "Select a course to view student medical records.",
+                "Medical ID",
+                "Registration No",
+                "Date",
+                "Reason",
+                "Status"
+        );
+
+        medicalTable.setPrefHeight(450);
+
+        // Hide internal Medical ID
+        medicalTable.getColumns().get(0).setVisible(false);
+
+        // Load medical records and apply filters
+        Runnable reload = () -> {
+
+            medicalTable.getItems().clear();
+
+            String courseCode = courseComboBox.getValue();
+
+            if (courseCode == null) {
+                return;
+            }
+
+            try {
+                LecturerRecordsDAO dao =
+                        new LecturerRecordsDAO();
+
+                List<String[]> rows = new ArrayList<>();
+
+                String selectedStatus = statusFilter.getValue();
+
+                List<MedicalRecord> medicalRecords =
+                        dao.getMedicalsByLecturerCourse(
+                                lecturerId,
+                                courseCode
+                        );
+
+                for (MedicalRecord record : medicalRecords) {
+
+                    if (!"All Statuses".equals(selectedStatus)
+                            && !Objects.equals(
+                            selectedStatus,
+                            record.getStatus()
+                    )) {
+                        continue;
+                    }
+
+                    rows.add(new String[]{
+                            String.valueOf(record.getMedicalId()),
+                            record.getRegNo(),
+                            record.getMedicalDate() == null
+                                    ? ""
+                                    : record.getMedicalDate().toString(),
+                            record.getReason(),
+                            record.getStatus()
+                    });
+                }
+
+                medicalTable.getItems().setAll(rows);
+
+            } catch (SQLException e) {
+
+                e.printStackTrace();
+
+                new Alert(
+                        Alert.AlertType.ERROR,
+                        "Unable to load medical records: "
+                                + e.getMessage()
+                ).showAndWait();
+            }
+        };
+
+        // Refresh when course changes
+        courseComboBox.setOnAction(
+                event -> reload.run()
+        );
+
+        // Refresh when status filter changes
+        statusFilter.setOnAction(
+                event -> reload.run()
+        );
+
+        contentArea.getChildren().addAll(
+                heading,
+                filters,
+                medicalTable
+        );
+
+        // Load courses assigned to logged-in lecturer
+        try {
+
+            CourseDAO courseDAO = new CourseDAO();
+
+            List<Course> courses =
+                    courseDAO.getCourseModelsByLecturer(
+                            lecturerId
+                    );
+
+            for (Course course : courses) {
+
+                courseComboBox.getItems().add(
+                        course.getCourseCode()
+                );
+            }
+
+            if (!courseComboBox.getItems().isEmpty()) {
+                courseComboBox.getSelectionModel().selectFirst();
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to load assigned courses."
+            ).showAndWait();
+        }
     }
+
 
 
     @FXML
@@ -2340,179 +2598,193 @@ public class LecturerController {
 
     private void showEditProfileDialog(Lecturer lecturer) {
 
+        LecturerProfileDAO dao = new LecturerProfileDAO();
+        final String oldPicturePath;
+        try {
+            oldPicturePath = dao.getProfileImagePath(lecturer.getLecturerId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR,
+                    "Unable to load current profile picture.").showAndWait();
+            return;
+        }
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit My Profile");
         dialog.setHeaderText("Update Lecturer Profile");
 
-        TextField usernameField =
-                new TextField(lecturer.getUser().getUsername());
+        User user = lecturer.getUser();
+        TextField firstNameField = new TextField(user.getFirstName());
+        TextField lastNameField = new TextField(user.getLastName());
+        TextField emailField = new TextField(user.getEmail());
+        TextField usernameField = new TextField(user.getUsername());
 
         PasswordField currentPasswordField = new PasswordField();
-        currentPasswordField.setPromptText("Enter current password");
-
+        currentPasswordField.setPromptText("Required to save changes");
         PasswordField newPasswordField = new PasswordField();
         newPasswordField.setPromptText("Leave blank to keep password");
-
         PasswordField confirmPasswordField = new PasswordField();
         confirmPasswordField.setPromptText("Confirm new password");
 
-        Label pictureLabel = new Label("No new picture selected");
+        boolean hasOldPicture = oldPicturePath != null &&
+                !oldPicturePath.isBlank();
+
+        Label pictureLabel = new Label(
+                hasOldPicture ? "Current profile picture is saved" :
+                        "No profile picture selected"
+        );
+        pictureLabel.setWrapText(true);
 
         final File[] selectedPicture = {null};
+        final boolean[] removePicture = {false};
 
-        Button choosePictureButton =
-                new Button("Choose Profile Picture");
+        Button choosePictureButton = new Button("Choose Profile Picture");
+        Button removePictureButton = new Button("Remove Profile Picture");
+        removePictureButton.setDisable(!hasOldPicture);
+        removePictureButton.setStyle(
+                "-fx-background-color: #D9534F;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 8;"
+        );
 
         choosePictureButton.setOnAction(event -> {
-
             FileChooser chooser = new FileChooser();
             chooser.setTitle("Select Profile Picture");
-
             chooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter(
-                            "Image Files",
-                            "*.png", "*.jpg", "*.jpeg"
-                    )
+                            "Image Files", "*.png", "*.jpg", "*.jpeg")
             );
-
             File file = chooser.showOpenDialog(
                     contentArea.getScene().getWindow()
             );
-
             if (file != null) {
                 selectedPicture[0] = file;
-                pictureLabel.setText(file.getName());
+                removePicture[0] = false;
+                pictureLabel.setText("New picture: " + file.getName());
+                removePictureButton.setDisable(false);
             }
         });
 
+        removePictureButton.setOnAction(event -> {
+            selectedPicture[0] = null;
+            removePicture[0] = true;
+            pictureLabel.setText("Profile picture will be removed when saved");
+            removePictureButton.setDisable(true);
+        });
+
+        HBox pictureButtons = new HBox(
+                10, choosePictureButton, removePictureButton
+        );
+
         VBox form = new VBox(10);
         form.setPadding(new Insets(18));
-
         form.getChildren().addAll(
-                new Label("Username"),
-                usernameField,
-                new Label("Current Password"),
-                currentPasswordField,
-                new Label("New Password (Optional)"),
-                newPasswordField,
-                new Label("Confirm New Password"),
-                confirmPasswordField,
+                new Label("First Name"), firstNameField,
+                new Label("Last Name"), lastNameField,
+                new Label("Email Address"), emailField,
+                new Label("Username"), usernameField,
+                new Label("Current Password (Required)"), currentPasswordField,
+                new Label("New Password (Optional)"), newPasswordField,
+                new Label("Confirm New Password"), confirmPasswordField,
                 new Label("Profile Picture (Optional)"),
-                choosePictureButton,
-                pictureLabel
+                pictureButtons, pictureLabel
         );
 
-        dialog.getDialogPane().setContent(form);
-        dialog.getDialogPane().setPrefWidth(450);
+        ScrollPane scrollPane = new ScrollPane(form);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefViewportWidth(460);
+        scrollPane.setPrefViewportHeight(470);
+        dialog.getDialogPane().setContent(scrollPane);
+        dialog.getDialogPane().setPrefWidth(510);
 
         ButtonType saveType = new ButtonType(
-                "Save Changes",
-                ButtonBar.ButtonData.OK_DONE
+                "Save Changes", ButtonBar.ButtonData.OK_DONE
         );
-
         dialog.getDialogPane().getButtonTypes().addAll(
-                saveType,
-                ButtonType.CANCEL
+                saveType, ButtonType.CANCEL
         );
 
         Button saveButton = (Button)
                 dialog.getDialogPane().lookupButton(saveType);
-
         final boolean[] saved = {false};
 
         saveButton.addEventFilter(
                 javafx.event.ActionEvent.ACTION,
                 event -> {
-
                     Path copiedFile = null;
-
                     try {
+                        String firstName = firstNameField.getText().trim();
+                        String lastName = lastNameField.getText().trim();
+                        String email = emailField.getText().trim();
+                        String username = usernameField.getText().trim();
+                        String currentPassword = currentPasswordField.getText();
+                        String newPassword = newPasswordField.getText();
+                        String confirmPassword = confirmPasswordField.getText();
 
-                        String username =
-                                usernameField.getText().trim();
-
-                        String currentPassword =
-                                currentPasswordField.getText();
-
-                        String newPassword =
-                                newPasswordField.getText();
-
-                        String confirmPassword =
-                                confirmPasswordField.getText();
-
-                        if (!username.matches("[A-Za-z0-9._-]{3,50}")) {
+                        if (firstName.isEmpty() || firstName.length() > 80 ||
+                                lastName.isEmpty() || lastName.length() > 80) {
                             throw new IllegalArgumentException(
-                                    "Invalid username. Use 3-50 characters."
+                                    "First/Last name must be 1-80 characters."
                             );
                         }
-
+                        if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$") ||
+                                email.length() > 150) {
+                            throw new IllegalArgumentException(
+                                    "Enter a valid email address."
+                            );
+                        }
+                        if (!username.matches("[A-Za-z0-9._-]{3,50}")) {
+                            throw new IllegalArgumentException(
+                                    "Invalid username (3-50 characters)."
+                            );
+                        }
                         if (currentPassword.isEmpty()) {
                             throw new IllegalArgumentException(
                                     "Current password is required."
                             );
                         }
-
                         if (!newPassword.isEmpty()) {
-
                             if (newPassword.isBlank() ||
                                     newPassword.length() < 8) {
-
                                 throw new IllegalArgumentException(
-                                        "New password must have at least 8 characters."
+                                        "New password must be at least 8 characters."
                                 );
                             }
-
                             if (!newPassword.equals(confirmPassword)) {
-
                                 throw new IllegalArgumentException(
-                                        "Passwords do not match."
+                                        "New passwords do not match."
                                 );
                             }
-
                         } else if (!confirmPassword.isEmpty()) {
-
                             throw new IllegalArgumentException(
                                     "Enter a new password first."
                             );
                         }
 
                         String newImagePath = null;
-
-                        if (selectedPicture[0] != null) {
-
+                        if (!removePicture[0] && selectedPicture[0] != null) {
                             File source = selectedPicture[0];
-
-                            String name = source.getName()
-                                    .toLowerCase(java.util.Locale.ROOT);
-
+                            String name = source.getName().toLowerCase(Locale.ROOT);
                             boolean png = name.endsWith(".png");
-                            boolean jpg = name.endsWith(".jpg")
-                                    || name.endsWith(".jpeg");
-
+                            boolean jpg = name.endsWith(".jpg") ||
+                                    name.endsWith(".jpeg");
                             if (!png && !jpg) {
                                 throw new IllegalArgumentException(
-                                        "Only PNG and JPG images allowed."
+                                        "Only PNG and JPG images are allowed."
                                 );
                             }
-
-                            long fileSize =
-                                    Files.size(source.toPath());
-
-                            if (fileSize == 0 ||
-                                    fileSize > 5L * 1024 * 1024) {
-
+                            long size = Files.size(source.toPath());
+                            if (size == 0 || size > 5L * 1024 * 1024) {
                                 throw new IllegalArgumentException(
-                                        "Image must be 5 MB or less."
+                                        "Image must be between 1 byte and 5 MB."
                                 );
                             }
-
-                            BufferedImage checkedImage =
-                                    ImageIO.read(source);
-
+                            BufferedImage checkedImage = ImageIO.read(source);
                             if (checkedImage == null ||
+                                    checkedImage.getWidth() <= 0 ||
+                                    checkedImage.getHeight() <= 0 ||
                                     checkedImage.getWidth() > 4096 ||
                                     checkedImage.getHeight() > 4096) {
-
                                 throw new IllegalArgumentException(
                                         "Invalid or oversized image."
                                 );
@@ -2520,84 +2792,98 @@ public class LecturerController {
 
                             Path folder = Paths.get(
                                     System.getProperty("user.dir"),
-                                    "uploads",
-                                    "profiles"
+                                    "uploads", "profiles"
                             );
-
                             Files.createDirectories(folder);
-
                             String filename = UUID.randomUUID() +
                                     (png ? ".png" : ".jpg");
-
                             copiedFile = folder.resolve(filename);
-
-                            Files.copy(
-                                    source.toPath(),
-                                    copiedFile
-                            );
-
-                            newImagePath =
-                                    "uploads/profiles/" + filename;
+                            Files.copy(source.toPath(), copiedFile);
+                            newImagePath = "uploads/profiles/" + filename;
                         }
-
-                        LecturerProfileDAO dao =
-                                new LecturerProfileDAO();
 
                         boolean updated = dao.updateProfile(
                                 lecturer.getLecturerId(),
                                 username,
+                                firstName,
+                                lastName,
+                                email,
                                 currentPassword,
                                 newPassword,
-                                newImagePath
+                                newImagePath,
+                                removePicture[0]
                         );
 
                         if (!updated) {
                             throw new IllegalArgumentException(
-                                    "Current password is incorrect."
+                                    "Incorrect current password or lecturer not found."
                             );
                         }
-
                         saved[0] = true;
 
-                    } catch (Exception e) {
+                        // After successful DB update, delete a replaced/removed
+                        // local picture ONLY if it is a UUID-named managed upload.
+                        if ((removePicture[0] || newImagePath != null) &&
+                                hasOldPicture) {
+                            try {
+                                Path root = Paths.get(
+                                        System.getProperty("user.dir")
+                                ).toAbsolutePath().normalize();
+                                Path managedFolder = root.resolve(
+                                        "uploads/profiles"
+                                ).normalize();
+                                Path oldFile = root.resolve(
+                                        oldPicturePath
+                                ).normalize();
+                                String name = oldFile.getFileName().toString();
+                                boolean isGeneratedUpload = name.matches(
+                                        "(?i)[0-9a-f]{8}-[0-9a-f]{4}-" +
+                                                "[0-9a-f]{4}-[0-9a-f]{4}-" +
+                                                "[0-9a-f]{12}\\.(png|jpg|jpeg)"
+                                );
+                                if (oldFile.startsWith(managedFolder) &&
+                                        oldFile.getParent().equals(managedFolder) &&
+                                        isGeneratedUpload) {
+                                    Files.deleteIfExists(oldFile);
+                                }
+                            } catch (IOException cleanupError) {
+                                cleanupError.printStackTrace();
+                                new Alert(Alert.AlertType.WARNING,
+                                        "Profile updated, but old photo file could not be deleted."
+                                ).showAndWait();
+                            }
+                        }
 
-                        if (copiedFile != null) {
+                    } catch (Exception e) {
+                        // Only remove a newly copied file if saving failed.
+                        if (copiedFile != null && !saved[0]) {
                             try {
                                 Files.deleteIfExists(copiedFile);
                             } catch (IOException cleanupError) {
                                 e.addSuppressed(cleanupError);
                             }
                         }
-
                         e.printStackTrace();
-
                         String message =
                                 e instanceof java.sql.SQLIntegrityConstraintViolationException
-                                        ? "Username is already in use."
+                                        ? "Username or email is already in use."
                                         : e.getMessage();
-
-                        new Alert(
-                                Alert.AlertType.ERROR,
+                        new Alert(Alert.AlertType.ERROR,
                                 "Unable to update profile: " + message
                         ).showAndWait();
-
                         event.consume();
                     }
                 }
         );
 
         dialog.showAndWait();
-
         if (saved[0]) {
-
-            new Alert(
-                    Alert.AlertType.INFORMATION,
-                    "Profile updated successfully!"
-            ).showAndWait();
-
+            new Alert(Alert.AlertType.INFORMATION,
+                    "Profile updated successfully!").showAndWait();
             showProfile();
         }
     }
+
 
 
     private static String formatMark(Double value) {

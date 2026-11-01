@@ -28,33 +28,65 @@ public class AdminTimetableManagementController {
     @FXML private TextField endTimeField;
     @FXML private TextField venueField;
     @FXML private ComboBox<String> sessionTypeComboBox;
-    @FXML private TextField academicYearField;
+    @FXML private ComboBox<String> academicYearComboBox;
     @FXML private ComboBox<String> semesterComboBox;
     @FXML private Label messageLabel;
 
     @FXML private TableView<Timetable> timetableTable;
-    @FXML private TableColumn<Timetable, Integer> entryIdColumn;
-    @FXML private TableColumn<Timetable, String> courseColumn;
-    @FXML private TableColumn<Timetable, String> dayColumn;
-    @FXML private TableColumn<Timetable, String> timeColumn;
-    @FXML private TableColumn<Timetable, String> venueColumn;
-    @FXML private TableColumn<Timetable, String> sessionTypeColumn;
-    @FXML private TableColumn<Timetable, String> yearColumn;
-    @FXML private TableColumn<Timetable, String> semesterColumn;
+
+    @FXML
+    private TableColumn<Timetable, Integer> entryIdColumn;
+
+    @FXML
+    private TableColumn<Timetable, String> courseColumn;
+
+    @FXML
+    private TableColumn<Timetable, String> dayColumn;
+
+    @FXML
+    private TableColumn<Timetable, String> timeColumn;
+
+    @FXML
+    private TableColumn<Timetable, String> venueColumn;
+
+    @FXML
+    private TableColumn<Timetable, String> sessionTypeColumn;
+
+    @FXML
+    private TableColumn<Timetable, String> yearColumn;
+
+    @FXML
+    private TableColumn<Timetable, String> semesterColumn;
 
     private final TimetableDAO dao = new TimetableDAO();
 
     private final ObservableList<Timetable> timetableList =
             FXCollections.observableArrayList();
 
-    // Retained from your original controller.
-    private static final String ADMIN_ID = "A001";
+    /*
+     * Compatibility default for the supplied database.
+     * The dashboard can pass the logged-in administrator's
+     * role-specific ID using setAdminId().
+     */
+    private String adminId = "A001";
 
     private static final double ROW_HEIGHT = 38.0;
     private static final double HEADER_SPACE = 48.0;
 
     private static final DateTimeFormatter TIME_FORMAT =
             DateTimeFormatter.ofPattern("HH:mm");
+
+    public void setAdminId(String adminId) {
+        if (adminId == null
+                || adminId.isBlank()
+                || adminId.trim().length() > 10) {
+            throw new IllegalArgumentException(
+                    "A valid admin role ID is required."
+            );
+        }
+
+        this.adminId = adminId.trim();
+    }
 
     @FXML
     public void initialize() {
@@ -63,32 +95,26 @@ public class AdminTimetableManagementController {
 
         entryIdField.setEditable(false);
 
-        dayComboBox.setItems(FXCollections.observableArrayList(
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
-                "Sunday"
-        ));
+        dayComboBox.setItems(
+                FXCollections.observableArrayList(
+                        Timetable.DAYS
+                )
+        );
 
         sessionTypeComboBox.setItems(
                 FXCollections.observableArrayList(
-                        "Theory",
-                        "Practical"
+                        Timetable.SESSION_TYPES
                 )
         );
 
         semesterComboBox.setItems(
                 FXCollections.observableArrayList(
-                        "Semester 1",
-                        "Semester 2",
-                        "Semester 3"
+                        Timetable.SEMESTERS
                 )
         );
 
         timetableTable.setItems(timetableList);
+
         configureTableHeight();
 
         timetableTable.getSelectionModel()
@@ -99,8 +125,13 @@ public class AdminTimetableManagementController {
                     }
                 });
 
+        academicYearComboBox.setEditable(false);
+        semesterComboBox.setEditable(false);
+
         loadCourses();
+        loadAcademicYears();
         loadTimetables();
+        refreshNextEntryId();
     }
 
     private void configureColumns() {
@@ -154,34 +185,42 @@ public class AdminTimetableManagementController {
     private void configureCourseDropdown() {
         courseComboBox.setEditable(false);
 
-        courseComboBox.setConverter(new StringConverter<Course>() {
-            @Override
-            public String toString(Course course) {
-                if (course == null) {
-                    return "";
+        courseComboBox.setConverter(
+                new StringConverter<Course>() {
+                    @Override
+                    public String toString(Course course) {
+                        if (course == null) {
+                            return "";
+                        }
+
+                        return course.getCourseCode()
+                                + " - "
+                                + course.getCourseName();
+                    }
+
+                    @Override
+                    public Course fromString(String value) {
+                        return null;
+                    }
                 }
-
-                return course.getCourseCode()
-                        + " - "
-                        + course.getCourseName();
-            }
-
-            @Override
-            public Course fromString(String value) {
-                // The dropdown is not editable.
-                return null;
-            }
-        });
+        );
     }
 
     private void configureTableHeight() {
         timetableTable.setFixedCellSize(ROW_HEIGHT);
 
-        timetableTable.setMinHeight(Region.USE_PREF_SIZE);
-        timetableTable.setMaxHeight(Region.USE_PREF_SIZE);
+        timetableTable.setMinHeight(
+                Region.USE_PREF_SIZE
+        );
 
-        // The table expands with its rows.
-        // Vertical scrolling belongs to the outer ScrollPane.
+        timetableTable.setMaxHeight(
+                Region.USE_PREF_SIZE
+        );
+
+        /*
+         * The table expands with its rows.
+         * The outer ScrollPane handles vertical scrolling.
+         */
         timetableTable.prefHeightProperty().bind(
                 Bindings.createDoubleBinding(
                         () -> Math.max(1, timetableList.size())
@@ -191,6 +230,30 @@ public class AdminTimetableManagementController {
                         timetableTable.fixedCellSizeProperty()
                 )
         );
+    }
+
+    private void loadAcademicYears() {
+        try {
+            academicYearComboBox.setItems(
+                    FXCollections.observableArrayList(
+                            dao.getAcademicYears()
+                    )
+            );
+
+            if (academicYearComboBox.getItems().isEmpty()) {
+                showError(
+                        "No academic years are available. "
+                                + "Add a batch with an academic year "
+                                + "before creating a timetable."
+                );
+            }
+
+        } catch (SQLException e) {
+            showError(
+                    "Unable to load academic years: "
+                            + e.getMessage()
+            );
+        }
     }
 
     private void loadCourses() {
@@ -203,7 +266,8 @@ public class AdminTimetableManagementController {
 
         } catch (SQLException e) {
             showError(
-                    "Unable to load courses: " + e.getMessage()
+                    "Unable to load courses: "
+                            + e.getMessage()
             );
         }
     }
@@ -216,7 +280,8 @@ public class AdminTimetableManagementController {
 
         } catch (SQLException e) {
             showError(
-                    "Unable to load timetable: " + e.getMessage()
+                    "Unable to load timetable: "
+                            + e.getMessage()
             );
         }
     }
@@ -224,17 +289,35 @@ public class AdminTimetableManagementController {
     @FXML
     private void handleAdd() {
         try {
+            if (timetableTable.getSelectionModel()
+                    .getSelectedItem() != null) {
+                showError(
+                        "Click Clear before adding "
+                                + "a new timetable entry."
+                );
+                return;
+            }
+
             Timetable timetable = readForm();
 
-            if (dao.addTimetable(timetable)) {
+            int addedId = dao.addTimetableReturningId(
+                    timetable
+            );
+
+            if (addedId > 0) {
                 loadTimetables();
                 handleClear();
 
                 messageLabel.setText(
-                        "Timetable entry added successfully."
+                        "Timetable entry #"
+                                + addedId
+                                + " added successfully."
                 );
+
             } else {
-                showError("Timetable entry could not be added.");
+                showError(
+                        "Timetable entry could not be added."
+                );
             }
 
         } catch (Exception e) {
@@ -252,7 +335,9 @@ public class AdminTimetableManagementController {
                 .getSelectedItem();
 
         if (selected == null) {
-            showError("Select a timetable entry first.");
+            showError(
+                    "Select a timetable entry first."
+            );
             return;
         }
 
@@ -261,7 +346,7 @@ public class AdminTimetableManagementController {
 
             Timetable timetable = new Timetable(
                     selected.getTimetableId(),
-                    ADMIN_ID,
+                    selected.getAdminId(),
                     form.getCourseId(),
                     form.getCourseCode(),
                     form.getCourseName(),
@@ -281,8 +366,11 @@ public class AdminTimetableManagementController {
                 messageLabel.setText(
                         "Timetable entry updated successfully."
                 );
+
             } else {
-                showError("No timetable entry was updated.");
+                showError(
+                        "No timetable entry was updated."
+                );
             }
 
         } catch (Exception e) {
@@ -300,14 +388,19 @@ public class AdminTimetableManagementController {
                 .getSelectedItem();
 
         if (selected == null) {
-            showError("Select a timetable entry first.");
+            showError(
+                    "Select a timetable entry first."
+            );
             return;
         }
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert confirm = new Alert(
+                Alert.AlertType.CONFIRMATION
+        );
 
         confirm.setTitle("Delete Timetable Entry");
         confirm.setHeaderText("Confirm deletion");
+
         confirm.setContentText(
                 "Delete timetable entry "
                         + selected.getTimetableId()
@@ -320,15 +413,20 @@ public class AdminTimetableManagementController {
         }
 
         try {
-            if (dao.deleteTimetable(selected.getTimetableId())) {
+            if (dao.deleteTimetable(
+                    selected.getTimetableId()
+            )) {
                 loadTimetables();
                 handleClear();
 
                 messageLabel.setText(
                         "Timetable entry deleted successfully."
                 );
+
             } else {
-                showError("Timetable entry was not found.");
+                showError(
+                        "Timetable entry was not found."
+                );
             }
 
         } catch (SQLException e) {
@@ -341,116 +439,151 @@ public class AdminTimetableManagementController {
 
     @FXML
     private void handleClear() {
-        timetableTable.getSelectionModel().clearSelection();
+        timetableTable.getSelectionModel()
+                .clearSelection();
 
         entryIdField.clear();
 
-        courseComboBox.getSelectionModel().clearSelection();
+        courseComboBox.getSelectionModel()
+                .clearSelection();
         courseComboBox.setValue(null);
 
-        dayComboBox.getSelectionModel().clearSelection();
+        dayComboBox.getSelectionModel()
+                .clearSelection();
         dayComboBox.setValue(null);
 
         startTimeField.clear();
         endTimeField.clear();
         venueField.clear();
 
-        sessionTypeComboBox.getSelectionModel().clearSelection();
+        sessionTypeComboBox.getSelectionModel()
+                .clearSelection();
         sessionTypeComboBox.setValue(null);
 
-        academicYearField.clear();
+        academicYearComboBox.getSelectionModel()
+                .clearSelection();
+        academicYearComboBox.setValue(null);
 
-        semesterComboBox.getSelectionModel().clearSelection();
+        semesterComboBox.getSelectionModel()
+                .clearSelection();
         semesterComboBox.setValue(null);
 
         messageLabel.setText("");
+
+        refreshNextEntryId();
+    }
+
+    private void refreshNextEntryId() {
+        try {
+            entryIdField.setText(
+                    String.valueOf(
+                            dao.getNextTimetableId()
+                    )
+            );
+
+            entryIdField.setPromptText(
+                    "Next ID (assigned when saved)"
+            );
+
+        } catch (SQLException e) {
+            entryIdField.clear();
+
+            entryIdField.setPromptText(
+                    "Assigned when saved"
+            );
+
+            showError(
+                    "Unable to load the next entry ID: "
+                            + e.getMessage()
+            );
+        }
     }
 
     private Timetable readForm() {
         Course course = courseComboBox.getValue();
 
-        String day = dayComboBox.getValue();
-        String start = startTimeField.getText().trim();
-        String end = endTimeField.getText().trim();
-        String venue = venueField.getText().trim();
-        String type = sessionTypeComboBox.getValue();
-        String year = academicYearField.getText().trim();
+        if (course == null) {
+            courseComboBox.requestFocus();
+
+            throw new IllegalArgumentException(
+                    "Select a course."
+            );
+        }
+
+        String start = startTimeField
+                .getText()
+                .trim();
+
+        String end = endTimeField
+                .getText()
+                .trim();
+
+        if (!start.matches("[0-9]{2}:[0-9]{2}")
+                || !end.matches("[0-9]{2}:[0-9]{2}")) {
+            throw new IllegalArgumentException(
+                    "Enter times in 24-hour HH:mm format, "
+                            + "for example 08:30."
+            );
+        }
+
+        String year = academicYearComboBox.getValue();
+
+        if (year == null
+                || !academicYearComboBox.getItems()
+                .contains(year)) {
+            academicYearComboBox.requestFocus();
+
+            throw new IllegalArgumentException(
+                    "Select an academic year "
+                            + "from the batch table."
+            );
+        }
+
         String semester = semesterComboBox.getValue();
 
-        if (course == null
-                || day == null
-                || start.isEmpty()
-                || end.isEmpty()
-                || venue.isEmpty()
-                || type == null
-                || year.isEmpty()
-                || semester == null) {
+        if (semester == null
+                || !Timetable.SEMESTERS.contains(semester)) {
+            semesterComboBox.requestFocus();
 
             throw new IllegalArgumentException(
-                    "Please complete all fields."
+                    "Select Semester 1 or Semester 2."
             );
         }
 
-        if (!start.matches("\\d{2}:\\d{2}")
-                || !end.matches("\\d{2}:\\d{2}")) {
-
-            throw new IllegalArgumentException(
-                    "Enter time in 24-hour HH:mm format, e.g. 08:30."
-            );
-        }
-
-        LocalTime startTime;
-        LocalTime endTime;
-
-        try {
-            startTime = LocalTime.parse(start);
-            endTime = LocalTime.parse(end);
-
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException(
-                    "Enter a valid time between 00:00 and 23:59."
-            );
-        }
-
-        if (!endTime.isAfter(startTime)) {
-            throw new IllegalArgumentException(
-                    "End time must be later than start time."
-            );
-        }
-
-        if (!year.matches("\\d{4}/\\d{4}")) {
-            throw new IllegalArgumentException(
-                    "Academic year format must be YYYY/YYYY."
-            );
-        }
-
-        return new Timetable(
+        Timetable entry = new Timetable(
                 0,
-                ADMIN_ID,
+                adminId,
                 course.getCourseId(),
                 course.getCourseCode(),
                 course.getCourseName(),
-                day,
-                startTime.format(TIME_FORMAT),
-                endTime.format(TIME_FORMAT),
-                venue,
-                type,
+                dayComboBox.getValue(),
+                start,
+                end,
+                venueField.getText().trim(),
+                sessionTypeComboBox.getValue(),
                 year,
                 semester
         );
+
+        Timetable.validate(entry);
+
+        return entry;
     }
 
     private void fillForm(Timetable timetable) {
         entryIdField.setText(
-                String.valueOf(timetable.getTimetableId())
+                String.valueOf(
+                        timetable.getTimetableId()
+                )
         );
 
-        // Clear the previous course before finding the matching one.
-        courseComboBox.getSelectionModel().clearSelection();
+        courseComboBox.getSelectionModel()
+                .clearSelection();
         courseComboBox.setValue(null);
 
         for (Course course : courseComboBox.getItems()) {
-            if (course.getCourseId() == timetable.getCourseId()) {
+            if (course.getCourseId()
+                    == timetable.getCourseId()) {
                 courseComboBox.setValue(course);
                 break;
             }
@@ -461,11 +594,15 @@ public class AdminTimetableManagementController {
         );
 
         startTimeField.setText(
-                displayTime(timetable.getStartTime())
+                displayTime(
+                        timetable.getStartTime()
+                )
         );
 
         endTimeField.setText(
-                displayTime(timetable.getEndTime())
+                displayTime(
+                        timetable.getEndTime()
+                )
         );
 
         venueField.setText(
@@ -476,17 +613,49 @@ public class AdminTimetableManagementController {
                 timetable.getSessionType()
         );
 
-        academicYearField.setText(
-                timetable.getAcademicYear()
+        boolean yearAvailable = academicYearComboBox
+                .getItems()
+                .contains(
+                        timetable.getAcademicYear()
+                );
+
+        academicYearComboBox.getSelectionModel()
+                .clearSelection();
+
+        academicYearComboBox.setValue(
+                yearAvailable
+                        ? timetable.getAcademicYear()
+                        : null
         );
+
+        boolean semesterAvailable =
+                timetable.getSemester() != null
+                        && Timetable.SEMESTERS.contains(
+                        timetable.getSemester()
+                );
 
         semesterComboBox.setValue(
-                timetable.getSemester()
+                semesterAvailable
+                        ? timetable.getSemester()
+                        : null
         );
 
-        messageLabel.setText(
-                "Selected entry ID: " + timetable.getTimetableId()
-        );
+        String message = "Selected entry ID: "
+                + timetable.getTimetableId();
+
+        if (!yearAvailable) {
+            message += ". Existing academic year "
+                    + timetable.getAcademicYear()
+                    + " is not in the batch table. "
+                    + "Select an available year to update.";
+        }
+
+        if (!semesterAvailable) {
+            message += " Select Semester 1 "
+                    + "or Semester 2 to update.";
+        }
+
+        messageLabel.setText(message);
     }
 
     private String displayTime(String value) {
@@ -495,9 +664,9 @@ public class AdminTimetableManagementController {
         }
 
         try {
-            // Accept database values such as 08:30:00,
-            // while displaying the HH:mm format used by the form.
-            return LocalTime.parse(value.trim()).format(TIME_FORMAT);
+            return LocalTime.parse(
+                    value.trim()
+            ).format(TIME_FORMAT);
 
         } catch (DateTimeParseException e) {
             return value;
@@ -507,11 +676,21 @@ public class AdminTimetableManagementController {
     private void showError(String message) {
         messageLabel.setText(message);
 
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        Alert alert = new Alert(
+                Alert.AlertType.ERROR
+        );
 
         alert.setTitle("Timetable Management");
         alert.setHeaderText("Operation failed");
         alert.setContentText(message);
+
+        if (timetableTable.getScene() != null) {
+            alert.initOwner(
+                    timetableTable.getScene()
+                            .getWindow()
+            );
+        }
+
         alert.showAndWait();
     }
 }

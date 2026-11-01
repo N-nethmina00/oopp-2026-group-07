@@ -116,6 +116,30 @@ public class StudentLayoutController {
 
                 controller.loadMedical(loggedInUserId);
             }
+            if ("student-marks".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentMarksController controller =
+                        loader.getController();
+
+                controller.loadMarks(loggedInUserId);
+            }
+            if ("student-materials".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentMaterialsController controller =
+                        loader.getController();
+
+                controller.loadMaterials(loggedInUserId);
+            }
+            if ("student-attendance".equals(page)
+                    && loggedInUserId != null) {
+
+                StudentAttendanceController controller =
+                        loader.getController();
+
+                controller.loadAttendance(loggedInUserId);
+            }
 
             contentArea.getChildren().setAll(root);
 

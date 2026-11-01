@@ -36,8 +36,8 @@ public class AdminController {
 
     @FXML private Label lblUserCount;
     @FXML private Label lblCourseCount;
-    @FXML private Label lblDepartmentCount;
-    @FXML private Label lblPendingMedicalCount;
+    @FXML private Label lblNoticeCount;
+    @FXML private Label lblTimetableCount;
     @FXML private Label lblDashboardStatus;
 
     @FXML private Button btnRefresh;
@@ -109,10 +109,22 @@ public class AdminController {
         menuAnimation = new Timeline(
                 new KeyFrame(
                         Duration.ZERO,
-                        new KeyValue(target.translateXProperty(), -5),
-                        new KeyValue(target.scaleXProperty(), 0.96),
-                        new KeyValue(target.scaleYProperty(), 0.96),
-                        new KeyValue(target.opacityProperty(), 0.65)
+                        new KeyValue(
+                                target.translateXProperty(),
+                                -5
+                        ),
+                        new KeyValue(
+                                target.scaleXProperty(),
+                                0.96
+                        ),
+                        new KeyValue(
+                                target.scaleYProperty(),
+                                0.96
+                        ),
+                        new KeyValue(
+                                target.opacityProperty(),
+                                0.65
+                        )
                 ),
                 new KeyFrame(
                         Duration.millis(140),
@@ -159,27 +171,42 @@ public class AdminController {
 
     @FXML
     private void showUsers() {
-        openPage("adminUserManagement.fxml", usersBtn);
+        openPage(
+                "adminUserManagement.fxml",
+                usersBtn
+        );
     }
 
     @FXML
     private void showCourses() {
-        openPage("adminCourseManagement.fxml", coursesBtn);
+        openPage(
+                "adminCourseManagement.fxml",
+                coursesBtn
+        );
     }
 
     @FXML
     private void showNotices() {
-        openPage("adminNoticeManagement.fxml", noticesBtn);
+        openPage(
+                "adminNoticeManagement.fxml",
+                noticesBtn
+        );
     }
 
     @FXML
     private void showTimetables() {
-        openPage("adminTimetableManagement.fxml", timetablesBtn);
+        openPage(
+                "adminTimetableManagement.fxml",
+                timetablesBtn
+        );
     }
 
     @FXML
     private void showAccount() {
-        openPage("adminAccount.fxml", accountBtn);
+        openPage(
+                "adminAccount.fxml",
+                accountBtn
+        );
     }
 
     private void openPage(String fileName, Button button) {
@@ -241,7 +268,9 @@ public class AdminController {
 
     @FXML
     private void refreshDashboard() {
-        if (loadingDashboard || loggedInUserId == null) {
+        if (loadingDashboard
+                || loggedInUserId == null
+                || loggedInUserId.isBlank()) {
             return;
         }
 
@@ -250,8 +279,13 @@ public class AdminController {
 
         clearCounts();
 
-        lblDashboardStatus.setTextFill(Color.web("#526174"));
-        lblDashboardStatus.setText("Loading dashboard...");
+        lblDashboardStatus.setTextFill(
+                Color.web("#526174")
+        );
+
+        lblDashboardStatus.setText(
+                "Loading dashboard..."
+        );
 
         Task<long[]> task = new Task<>() {
             @Override
@@ -263,12 +297,25 @@ public class AdminController {
         task.setOnSucceeded(event -> {
             long[] counts = task.getValue();
 
-            lblUserCount.setText(Long.toString(counts[0]));
-            lblCourseCount.setText(Long.toString(counts[1]));
-            lblDepartmentCount.setText(Long.toString(counts[2]));
-            lblPendingMedicalCount.setText(Long.toString(counts[3]));
+            lblUserCount.setText(
+                    Long.toString(counts[0])
+            );
 
-            lblDashboardStatus.setTextFill(Color.web("#526174"));
+            lblCourseCount.setText(
+                    Long.toString(counts[1])
+            );
+
+            lblNoticeCount.setText(
+                    Long.toString(counts[2])
+            );
+
+            lblTimetableCount.setText(
+                    Long.toString(counts[3])
+            );
+
+            lblDashboardStatus.setTextFill(
+                    Color.web("#526174")
+            );
 
             lblDashboardStatus.setText(
                     "Last updated: "
@@ -288,7 +335,9 @@ public class AdminController {
 
             Throwable error = task.getException();
 
-            lblDashboardStatus.setTextFill(Color.web("#C62828"));
+            lblDashboardStatus.setTextFill(
+                    Color.web("#C62828")
+            );
 
             lblDashboardStatus.setText(
                     "Unable to load dashboard: "
@@ -302,7 +351,11 @@ public class AdminController {
             btnRefresh.setDisable(false);
         });
 
-        Thread thread = new Thread(task, "admin-dashboard-loader");
+        Thread thread = new Thread(
+                task,
+                "admin-dashboard-loader"
+        );
+
         thread.setDaemon(true);
         thread.start();
     }
@@ -312,9 +365,8 @@ public class AdminController {
                 SELECT
                     (SELECT COUNT(*) FROM `user`) AS user_count,
                     (SELECT COUNT(*) FROM `course`) AS course_count,
-                    (SELECT COUNT(*) FROM `department`) AS department_count,
-                    (SELECT COUNT(*) FROM `medical`
-                     WHERE `status` = ?) AS pending_medical_count
+                    (SELECT COUNT(*) FROM `notice`) AS notice_count,
+                    (SELECT COUNT(*) FROM `timetable`) AS timetable_count
                 """;
 
         try (Connection connection = DBConnection.getConnection()) {
@@ -327,7 +379,6 @@ public class AdminController {
             try (PreparedStatement statement =
                          connection.prepareStatement(sql)) {
 
-                statement.setString(1, "Pending");
                 statement.setQueryTimeout(15);
 
                 try (ResultSet result = statement.executeQuery()) {
@@ -340,8 +391,8 @@ public class AdminController {
                     return new long[]{
                             result.getLong("user_count"),
                             result.getLong("course_count"),
-                            result.getLong("department_count"),
-                            result.getLong("pending_medical_count")
+                            result.getLong("notice_count"),
+                            result.getLong("timetable_count")
                     };
                 }
             }
@@ -351,16 +402,22 @@ public class AdminController {
     private void clearCounts() {
         lblUserCount.setText("—");
         lblCourseCount.setText("—");
-        lblDepartmentCount.setText("—");
-        lblPendingMedicalCount.setText("—");
+        lblNoticeCount.setText("—");
+        lblTimetableCount.setText("—");
     }
 
     @FXML
     private void handleLogout() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert alert = new Alert(
+                Alert.AlertType.CONFIRMATION
+        );
 
         alert.setTitle("Logout");
-        alert.setHeaderText("Are you sure you want to log out?");
+
+        alert.setHeaderText(
+                "Are you sure you want to log out?"
+        );
+
         alert.setContentText(
                 "You will be redirected to the login page."
         );
@@ -393,7 +450,10 @@ public class AdminController {
 
             loggedInUserId = null;
 
-            stage.setScene(new Scene(root, 1000, 600));
+            stage.setScene(
+                    new Scene(root, 1000, 600)
+            );
+
             stage.setTitle("AMS - Login");
             stage.centerOnScreen();
             stage.show();
@@ -407,7 +467,9 @@ public class AdminController {
     }
 
     private void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        Alert alert = new Alert(
+                Alert.AlertType.ERROR
+        );
 
         alert.setTitle(title);
         alert.setHeaderText(null);

@@ -1,137 +1,310 @@
+
 package com.fot.ams.controller;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import com.fot.ams.dao.StudentAttendanceDAO;
+import com.fot.ams.dao.StudentCoursesDAO;
+import com.fot.ams.model.Attendance;
+import com.fot.ams.model.Course;
 
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.util.StringConverter;
+
+import java.sql.SQLException;
 import java.util.List;
 
 public class StudentAttendanceController {
 
-    /** Minimum attendance needed (80%) */
     private static final double MIN_REQUIRED = 0.80;
 
-    private record Row(String date, String session, String status) {}
+    @FXML private ComboBox<Course> cmbCourse;
 
-    @FXML private ComboBox<String> cmbCourse;
+    @FXML private Label lblTotal;
+    @FXML private Label lblPresent;
+    @FXML private Label lblAbsent;
 
-    @FXML private Label lblTotal, lblPresent, lblAbsent, lblMedical;
-    @FXML private Label lblPercent, lblEligibility;
-    @FXML private Label lblLecture, lblPractical, lblLecturePercent, lblPracticalPercent;
-    @FXML private ProgressBar barAttendance, barLecture, barPractical;
 
-    private List<Row> data = List.of();
+    @FXML private Label lblPercent;
+    @FXML private Label lblEligibility;
+
+    @FXML private Label lblLecture;
+    @FXML private Label lblPractical;
+    @FXML private Label lblLecturePercent;
+    @FXML private Label lblPracticalPercent;
+
+    @FXML private ProgressBar barAttendance;
+    @FXML private ProgressBar barLecture;
+    @FXML private ProgressBar barPractical;
+
+    private String loggedInUserId;
+
+    private final StudentCoursesDAO coursesDAO =
+            new StudentCoursesDAO();
+
+    private final StudentAttendanceDAO attendanceDAO =
+            new StudentAttendanceDAO();
 
     @FXML
     private void initialize() {
-        cmbCourse.getItems().addAll("CS101 - Object Oriented Programming", "MA101 - Discrete Mathematics",
-                "DB201 - Database Systems");
-        cmbCourse.getSelectionModel().selectFirst();
-        handleSearch();
+
+        cmbCourse.setConverter(new StringConverter<>() {
+
+            @Override
+            public String toString(Course course) {
+
+                if (course == null) {
+                    return "";
+                }
+
+                return course.getCourseCode()
+                        + " - " + course.getCourseName();
+            }
+
+            @Override
+            public Course fromString(String text) {
+                return null;
+            }
+        });
+
+        updateSummary(List.of());
+    }
+
+    public void loadAttendance(String userId) {
+
+        loggedInUserId = userId;
+
+        cmbCourse.getItems().clear();
+        updateSummary(List.of());
+
+        if (userId == null || userId.isBlank()) {
+            showError("Student is not logged in.");
+            return;
+        }
+
+        try {
+
+            List<Course> courses =
+                    coursesDAO.getEnrolledCourses(userId);
+
+            cmbCourse.getItems().setAll(courses);
+
+            if (!courses.isEmpty()) {
+                cmbCourse.getSelectionModel().selectFirst();
+                handleSearch();
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+            updateSummary(List.of());
+
+            showError(
+                    "Unable to load courses: "
+                            + e.getMessage()
+            );
+        }
     }
 
     @FXML
     private void handleSearch() {
-        String selectedCourse = cmbCourse.getValue();
-        data = List.of();
 
-        // TODO: Replace demo data with DAO (AttendanceDAO.findByStudentAndCourse)
-        if (selectedCourse != null) {
-            if (selectedCourse.startsWith("CS101")) {
-                data = List.of(
-                        new Row("2026-10-05", "Lecture", "Present"),
-                        new Row("2026-10-03", "Practical", "Present"),
-                        new Row("2026-09-30", "Lecture", "Absent"),
-                        new Row("2026-09-28", "Lecture", "Medical"),
-                        new Row("2026-09-26", "Practical", "Present"),
-                        new Row("2026-09-22", "Lecture", "Present"),
-                        new Row("2026-09-19", "Practical", "Absent"),
-                        new Row("2026-09-15", "Lecture", "Present"));
-            } else if (selectedCourse.startsWith("MA101")) {
-                data = List.of(
-                        new Row("2026-10-06", "Lecture", "Present"),
-                        new Row("2026-10-01", "Lecture", "Present"),
-                        new Row("2026-09-25", "Lecture", "Absent"),
-                        new Row("2026-09-20", "Lecture", "Present"),
-                        new Row("2026-09-15", "Lecture", "Present"));
-            } else if (selectedCourse.startsWith("DB201")) {
-                data = List.of(
-                        new Row("2026-10-07", "Lecture", "Present"),
-                        new Row("2026-10-04", "Practical", "Present"),
-                        new Row("2026-10-01", "Lecture", "Medical"),
-                        new Row("2026-09-27", "Practical", "Absent"),
-                        new Row("2026-09-24", "Lecture", "Present"),
-                        new Row("2026-09-21", "Practical", "Present"));
-            }
+        Course selectedCourse = cmbCourse.getValue();
+
+        if (selectedCourse == null
+                || loggedInUserId == null) {
+
+            updateSummary(List.of());
+            return;
         }
-        updateSummary();
+
+        try {
+
+            List<Attendance> records =
+                    attendanceDAO.getStudentAttendance(
+                            loggedInUserId,
+                            selectedCourse.getCourseId()
+                    );
+
+            updateSummary(records);
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+            updateSummary(List.of());
+
+            showError(
+                    "Unable to load attendance: "
+                            + e.getMessage()
+            );
+        }
     }
 
-    private void updateSummary() {
-        int total = data.size();
-        int present = 0, absent = 0, medical = 0;
-        int lectureTotal = 0, lecturePresent = 0;
-        int practicalTotal = 0, practicalPresent = 0;
+    private void updateSummary(List<Attendance> records) {
 
-        for (Row row : data) {
-            boolean isPresent = row.status().equalsIgnoreCase("Present");
+        int total = records.size();
 
-            if (isPresent) present++;
-            else if (row.status().equalsIgnoreCase("Absent")) absent++;
-            else if (row.status().equalsIgnoreCase("Medical")) medical++;
+        int present = 0;
+        int absent = 0;
 
-            if (row.session().equalsIgnoreCase("Lecture")) {
+
+        int lectureTotal = 0;
+        int lecturePresent = 0;
+
+        int practicalTotal = 0;
+        int practicalPresent = 0;
+
+        for (Attendance record : records) {
+
+            String status = record.getStatus();
+            String type = record.getSessionType();
+
+            boolean isPresent =
+                    "Present".equalsIgnoreCase(status);
+
+            if (isPresent) {
+                present++;
+
+            } else if ("Absent".equalsIgnoreCase(status)
+                    || "Late".equalsIgnoreCase(status)) {
+                absent++;
+
+
+            }
+
+            if ("Theory".equalsIgnoreCase(type)) {
+
                 lectureTotal++;
-                if (isPresent) lecturePresent++;
-            } else if (row.session().equalsIgnoreCase("Practical")) {
+
+                if (isPresent) {
+                    lecturePresent++;
+                }
+
+            } else if ("Practical".equalsIgnoreCase(type)) {
+
                 practicalTotal++;
-                if (isPresent) practicalPresent++;
+
+                if (isPresent) {
+                    practicalPresent++;
+                }
             }
         }
 
-        double overall   = total == 0 ? 0 : (double) present / total;
-        double lecture   = lectureTotal == 0 ? 0 : (double) lecturePresent / lectureTotal;
-        double practical = practicalTotal == 0 ? 0 : (double) practicalPresent / practicalTotal;
+        double overall = total == 0
+                ? 0
+                : (double) present / total;
 
-        // summary cards
+        double lecture = lectureTotal == 0
+                ? 0
+                : (double) lecturePresent / lectureTotal;
+
+        double practical = practicalTotal == 0
+                ? 0
+                : (double) practicalPresent / practicalTotal;
+
+        // Summary cards
         lblTotal.setText(String.valueOf(total));
         lblPresent.setText(String.valueOf(present));
         lblAbsent.setText(String.valueOf(absent));
-        lblMedical.setText(String.valueOf(medical));
 
-        // overall
-        lblPercent.setText(Math.round(overall * 100) + "%");
+
+        // Overall percentage
+        lblPercent.setText(
+                total == 0
+                        ? "N/A"
+                        : Math.round(overall * 100) + "%"
+        );
+
         barAttendance.setProgress(overall);
         setBarColor(barAttendance, overall, total);
 
         if (total == 0) {
+
             lblEligibility.setText("No records");
-            lblEligibility.getStyleClass().setAll("badge", "badge-pending");
+            lblEligibility.getStyleClass().setAll(
+                    "badge", "badge-pending"
+            );
+
         } else if (overall >= MIN_REQUIRED) {
-            lblEligibility.setText("Eligible");
-            lblEligibility.getStyleClass().setAll("badge", "badge-present");
+
+            lblEligibility.setText("80% or above");
+            lblEligibility.getStyleClass().setAll(
+                    "badge", "badge-present"
+            );
+
         } else {
+
             lblEligibility.setText("Below 80%");
-            lblEligibility.getStyleClass().setAll("badge", "badge-absent");
+            lblEligibility.getStyleClass().setAll(
+                    "badge", "badge-absent"
+            );
         }
 
-        // by session type
-        lblLecture.setText("Present " + lecturePresent + " / " + lectureTotal);
-        lblLecturePercent.setText(Math.round(lecture * 100) + "%");
-        barLecture.setProgress(lecture);
-        setBarColor(barLecture, lecture, lectureTotal);
+        // Theory / Lecture attendance
+        lblLecture.setText(
+                "Present " + lecturePresent
+                        + " / " + lectureTotal
+        );
 
-        lblPractical.setText("Present " + practicalPresent + " / " + practicalTotal);
-        lblPracticalPercent.setText(Math.round(practical * 100) + "%");
+        lblLecturePercent.setText(
+                lectureTotal == 0
+                        ? "N/A"
+                        : Math.round(lecture * 100) + "%"
+        );
+
+        barLecture.setProgress(lecture);
+
+        setBarColor(
+                barLecture,
+                lecture,
+                lectureTotal
+        );
+
+        // Practical attendance
+        lblPractical.setText(
+                "Present " + practicalPresent
+                        + " / " + practicalTotal
+        );
+
+        lblPracticalPercent.setText(
+                practicalTotal == 0
+                        ? "N/A"
+                        : Math.round(practical * 100) + "%"
+        );
+
         barPractical.setProgress(practical);
-        setBarColor(barPractical, practical, practicalTotal);
+
+        setBarColor(
+                barPractical,
+                practical,
+                practicalTotal
+        );
     }
 
-    /** green if >= 80%, red if below */
-    private void setBarColor(ProgressBar bar, double pct, int total) {
-        bar.getStyleClass().removeAll("bar-good", "bar-low");
-        if (total == 0) return;
-        bar.getStyleClass().add(pct >= MIN_REQUIRED ? "bar-good" : "bar-low");
+    private void setBarColor(
+            ProgressBar bar,
+            double percentage,
+            int total) {
+
+        bar.getStyleClass().removeAll(
+                "bar-good", "bar-low"
+        );
+
+        if (total == 0) {
+            return;
+        }
+
+        bar.getStyleClass().add(
+                percentage >= MIN_REQUIRED
+                        ? "bar-good"
+                        : "bar-low"
+        );
+    }
+
+    private void showError(String message) {
+
+        new Alert(
+                Alert.AlertType.ERROR,
+                message
+        ).showAndWait();
     }
 }

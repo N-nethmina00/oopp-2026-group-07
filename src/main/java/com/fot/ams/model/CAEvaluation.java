@@ -21,6 +21,10 @@ public class CAEvaluation {
     private String caStatus;
     private Integer eligibility;
 
+        //tg 2069
+    private String courseCode;
+    private String courseName;
+
     public CAEvaluation() {
     }
 
@@ -156,5 +160,23 @@ public class CAEvaluation {
 
     public void setEligibility(Integer eligibility) {
         this.eligibility = eligibility;
+    }
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    //tg 2069
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 }

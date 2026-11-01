@@ -46,6 +46,14 @@ public class AdminCourseManagementController {
         configureTableColumns();
         configureTableHeight();
 
+        courseIdField.setPromptText("Example: ICT1124");
+        courseIdField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null || newValue.isEmpty()
+                    || Course.isValidCourseCode(newValue)) {
+                courseIdField.setStyle("");
+            }
+        });
+
         typeComboBox.setItems(
                 FXCollections.observableArrayList(
                         "Theory",
@@ -181,6 +189,11 @@ public class AdminCourseManagementController {
     @FXML
     private void handleAdd() {
         try {
+            if (coursesTable.getSelectionModel().getSelectedItem() != null) {
+                showError("Click Clear before adding a new course.");
+                return;
+            }
+
             Course course = readForm();
 
             if (dao.addCourse(course)) {
@@ -214,7 +227,7 @@ public class AdminCourseManagementController {
             if (!course.getCourseCode()
                     .equals(selected.getCourseCode())) {
 
-                showError("Course ID cannot be changed during update.");
+                showError("Course code cannot be changed during update.");
                 return;
             }
 
@@ -287,11 +300,22 @@ public class AdminCourseManagementController {
         coursesTable.getSelectionModel().clearSelection();
 
         courseIdField.setEditable(true);
+        courseIdField.setStyle("");
         messageLabel.setText("");
     }
 
     private Course readForm() {
-        String code = courseIdField.getText().trim();
+        // Validate the exact input; do not silently trim or uppercase it.
+        String code = courseIdField.getText();
+
+        if (!Course.isValidCourseCode(code)) {
+            courseIdField.setStyle(
+                    "-fx-border-color: #B42318; -fx-border-radius: 4;"
+            );
+            courseIdField.requestFocus();
+            courseIdField.selectAll();
+            throw new IllegalArgumentException(Course.COURSE_CODE_ERROR);
+        }
         String name = courseNameField.getText().trim();
         String creditText = creditField.getText().trim();
 
@@ -308,12 +332,6 @@ public class AdminCourseManagementController {
 
             throw new IllegalArgumentException(
                     "Please complete all fields."
-            );
-        }
-
-        if (!code.matches("[A-Za-z0-9-]{2,20}")) {
-            throw new IllegalArgumentException(
-                    "Enter a valid course code."
             );
         }
 
@@ -366,6 +384,13 @@ public class AdminCourseManagementController {
         alert.setTitle("Course Management");
         alert.setHeaderText("Operation failed");
         alert.setContentText(message);
+        if (courseIdField.getScene() != null) {
+            alert.initOwner(courseIdField.getScene().getWindow());
+        }
         alert.showAndWait();
+
+        if (!Course.isValidCourseCode(courseIdField.getText())) {
+            courseIdField.requestFocus();
+        }
     }
 }

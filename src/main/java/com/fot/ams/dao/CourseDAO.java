@@ -109,6 +109,11 @@ public class CourseDAO {
     }
 
     public boolean addCourse(Course course) throws SQLException {
+        if (course == null) {
+            throw new IllegalArgumentException("Course details are required.");
+        }
+        Course.validateCourseCode(course.getCourseCode());
+
         String sql = """
                 INSERT INTO course
                 (course_code, course_name, credit, type, lecturer_id, dept_id)
@@ -137,6 +142,11 @@ public class CourseDAO {
     }
 
     public boolean updateCourse(Course course) throws SQLException {
+        if (course == null) {
+            throw new IllegalArgumentException("Course details are required.");
+        }
+        Course.validateCourseCode(course.getCourseCode());
+
         String sql = """
                 UPDATE course
                 SET course_name = ?, credit = ?, type = ?,

@@ -55,13 +55,12 @@ public class AttendanceController {
     @FXML
     private Label studentCountLabel;
 
-    // TG2070 - START: Receive logged-in TO ID from dashboard
+    // TG2070 - Logged-in Technical Officer ID
     private String technicalOfficerId;
 
     public void setTechnicalOfficerId(String technicalOfficerId) {
         this.technicalOfficerId = technicalOfficerId;
     }
-    // TG2070 - END
 
     @FXML
     private void initialize() {
@@ -75,13 +74,13 @@ public class AttendanceController {
 
         sessionComboBox.setDisable(true);
 
-        // TG2070 - Reload sessions when filters change
+        // TG2070 - Reload sessions when any filter changes
         courseComboBox.setOnAction(event -> loadSessions());
+        batchComboBox.setOnAction(event -> loadSessions());
         sessionDatePicker.setOnAction(event -> loadSessions());
         sessionTypeComboBox.setOnAction(event -> loadSessions());
 
-        // TG2070 - Clear students when batch or session changes
-        batchComboBox.setOnAction(event -> clearStudents());
+        // Clear students when the selected session changes
         sessionComboBox.setOnAction(event -> clearStudents());
     }
 
@@ -157,7 +156,7 @@ public class AttendanceController {
         }
     }
 
-    // TG2070 - Load sessions using selected filters
+    // TG2070 - Load sessions for selected course, batch, date and type
     private void loadSessions() {
         clearStudents();
 
@@ -166,14 +165,18 @@ public class AttendanceController {
         sessionComboBox.setDisable(true);
 
         Course selectedCourse = courseComboBox.getValue();
+        Batch selectedBatch = batchComboBox.getValue();
         LocalDate selectedDate = sessionDatePicker.getValue();
         String selectedType = sessionTypeComboBox.getValue();
 
         if (selectedCourse == null
+                || selectedBatch == null
                 || selectedDate == null
                 || selectedType == null) {
 
-            sessionComboBox.setPromptText("Select course, date and type");
+            sessionComboBox.setPromptText(
+                    "Select course, batch, date and type"
+            );
             return;
         }
 
@@ -184,12 +187,11 @@ public class AttendanceController {
                     attendanceDAO.getSessions(
                             selectedCourse.getCourseCode(),
                             selectedDate,
-                            selectedType
+                            selectedType,
+                            selectedBatch.getBatchId()
                     );
 
-            for (AttendanceSession session : sessions) {
-                sessionComboBox.getItems().add(session);
-            }
+            sessionComboBox.getItems().setAll(sessions);
 
             if (sessions.isEmpty()) {
                 sessionComboBox.setPromptText("No sessions found");
@@ -230,15 +232,18 @@ public class AttendanceController {
                             selectedBatch.getBatchId()
                     );
 
-            for (StudentAttendance student : students) {
-                attendanceTable.getItems().add(student);
-            }
+            attendanceTable.getItems().setAll(students);
 
-            studentCountLabel.setText(students.size() + " students");
+            studentCountLabel.setText(
+                    students.size()
+                            + (students.size() == 1 ? " student" : " students")
+            );
 
             if (students.isEmpty()) {
                 attendanceTable.setPlaceholder(
-                        new Label("No students found for this batch and session.")
+                        new Label(
+                                "No students found for this batch and session."
+                        )
                 );
             }
 
@@ -249,11 +254,14 @@ public class AttendanceController {
 
     // TG2070 - Clear old students when selections change
     private void clearStudents() {
+        attendanceTable.edit(-1, null);
         attendanceTable.getItems().clear();
         studentCountLabel.setText("0 students");
 
         attendanceTable.setPlaceholder(
-                new Label("Select a batch and session, then click Load Students.")
+                new Label(
+                        "Select a batch and session, then click Load Students."
+                )
         );
     }
 
@@ -346,11 +354,13 @@ public class AttendanceController {
             );
         }
     }
-    // TG2070 - START: Open Add Session form
+
+    // TG2070 - Open Add Session form for the selected batch
     @FXML
     private void showAddSession() {
         if (technicalOfficerId == null
                 || technicalOfficerId.isBlank()) {
+
             showSessionMessage(
                     Alert.AlertType.ERROR,
                     "Please log in again before adding a session."
@@ -359,15 +369,18 @@ public class AttendanceController {
         }
 
         Course selectedCourse = courseComboBox.getValue();
+        Batch selectedBatch = batchComboBox.getValue();
         LocalDate selectedDate = sessionDatePicker.getValue();
         String selectedType = sessionTypeComboBox.getValue();
 
         if (selectedCourse == null
+                || selectedBatch == null
                 || selectedDate == null
                 || selectedType == null) {
+
             showSessionMessage(
                     Alert.AlertType.WARNING,
-                    "Please select course, date and session type first."
+                    "Please select course, batch, date and session type first."
             );
             return;
         }
@@ -376,9 +389,11 @@ public class AttendanceController {
                 new javafx.scene.control.Dialog<>();
 
         dialog.setTitle("Add Session");
+
         dialog.setHeaderText(
                 selectedCourse.getCourseCode()
-                        + " | " + selectedDate
+                        + " | " + selectedBatch
+                        + "\n" + selectedDate
                         + " | " + selectedType
         );
 
@@ -438,6 +453,7 @@ public class AttendanceController {
 
                     if (!startText.matches("\\d{2}:\\d{2}")
                             || !endText.matches("\\d{2}:\\d{2}")) {
+
                         errorLabel.setText(
                                 "Enter times as HH:mm, for example 09:00."
                         );
@@ -451,7 +467,9 @@ public class AttendanceController {
                         startTime = java.time.LocalTime.parse(startText);
                         endTime = java.time.LocalTime.parse(endText);
 
-                    } catch (java.time.format.DateTimeParseException exception) {
+                    } catch (
+                            java.time.format.DateTimeParseException exception
+                    ) {
                         errorLabel.setText(
                                 "Enter valid times between 00:00 and 23:59."
                         );
@@ -474,31 +492,35 @@ public class AttendanceController {
                                 selectedDate,
                                 startTime,
                                 endTime,
-                                selectedType
+                                selectedType,
+                                selectedBatch.getBatchId()
                         );
 
                         if (!saved) {
                             errorLabel.setText(
-                                    "Session was not added. Check that the course "
-                                            + "belongs to your department and "
-                                            + "the time does not overlap another session."
+                                    "Session was not added. Check the batch, "
+                                            + "course department and overlapping "
+                                            + "sessions for this batch or an "
+                                            + "existing shared session."
                             );
                             return;
                         }
 
                         dialog.close();
 
-                        // Refresh session dropdown after saving
+                        // Refresh sessions for the selected batch
                         loadSessions();
 
                         showSessionMessage(
                                 Alert.AlertType.INFORMATION,
-                                "Session added successfully. "
-                                        + "Select it from the Session dropdown."
+                                "Session added successfully for "
+                                        + selectedBatch
+                                        + ". Select it from the Session dropdown."
                         );
 
                     } catch (SQLException exception) {
                         exception.printStackTrace();
+
                         errorLabel.setText(
                                 "Could not save session: "
                                         + exception.getMessage()
@@ -509,7 +531,6 @@ public class AttendanceController {
 
         dialog.showAndWait();
     }
-// TG2070 - END
 
     // TG2070 - Show session messages
     private void showSessionMessage(

@@ -1,4 +1,3 @@
-
 package com.fot.ams.dao;
 
 import com.fot.ams.model.EligibilityRecord;
@@ -17,121 +16,126 @@ public class EligibilityDAO {
         List<EligibilityRecord> records = new ArrayList<>();
 
         String sql = """
-            SELECT
-                e.enrollment_id,
-                e.reg_no,
-                c.course_code,
-                ce.CA_status,
-                ce.total_CA_marks,
-                ce.eligibility,
-
-                COALESCE(sc.session_count, 0) AS session_count,
-
-                COALESCE(att.recorded_count, 0) AS recorded_count,
-                COALESCE(att.present_count, 0) AS present_count,
-                COALESCE(att.theory_count, 0) AS theory_count,
-                COALESCE(att.theory_present, 0) AS theory_present,
-                COALESCE(att.practical_count, 0) AS practical_count,
-                COALESCE(att.practical_present, 0) AS practical_present,
-
-                COALESCE(med.approved_count, 0) AS approved_count,
-                COALESCE(med.pending_count, 0) AS pending_count
-
-            FROM enrollment e
-
-            JOIN course c
-                ON e.course_id = c.course_id
-
-            LEFT JOIN ca_evaluation ce
-                ON ce.enrollment_id = e.enrollment_id
-
-            LEFT JOIN (
                 SELECT
-                    course_id,
-                    COUNT(*) AS session_count
-                FROM sessions
-                GROUP BY course_id
-            ) sc ON sc.course_id = c.course_id
+                    e.enrollment_id,
+                    e.reg_no,
+                    c.course_code,
+                    ce.CA_status,
+                    ce.total_CA_marks,
+                    ce.eligibility,
 
-            LEFT JOIN (
-                SELECT
-                    a.enrollment_id,
-                    s.course_id,
+                    COALESCE(sc.session_count, 0) AS session_count,
 
-                    COUNT(DISTINCT s.session_id)
-                        AS recorded_count,
+                    COALESCE(att.recorded_count, 0) AS recorded_count,
+                    COALESCE(att.present_count, 0) AS present_count,
+                    COALESCE(att.theory_count, 0) AS theory_count,
+                    COALESCE(att.theory_present, 0) AS theory_present,
+                    COALESCE(att.practical_count, 0) AS practical_count,
+                    COALESCE(att.practical_present, 0) AS practical_present,
 
-                    COUNT(DISTINCT CASE
-                        WHEN a.status = 'Present'
-                        THEN s.session_id
-                    END) AS present_count,
+                    COALESCE(med.approved_count, 0) AS approved_count,
+                    COALESCE(med.pending_count, 0) AS pending_count
 
-                    COUNT(DISTINCT CASE
-                        WHEN s.session_type = 'Theory'
-                        THEN s.session_id
-                    END) AS theory_count,
+                FROM enrollment e
 
-                    COUNT(DISTINCT CASE
-                        WHEN s.session_type = 'Theory'
-                         AND a.status = 'Present'
-                        THEN s.session_id
-                    END) AS theory_present,
+                JOIN course c
+                    ON e.course_id = c.course_id
 
-                    COUNT(DISTINCT CASE
-                        WHEN s.session_type = 'Practical'
-                        THEN s.session_id
-                    END) AS practical_count,
+                LEFT JOIN ca_evaluation ce
+                    ON ce.enrollment_id = e.enrollment_id
 
-                    COUNT(DISTINCT CASE
-                        WHEN s.session_type = 'Practical'
-                         AND a.status = 'Present'
-                        THEN s.session_id
-                    END) AS practical_present
+                LEFT JOIN (
+                    SELECT
+                        ug.reg_no,
+                        s.course_id,
+                        COUNT(*) AS session_count
+                    FROM undergraduate ug
+                    JOIN sessions s
+                        ON (
+                            s.batch_id = ug.batch_id
+                            OR s.batch_id IS NULL
+                        )
+                    GROUP BY ug.reg_no, s.course_id
+                ) sc ON sc.course_id = c.course_id
+                    AND sc.reg_no = e.reg_no
 
-                FROM attendance a
-                JOIN sessions s
-                    ON s.session_id = a.session_id
+                LEFT JOIN (
+                    SELECT
+                        a.enrollment_id,
+                        s.course_id,
 
-                GROUP BY a.enrollment_id, s.course_id
-            ) att ON att.enrollment_id = e.enrollment_id
-                 AND att.course_id = c.course_id
+                        COUNT(DISTINCT s.session_id)
+                            AS recorded_count,
 
-            LEFT JOIN (
-                SELECT
-                    reg_no,
-                    course_id,
+                        COUNT(DISTINCT CASE
+                            WHEN a.status = 'Present'
+                            THEN s.session_id
+                        END) AS present_count,
 
-                    SUM(CASE
-                        WHEN status = 'Approved' THEN 1
-                        ELSE 0
-                    END) AS approved_count,
+                        COUNT(DISTINCT CASE
+                            WHEN s.session_type = 'Theory'
+                            THEN s.session_id
+                        END) AS theory_count,
 
-                    SUM(CASE
-                        WHEN status = 'Pending' THEN 1
-                        ELSE 0
-                    END) AS pending_count
+                        COUNT(DISTINCT CASE
+                            WHEN s.session_type = 'Theory'
+                             AND a.status = 'Present'
+                            THEN s.session_id
+                        END) AS theory_present,
 
-                FROM medical
-                GROUP BY reg_no, course_id
-            ) med ON med.reg_no = e.reg_no
-                  AND med.course_id = c.course_id
+                        COUNT(DISTINCT CASE
+                            WHEN s.session_type = 'Practical'
+                            THEN s.session_id
+                        END) AS practical_count,
 
-            WHERE c.lecturer_id = ?
-              AND c.course_code = ?
-              AND e.status = 'Enrolled'
+                        COUNT(DISTINCT CASE
+                            WHEN s.session_type = 'Practical'
+                             AND a.status = 'Present'
+                            THEN s.session_id
+                        END) AS practical_present
 
-            ORDER BY e.reg_no
-            """;
+                    FROM attendance a
+                    JOIN sessions s
+                        ON s.session_id = a.session_id
+
+                    GROUP BY a.enrollment_id, s.course_id
+                ) att ON att.enrollment_id = e.enrollment_id
+                     AND att.course_id = c.course_id
+
+                LEFT JOIN (
+                    SELECT
+                        reg_no,
+                        course_id,
+
+                        SUM(CASE
+                            WHEN status = 'Approved' THEN 1
+                            ELSE 0
+                        END) AS approved_count,
+
+                        SUM(CASE
+                            WHEN status = 'Pending' THEN 1
+                            ELSE 0
+                        END) AS pending_count
+
+                    FROM medical
+                    GROUP BY reg_no, course_id
+                ) med ON med.reg_no = e.reg_no
+                      AND med.course_id = c.course_id
+
+                WHERE c.lecturer_id = ?
+                  AND c.course_code = ?
+                  AND e.status = 'Enrolled'
+
+                ORDER BY e.reg_no
+                """;
 
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement stmt =
-                     con.prepareStatement(sql)) {
+             PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
             stmt.setString(2, courseCode);
 
             try (ResultSet rs = stmt.executeQuery()) {
-
                 while (rs.next()) {
 
                     int recorded = rs.getInt("recorded_count");
@@ -142,6 +146,7 @@ public class EligibilityDAO {
 
                     int practicalCount =
                             rs.getInt("practical_count");
+
                     int practicalPresent =
                             rs.getInt("practical_present");
 

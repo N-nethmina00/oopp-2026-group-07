@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Nov 01, 2026 at 12:43 PM
+-- Generation Time: Nov 02, 2026 at 11:07 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -3232,6 +3232,8 @@ CREATE TABLE `medical` (
                            `course_id` int(11) NOT NULL,
                            `admin_id` varchar(10) DEFAULT NULL,
                            `medical_date` date NOT NULL,
+                           `end_date` date DEFAULT NULL,
+                           `document_path` varchar(500) DEFAULT NULL,
                            `reason` text NOT NULL,
                            `approved_by` varchar(100) DEFAULT NULL,
                            `status` enum('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending'
@@ -3241,19 +3243,20 @@ CREATE TABLE `medical` (
 -- Dumping data for table `medical`
 --
 
-INSERT INTO `medical` (`medical_id`, `reg_no`, `course_id`, `admin_id`, `medical_date`, `reason`, `approved_by`, `status`) VALUES
-                                                                                                                               (1, 'TG2011', 4, 'A001', '2026-09-18', 'DEMO: Hospital appointment', 'Pradeep Wijesinghe', 'Approved'),
-                                                                                                                               (2, 'TG2011', 2, 'A001', '2026-09-28', 'DEMO: Fever and medical rest', 'Pradeep Wijesinghe', 'Approved'),
-                                                                                                                               (3, 'TG2011', 7, 'A001', '2026-09-24', 'DEMO: Viral infection', 'Pradeep Wijesinghe', 'Rejected'),
-                                                                                                                               (4, 'TG2010', 8, 'A001', '2026-10-01', 'DEMO: Viral infection', NULL, 'Pending'),
-                                                                                                                               (5, 'TG2019', 8, 'A001', '2026-09-03', 'DEMO: Viral infection', 'Pradeep Wijesinghe', 'Rejected'),
-                                                                                                                               (6, 'TG2010', 3, 'A001', '2026-08-25', 'DEMO: Hospital appointment', 'Pradeep Wijesinghe', 'Approved'),
-                                                                                                                               (7, 'TG2019', 3, 'A001', '2026-10-06', 'DEMO: Fever and medical rest', 'Pradeep Wijesinghe', 'Approved'),
-                                                                                                                               (8, 'TG2019', 6, 'A001', '2026-10-13', 'DEMO: Hospital appointment', 'Pradeep Wijesinghe', 'Approved'),
-                                                                                                                               (10, 'TG2010', 1, 'A001', '2026-09-30', 'DEMO: Fever and medical rest', 'Pradeep Wijesinghe', 'Approved'),
-                                                                                                                               (13, 'TG2010', 8, 'A001', '2026-11-16', 'DEMO: ESA absence medical application, pending decision, result withheld', NULL, 'Pending'),
-                                                                                                                               (14, 'TG2011', 7, 'A001', '2026-11-15', 'DEMO: ESA absence medical application, pending decision, result withheld', NULL, 'Pending'),
-                                                                                                                               (15, 'TG2011', 4, 'A001', '2026-11-12', 'DEMO: ESA absence medical application, approved medical concession, ESA deferred', 'Pradeep Wijesinghe', 'Approved');
+INSERT INTO `medical` (`medical_id`, `reg_no`, `course_id`, `admin_id`, `medical_date`, `end_date`, `document_path`, `reason`, `approved_by`, `status`) VALUES
+                                                                                                                                                            (1, 'TG2011', 4, 'A001', '2026-09-18', NULL, NULL, 'DEMO: Hospital appointment', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                                                            (2, 'TG2011', 2, 'A001', '2026-09-28', NULL, NULL, 'DEMO: Fever and medical rest', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                                                            (3, 'TG2011', 7, 'A001', '2026-09-24', NULL, NULL, 'DEMO: Viral infection', 'Pradeep Wijesinghe', 'Rejected'),
+                                                                                                                                                            (4, 'TG2010', 8, 'A001', '2026-10-01', NULL, NULL, 'DEMO: Viral infection', NULL, 'Pending'),
+                                                                                                                                                            (5, 'TG2019', 8, 'A001', '2026-09-03', NULL, NULL, 'DEMO: Viral infection', 'Pradeep Wijesinghe', 'Rejected'),
+                                                                                                                                                            (6, 'TG2010', 3, 'A001', '2026-08-25', NULL, NULL, 'DEMO: Hospital appointment', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                                                            (7, 'TG2019', 3, 'A001', '2026-10-06', NULL, NULL, 'DEMO: Fever and medical rest', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                                                            (8, 'TG2019', 6, 'A001', '2026-10-13', NULL, NULL, 'DEMO: Hospital appointment', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                                                            (10, 'TG2010', 1, 'A001', '2026-09-30', NULL, NULL, 'DEMO: Fever and medical rest', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                                                            (13, 'TG2010', 8, 'A001', '2026-11-16', NULL, NULL, 'DEMO: ESA absence medical application, pending decision, result withheld', NULL, 'Pending'),
+                                                                                                                                                            (14, 'TG2011', 7, 'A001', '2026-11-15', NULL, NULL, 'DEMO: ESA absence medical application, pending decision, result withheld', NULL, 'Pending'),
+                                                                                                                                                            (15, 'TG2011', 4, 'A001', '2026-11-12', NULL, NULL, 'DEMO: ESA absence medical application, approved medical concession, ESA deferred', 'Pradeep Wijesinghe', 'Approved'),
+                                                                                                                                                            (16, 'TG2000', 4, NULL, '2026-10-18', NULL, 'medical-documents\\aa7841b4-7f69-4493-b9fa-541f840781fc.jpg', 'hutto mt una', NULL, 'Pending');
 
 -- --------------------------------------------------------
 
@@ -3318,15 +3321,6 @@ INSERT INTO `semester_result` (`result_id`, `reg_no`, `semester`, `academic_year
                                                                                               (21, 'TG2017', 'Semester 1', '2023/2024', 0.00),
                                                                                               (23, 'TG2019', 'Semester 1', '2023/2024', 0.00);
 
--- ARCHIVED ORIGINAL ROW (not imported): Older semester result superseded by the latest source-year result.
--- INSERT INTO `semester_result` (`result_id`,`reg_no`,`semester`,`academic_year`,`GPA`) VALUES (1, 'TG2000', 'Semester 1', '2025/2026', 3.65);
-
--- ARCHIVED ORIGINAL ROW (not imported): Older semester result superseded by the latest source-year result.
--- INSERT INTO `semester_result` (`result_id`,`reg_no`,`semester`,`academic_year`,`GPA`) VALUES (2, 'TG2001', 'Semester 1', '2025/2026', 3.42);
-
--- ARCHIVED ORIGINAL ROW (not imported): Older semester result superseded by the latest source-year result.
--- INSERT INTO `semester_result` (`result_id`,`reg_no`,`semester`,`academic_year`,`GPA`) VALUES (3, 'TG2002', 'Semester 1', '2025/2026', 3.18);
-
 -- --------------------------------------------------------
 
 --
@@ -3339,140 +3333,141 @@ CREATE TABLE `sessions` (
                             `session_date` date NOT NULL,
                             `start_time` time NOT NULL,
                             `end_time` time NOT NULL,
-                            `session_type` enum('Theory','Practical') NOT NULL
+                            `session_type` enum('Theory','Practical') NOT NULL,
+                            `batch_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `sessions`
 --
 
-INSERT INTO `sessions` (`session_id`, `course_id`, `session_date`, `start_time`, `end_time`, `session_type`) VALUES
-                                                                                                                 (1, 2, '2026-08-03', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (2, 3, '2026-08-04', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (3, 6, '2026-08-04', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (4, 1, '2026-08-05', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (5, 9, '2026-08-05', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (6, 7, '2026-08-06', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (7, 8, '2026-08-06', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (8, 5, '2026-08-07', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (9, 4, '2026-08-07', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (10, 2, '2026-08-10', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (11, 3, '2026-08-11', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (12, 6, '2026-08-11', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (13, 9, '2026-08-12', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (14, 7, '2026-08-13', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (15, 8, '2026-08-13', '14:00:00', '16:00:00', 'Practical'),
-                                                                                                                 (16, 1, '2026-08-14', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (17, 5, '2026-08-14', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (18, 4, '2026-08-14', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (19, 2, '2026-08-17', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (20, 3, '2026-08-18', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (21, 6, '2026-08-18', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (22, 1, '2026-08-19', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (23, 9, '2026-08-19', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (24, 7, '2026-08-20', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (25, 8, '2026-08-20', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (26, 5, '2026-08-21', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (27, 4, '2026-08-21', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (28, 2, '2026-08-24', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (29, 3, '2026-08-25', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (30, 6, '2026-08-25', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (31, 9, '2026-08-26', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (32, 7, '2026-08-27', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (33, 8, '2026-08-27', '14:00:00', '16:00:00', 'Practical'),
-                                                                                                                 (34, 1, '2026-08-28', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (35, 5, '2026-08-28', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (36, 4, '2026-08-28', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (37, 2, '2026-08-31', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (38, 3, '2026-09-01', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (39, 6, '2026-09-01', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (40, 1, '2026-09-02', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (41, 9, '2026-09-02', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (42, 7, '2026-09-03', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (43, 8, '2026-09-03', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (44, 5, '2026-09-04', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (45, 4, '2026-09-04', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (46, 2, '2026-09-07', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (47, 3, '2026-09-08', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (48, 6, '2026-09-08', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (49, 9, '2026-09-09', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (50, 7, '2026-09-10', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (51, 8, '2026-09-10', '14:00:00', '16:00:00', 'Practical'),
-                                                                                                                 (52, 1, '2026-09-11', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (53, 5, '2026-09-11', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (54, 4, '2026-09-11', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (55, 2, '2026-09-14', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (56, 3, '2026-09-15', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (57, 6, '2026-09-15', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (58, 1, '2026-09-16', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (59, 9, '2026-09-16', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (60, 7, '2026-09-17', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (61, 8, '2026-09-17', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (62, 5, '2026-09-18', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (63, 4, '2026-09-18', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (64, 2, '2026-09-21', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (65, 3, '2026-09-22', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (66, 6, '2026-09-22', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (67, 9, '2026-09-23', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (68, 7, '2026-09-24', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (69, 8, '2026-09-24', '14:00:00', '16:00:00', 'Practical'),
-                                                                                                                 (70, 1, '2026-09-25', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (71, 5, '2026-09-25', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (72, 4, '2026-09-25', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (73, 2, '2026-09-28', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (74, 3, '2026-09-29', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (75, 6, '2026-09-29', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (76, 1, '2026-09-30', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (77, 9, '2026-09-30', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (78, 7, '2026-10-01', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (79, 8, '2026-10-01', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (80, 5, '2026-10-02', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (81, 4, '2026-10-02', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (82, 2, '2026-10-05', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (83, 3, '2026-10-06', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (84, 6, '2026-10-06', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (85, 9, '2026-10-07', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (86, 7, '2026-10-08', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (87, 8, '2026-10-08', '14:00:00', '16:00:00', 'Practical'),
-                                                                                                                 (88, 1, '2026-10-09', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (89, 5, '2026-10-09', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (90, 4, '2026-10-09', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (91, 2, '2026-10-12', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (92, 3, '2026-10-13', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (93, 6, '2026-10-13', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (94, 1, '2026-10-14', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (95, 9, '2026-10-14', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (96, 7, '2026-10-15', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (97, 8, '2026-10-15', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (98, 5, '2026-10-16', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (99, 4, '2026-10-16', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (100, 2, '2026-10-19', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (101, 3, '2026-10-20', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (102, 6, '2026-10-20', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (103, 9, '2026-10-21', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (104, 7, '2026-10-22', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (105, 8, '2026-10-22', '14:00:00', '16:00:00', 'Practical'),
-                                                                                                                 (106, 1, '2026-10-23', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (107, 5, '2026-10-23', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (108, 4, '2026-10-23', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (109, 2, '2026-10-26', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (110, 3, '2026-10-27', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (111, 6, '2026-10-27', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (112, 1, '2026-10-28', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (113, 9, '2026-10-28', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (114, 7, '2026-10-29', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (115, 8, '2026-10-29', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (116, 5, '2026-10-30', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (117, 4, '2026-10-30', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (118, 2, '2026-11-02', '11:00:00', '13:00:00', 'Practical'),
-                                                                                                                 (119, 3, '2026-11-03', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (120, 6, '2026-11-03', '13:00:00', '15:00:00', 'Theory'),
-                                                                                                                 (121, 9, '2026-11-04', '10:00:00', '12:00:00', 'Practical'),
-                                                                                                                 (122, 7, '2026-11-05', '09:00:00', '11:00:00', 'Theory'),
-                                                                                                                 (123, 8, '2026-11-05', '14:00:00', '16:00:00', 'Practical'),
-                                                                                                                 (124, 1, '2026-11-06', '08:00:00', '10:00:00', 'Theory'),
-                                                                                                                 (125, 5, '2026-11-06', '10:00:00', '12:00:00', 'Theory'),
-                                                                                                                 (126, 4, '2026-11-06', '13:00:00', '15:00:00', 'Theory');
+INSERT INTO `sessions` (`session_id`, `course_id`, `session_date`, `start_time`, `end_time`, `session_type`, `batch_id`) VALUES
+                                                                                                                             (1, 2, '2026-08-03', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (2, 3, '2026-08-04', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (3, 6, '2026-08-04', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (4, 1, '2026-08-05', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (5, 9, '2026-08-05', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (6, 7, '2026-08-06', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (7, 8, '2026-08-06', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (8, 5, '2026-08-07', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (9, 4, '2026-08-07', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (10, 2, '2026-08-10', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (11, 3, '2026-08-11', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (12, 6, '2026-08-11', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (13, 9, '2026-08-12', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (14, 7, '2026-08-13', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (15, 8, '2026-08-13', '14:00:00', '16:00:00', 'Practical', NULL),
+                                                                                                                             (16, 1, '2026-08-14', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (17, 5, '2026-08-14', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (18, 4, '2026-08-14', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (19, 2, '2026-08-17', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (20, 3, '2026-08-18', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (21, 6, '2026-08-18', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (22, 1, '2026-08-19', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (23, 9, '2026-08-19', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (24, 7, '2026-08-20', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (25, 8, '2026-08-20', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (26, 5, '2026-08-21', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (27, 4, '2026-08-21', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (28, 2, '2026-08-24', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (29, 3, '2026-08-25', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (30, 6, '2026-08-25', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (31, 9, '2026-08-26', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (32, 7, '2026-08-27', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (33, 8, '2026-08-27', '14:00:00', '16:00:00', 'Practical', NULL),
+                                                                                                                             (34, 1, '2026-08-28', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (35, 5, '2026-08-28', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (36, 4, '2026-08-28', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (37, 2, '2026-08-31', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (38, 3, '2026-09-01', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (39, 6, '2026-09-01', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (40, 1, '2026-09-02', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (41, 9, '2026-09-02', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (42, 7, '2026-09-03', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (43, 8, '2026-09-03', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (44, 5, '2026-09-04', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (45, 4, '2026-09-04', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (46, 2, '2026-09-07', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (47, 3, '2026-09-08', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (48, 6, '2026-09-08', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (49, 9, '2026-09-09', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (50, 7, '2026-09-10', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (51, 8, '2026-09-10', '14:00:00', '16:00:00', 'Practical', NULL),
+                                                                                                                             (52, 1, '2026-09-11', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (53, 5, '2026-09-11', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (54, 4, '2026-09-11', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (55, 2, '2026-09-14', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (56, 3, '2026-09-15', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (57, 6, '2026-09-15', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (58, 1, '2026-09-16', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (59, 9, '2026-09-16', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (60, 7, '2026-09-17', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (61, 8, '2026-09-17', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (62, 5, '2026-09-18', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (63, 4, '2026-09-18', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (64, 2, '2026-09-21', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (65, 3, '2026-09-22', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (66, 6, '2026-09-22', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (67, 9, '2026-09-23', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (68, 7, '2026-09-24', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (69, 8, '2026-09-24', '14:00:00', '16:00:00', 'Practical', NULL),
+                                                                                                                             (70, 1, '2026-09-25', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (71, 5, '2026-09-25', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (72, 4, '2026-09-25', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (73, 2, '2026-09-28', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (74, 3, '2026-09-29', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (75, 6, '2026-09-29', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (76, 1, '2026-09-30', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (77, 9, '2026-09-30', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (78, 7, '2026-10-01', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (79, 8, '2026-10-01', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (80, 5, '2026-10-02', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (81, 4, '2026-10-02', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (82, 2, '2026-10-05', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (83, 3, '2026-10-06', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (84, 6, '2026-10-06', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (85, 9, '2026-10-07', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (86, 7, '2026-10-08', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (87, 8, '2026-10-08', '14:00:00', '16:00:00', 'Practical', NULL),
+                                                                                                                             (88, 1, '2026-10-09', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (89, 5, '2026-10-09', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (90, 4, '2026-10-09', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (91, 2, '2026-10-12', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (92, 3, '2026-10-13', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (93, 6, '2026-10-13', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (94, 1, '2026-10-14', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (95, 9, '2026-10-14', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (96, 7, '2026-10-15', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (97, 8, '2026-10-15', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (98, 5, '2026-10-16', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (99, 4, '2026-10-16', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (100, 2, '2026-10-19', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (101, 3, '2026-10-20', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (102, 6, '2026-10-20', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (103, 9, '2026-10-21', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (104, 7, '2026-10-22', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (105, 8, '2026-10-22', '14:00:00', '16:00:00', 'Practical', NULL),
+                                                                                                                             (106, 1, '2026-10-23', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (107, 5, '2026-10-23', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (108, 4, '2026-10-23', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (109, 2, '2026-10-26', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (110, 3, '2026-10-27', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (111, 6, '2026-10-27', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (112, 1, '2026-10-28', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (113, 9, '2026-10-28', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (114, 7, '2026-10-29', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (115, 8, '2026-10-29', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (116, 5, '2026-10-30', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (117, 4, '2026-10-30', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (118, 2, '2026-11-02', '11:00:00', '13:00:00', 'Practical', NULL),
+                                                                                                                             (119, 3, '2026-11-03', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (120, 6, '2026-11-03', '13:00:00', '15:00:00', 'Theory', NULL),
+                                                                                                                             (121, 9, '2026-11-04', '10:00:00', '12:00:00', 'Practical', NULL),
+                                                                                                                             (122, 7, '2026-11-05', '09:00:00', '11:00:00', 'Theory', NULL),
+                                                                                                                             (123, 8, '2026-11-05', '14:00:00', '16:00:00', 'Practical', NULL),
+                                                                                                                             (124, 1, '2026-11-06', '08:00:00', '10:00:00', 'Theory', NULL),
+                                                                                                                             (125, 5, '2026-11-06', '10:00:00', '12:00:00', 'Theory', NULL),
+                                                                                                                             (126, 4, '2026-11-06', '13:00:00', '15:00:00', 'Theory', NULL);
 
 -- --------------------------------------------------------
 
@@ -3532,9 +3527,6 @@ INSERT INTO `timetable` (`timetable_id`, `admin_id`, `course_id`, `day_of_week`,
                                                                                                                                                                             (10, 'A001', 1, 'Friday', '08:00:00', '10:00:00', 'ICT Hardware Lab', 'Theory', '2023/2024', 'Semester 1'),
                                                                                                                                                                             (11, 'A001', 5, 'Friday', '10:00:00', '12:00:00', 'ICT New Lab', 'Theory', '2023/2024', 'Semester 1'),
                                                                                                                                                                             (12, 'A001', 4, 'Friday', '13:00:00', '15:00:00', 'ICT Hardware Lab', 'Theory', '2023/2024', 'Semester 1');
-
--- ARCHIVED ORIGINAL ROW (not imported): Overlapping test booking: same Monday 09:00-11:00 hall as entry 1.
--- INSERT INTO `timetable` (`timetable_id`,`admin_id`,`course_id`,`day_of_week`,`start_time`,`end_time`,`lecture_hall`,`session_type`,`academic_year`,`semester`) VALUES (22, 'A001', 7, 'Monday', '09:00:00', '11:00:00', 'ICT Lab 11', 'Theory', '2022/2023', 'Semester 1');
 
 -- --------------------------------------------------------
 
@@ -3608,7 +3600,7 @@ INSERT INTO `user` (`user_id`, `user_name`, `password`, `first_name`, `last_name
                                                                                                                          ('U008', 'tech02', 'Tech@123', 'Ishara', 'Madushani', 'tech02@example.com', NULL, 'Technical_Officer'),
                                                                                                                          ('U009', 'tech03', 'Tech@123', 'Prasanna', 'Ekanayake', 'tech03@example.com', NULL, 'Technical_Officer'),
                                                                                                                          ('U010', 'tech04', 'Tech@123', 'Dilrukshi', 'Weerasinghe', 'tech04@example.com', NULL, 'Technical_Officer'),
-                                                                                                                         ('U011', 'student01', 'Student@123', 'Sahan', 'Fernando', 'student01@example.com', NULL, 'Undergraduate'),
+                                                                                                                         ('U011', 's1', '123', 'Sahan', 'Fernando', 'student01@example.com', NULL, 'Undergraduate'),
                                                                                                                          ('U012', 'student02', 'Student@123', 'Nethmi', 'Perera', 'student02@example.com', NULL, 'Undergraduate'),
                                                                                                                          ('U013', 'student03', 'Student@123', 'Avishka', 'Silva', 'student03@example.com', NULL, 'Undergraduate'),
                                                                                                                          ('U014', 'student04', 'Student@123', 'Dinithi', 'Jayawardena', 'student04@example.com', NULL, 'Undergraduate'),
@@ -3765,7 +3757,8 @@ ALTER TABLE `semester_result`
 --
 ALTER TABLE `sessions`
     ADD PRIMARY KEY (`session_id`),
-  ADD KEY `idx_sessions_course` (`course_id`);
+  ADD KEY `idx_sessions_course` (`course_id`),
+  ADD KEY `fk_sessions_batch` (`batch_id`);
 
 --
 -- Indexes for table `technical_officer`
@@ -3856,7 +3849,7 @@ ALTER TABLE `mark`
 -- AUTO_INCREMENT for table `medical`
 --
 ALTER TABLE `medical`
-    MODIFY `medical_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+    MODIFY `medical_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `notice`
@@ -3963,7 +3956,8 @@ ALTER TABLE `semester_result`
 -- Constraints for table `sessions`
 --
 ALTER TABLE `sessions`
-    ADD CONSTRAINT `fk_sessions_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD CONSTRAINT `fk_sessions_batch` FOREIGN KEY (`batch_id`) REFERENCES `batch` (`batch_id`),
+  ADD CONSTRAINT `fk_sessions_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `technical_officer`
@@ -3987,6 +3981,34 @@ ALTER TABLE `undergraduate`
   ADD CONSTRAINT `fk_undergraduate_department` FOREIGN KEY (`dept_id`) REFERENCES `department` (`dept_id`) ON UPDATE CASCADE,
                                                                                                                                                                                                                                         ADD CONSTRAINT `fk_undergraduate_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
+
+-- Assign undergraduate batches: batch-missed students use batch 2; all others use batch 1.
+UPDATE `undergraduate`
+SET `batch_id` = CASE
+                     WHEN `is_batchmissed` = 1 THEN 2
+                     ELSE 1
+    END;
+
+-- The existing timetable belongs to batch 1. Create the same course schedule for batch 2.
+UPDATE `sessions` SET `batch_id` = 1;
+
+INSERT INTO `sessions`
+(`session_id`, `course_id`, `session_date`, `start_time`, `end_time`, `session_type`, `batch_id`)
+SELECT
+    `session_id` + 126, `course_id`, `session_date`, `start_time`, `end_time`, `session_type`, 2
+FROM `sessions`
+WHERE `session_id` BETWEEN 1 AND 126;
+
+-- Point batch-missed students' attendance at their batch 2 copies of the sessions.
+UPDATE `attendance` a
+    JOIN `enrollment` e ON e.`enrollment_id` = a.`enrollment_id`
+    JOIN `undergraduate` u ON u.`reg_no` = e.`reg_no`
+    SET a.`session_id` = a.`session_id` + 126
+WHERE u.`is_batchmissed` = 1
+  AND a.`session_id` BETWEEN 1 AND 126;
+
+ALTER TABLE `sessions` AUTO_INCREMENT = 253;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

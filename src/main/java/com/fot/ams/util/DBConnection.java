@@ -54,7 +54,7 @@ public final class DBConnection {
     public static Connection getLecturerConnection()
             throws SQLException {
 
-        return INSTANCE.createConnection("lecturer", "");
+        return INSTANCE.createConnection("lecturer", "123");
     }
 
     // Technical Officer Connection
@@ -62,7 +62,7 @@ public final class DBConnection {
             throws SQLException {
 
         return INSTANCE.createConnection(
-                "technical_officer", ""
+                "technical_officer", "123"
         );
     }
 

@@ -13,11 +13,15 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.UUID;
 
 public class AdminAccountController {
 
@@ -49,6 +53,7 @@ public class AdminAccountController {
 
     private String userId;
     private String photoPath;
+    private File selectedPhotoFile;
     private boolean accountLoaded;
 
     @FXML
@@ -139,6 +144,7 @@ public class AdminAccountController {
 
     public void setUserId(String userId) {
         this.userId = userId;
+        selectedPhotoFile = null;
 
         clearPasswordFields();
         hideMessage(lblMessage);
@@ -211,6 +217,7 @@ public class AdminAccountController {
                 txtEmail.setText(result.getString("email"));
 
                 photoPath = result.getString("profile_image");
+                selectedPhotoFile = null;
 
                 updateInitial();
                 displaySavedPhoto();
@@ -235,26 +242,28 @@ public class AdminAccountController {
             return;
         }
 
-        File file = new File(photoPath);
-
-        if (!file.isFile() || !file.canRead()) {
-            showMessage(
-                    lblMessage,
-                    "The saved profile image is unavailable. "
-                            + "Choose another photo.",
-                    false
-            );
-            return;
-        }
-
         try {
+            Path savedPath = Path.of(photoPath);
+
+            if (!savedPath.isAbsolute()) {
+                savedPath = Path.of(
+                        System.getProperty("user.dir")
+                ).resolve(savedPath);
+            }
+
+            File file = savedPath.normalize().toFile();
+
+            if (!file.isFile() || !file.canRead()) {
+                return;
+            }
+
             Image image = loadImage(file);
 
             imgProfile.setImage(image);
             imgProfile.setVisible(true);
             lblPhoto.setVisible(false);
 
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             showMessage(
                     lblMessage,
                     "Unable to display the saved profile image.",
@@ -292,7 +301,6 @@ public class AdminAccountController {
         }
 
         FileChooser chooser = new FileChooser();
-
         chooser.setTitle("Select Profile Picture");
 
         chooser.getExtensionFilters().add(
@@ -324,12 +332,21 @@ public class AdminAccountController {
             return;
         }
 
+        if (file.length() == 0
+                || file.length() > 5L * 1024 * 1024) {
+            showMessage(
+                    lblMessage,
+                    "Image must be between 1 byte and 5 MB.",
+                    false
+            );
+            return;
+        }
+
         String name = file.getName().toLowerCase(Locale.ROOT);
 
         if (!name.endsWith(".png")
                 && !name.endsWith(".jpg")
                 && !name.endsWith(".jpeg")) {
-
             showMessage(
                     lblMessage,
                     "Choose a PNG or JPG image.",
@@ -338,31 +355,10 @@ public class AdminAccountController {
             return;
         }
 
-        if (file.length() > 5L * 1024 * 1024) {
-            showMessage(
-                    lblMessage,
-                    "Image size must not exceed 5 MB.",
-                    false
-            );
-            return;
-        }
-
-        String path = file.getAbsolutePath();
-
-        if (path.length() > 255) {
-            showMessage(
-                    lblMessage,
-                    "The image path is too long. "
-                            + "Choose an image from a shorter folder path.",
-                    false
-            );
-            return;
-        }
-
         try {
             Image image = loadImage(file);
 
-            photoPath = path;
+            selectedPhotoFile = file;
 
             imgProfile.setImage(image);
             imgProfile.setVisible(true);
@@ -417,9 +413,7 @@ public class AdminAccountController {
         }
 
         if (email.length() > 100
-                || !email.matches(
-                "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
-
+                || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             showMessage(
                     lblMessage,
                     "Enter a valid email address.",
@@ -428,41 +422,101 @@ public class AdminAccountController {
             return;
         }
 
-        String sql = """
-                UPDATE `user`
-                SET first_name = ?, last_name = ?,
-                    email = ?, profile_image = ?
-                WHERE user_id = ? AND role = ?
-                """;
+        String newPhotoPath = photoPath;
+        Path newlyCopiedFile = null;
 
         btnSave.setDisable(true);
 
-        try (Connection connection = openConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try {
+            if (selectedPhotoFile != null) {
+                if (!selectedPhotoFile.isFile()
+                        || !selectedPhotoFile.canRead()
+                        || selectedPhotoFile.length() == 0
+                        || selectedPhotoFile.length()
+                        > 5L * 1024 * 1024) {
+                    showMessage(
+                            lblMessage,
+                            "The selected image is invalid.",
+                            false
+                    );
+                    return;
+                }
 
-            statement.setString(1, firstName);
-            statement.setString(2, lastName);
-            statement.setString(3, email);
-            statement.setString(4, photoPath);
-            statement.setString(5, userId);
-            statement.setString(6, "Admin");
-            statement.setQueryTimeout(15);
+                String originalName =
+                        selectedPhotoFile.getName()
+                                .toLowerCase(Locale.ROOT);
 
-            int updated = statement.executeUpdate();
+                String extension = originalName.endsWith(".png")
+                        ? ".png"
+                        : ".jpg";
 
-            if (updated == 0 && !adminExists(connection)) {
-                setAccountLoaded(false);
-
-                showMessage(
-                        lblMessage,
-                        "The admin account is no longer available.",
-                        false
+                Path photoDirectory = Path.of(
+                        System.getProperty("user.dir"),
+                        "images",
+                        "profiles"
                 );
-                return;
+
+                Files.createDirectories(photoDirectory);
+
+                String uniqueName = userId
+                        + "_profile_"
+                        + UUID.randomUUID()
+                        + extension;
+
+                newlyCopiedFile =
+                        photoDirectory.resolve(uniqueName);
+
+                Files.copy(
+                        selectedPhotoFile.toPath(),
+                        newlyCopiedFile
+                );
+
+                newPhotoPath = Path.of(
+                        "images",
+                        "profiles",
+                        uniqueName
+                ).toString();
             }
 
+            String sql = """
+                    UPDATE `user`
+                    SET first_name = ?, last_name = ?,
+                        email = ?, profile_image = ?
+                    WHERE user_id = ? AND role = ?
+                    """;
+
+            try (Connection connection = openConnection();
+                 PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
+
+                statement.setString(1, firstName);
+                statement.setString(2, lastName);
+                statement.setString(3, email);
+                statement.setString(4, newPhotoPath);
+                statement.setString(5, userId);
+                statement.setString(6, "Admin");
+                statement.setQueryTimeout(15);
+
+                int updated = statement.executeUpdate();
+
+                if (updated == 0 && !adminExists(connection)) {
+                    deleteFileQuietly(newlyCopiedFile);
+                    setAccountLoaded(false);
+
+                    showMessage(
+                            lblMessage,
+                            "The admin account is no longer available.",
+                            false
+                    );
+                    return;
+                }
+            }
+
+            photoPath = newPhotoPath;
+            selectedPhotoFile = null;
+
             updateInitial();
+            displaySavedPhoto();
 
             showMessage(
                     lblMessage,
@@ -470,7 +524,9 @@ public class AdminAccountController {
                     true
             );
 
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
+            deleteFileQuietly(newlyCopiedFile);
+
             showMessage(
                     lblMessage,
                     "Unable to save account: " + e.getMessage(),
@@ -500,7 +556,6 @@ public class AdminAccountController {
         if (currentPassword.isEmpty()
                 || newPassword.isEmpty()
                 || confirmation.isEmpty()) {
-
             showMessage(
                     lblPasswordMessage,
                     "Complete all password fields.",
@@ -590,7 +645,6 @@ public class AdminAccountController {
                         "Password changed successfully.",
                         true
                 );
-
             } else {
                 txtCurrentPassword.clear();
 
@@ -642,6 +696,18 @@ public class AdminAccountController {
         }
     }
 
+    private void deleteFileQuietly(Path file) {
+        if (file == null) {
+            return;
+        }
+
+        try {
+            Files.deleteIfExists(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void focusPassword(
             PasswordField hiddenField,
             TextField visibleField) {
@@ -657,7 +723,6 @@ public class AdminAccountController {
         txtCurrentPassword.clear();
         txtNewPassword.clear();
         txtConfirmPassword.clear();
-
         chkShowPasswords.setSelected(false);
     }
 
@@ -679,13 +744,11 @@ public class AdminAccountController {
             boolean success) {
 
         label.setText(message);
-
         label.setStyle(
                 "-fx-text-fill: "
                         + (success ? "#15803D;" : "#B42318;")
                         + "-fx-font-size: 12px;"
         );
-
         label.setManaged(true);
         label.setVisible(true);
     }

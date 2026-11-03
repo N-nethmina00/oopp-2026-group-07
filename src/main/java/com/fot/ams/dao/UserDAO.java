@@ -19,9 +19,10 @@ public class UserDAO {
     private static final Logger LOGGER =
             Logger.getLogger(UserDAO.class.getName());
 
-    private static final String ID_LOCK = "com.fot.ams.user_ids";
-
-    public record GeneratedIds(String userId, String roleSpecificId) {
+    public record GeneratedIds(
+            String userId,
+            String roleSpecificId
+    ) {
     }
 
     public record Option(int id, String name) {
@@ -42,25 +43,33 @@ public class UserDAO {
     }
 
     private static final String USER_SELECT = """
-        SELECT
-            u.user_id,
-            u.user_name,
-            u.first_name,
-            u.last_name,
-            u.email,
-            u.role,
-            CASE u.role
-                WHEN 'Admin' THEN a.admin_id
-                WHEN 'Lecturer' THEN l.lecturer_id
-                WHEN 'Technical_Officer' THEN t.to_id
-                WHEN 'Undergraduate' THEN ug.reg_no
-            END AS role_specific_id
-        FROM `user` u
-        LEFT JOIN admin a ON a.user_id = u.user_id
-        LEFT JOIN lecturer l ON l.user_id = u.user_id
-        LEFT JOIN technical_officer t ON t.user_id = u.user_id
-        LEFT JOIN undergraduate ug ON ug.user_id = u.user_id
-        """;
+            SELECT
+                u.user_id,
+                u.user_name,
+                u.first_name,
+                u.last_name,
+                u.email,
+                u.role,
+                CASE u.role
+                    WHEN 'Admin' THEN a.admin_id
+                    WHEN 'Lecturer' THEN l.lecturer_id
+                    WHEN 'Technical_Officer' THEN t.to_id
+                    WHEN 'Undergraduate' THEN ug.reg_no
+                END AS role_specific_id,
+                d.dept_name AS department_name
+            FROM `user` u
+            LEFT JOIN admin a ON a.user_id = u.user_id
+            LEFT JOIN lecturer l ON l.user_id = u.user_id
+            LEFT JOIN technical_officer t ON t.user_id = u.user_id
+            LEFT JOIN undergraduate ug ON ug.user_id = u.user_id
+            LEFT JOIN department d
+                ON d.dept_id = CASE u.role
+                    WHEN 'Lecturer' THEN l.dept_id
+                    WHEN 'Technical_Officer' THEN t.dept_id
+                    WHEN 'Undergraduate' THEN ug.dept_id
+                    ELSE NULL
+                END
+            """;
 
     private RoleInfo roleInfo(String role) {
         if (role == null) {
@@ -69,10 +78,14 @@ public class UserDAO {
 
         return switch (role) {
             case "Admin" ->
-                    new RoleInfo("admin", "admin_id", "A", 3, 1, 10);
+                    new RoleInfo(
+                            "admin", "admin_id", "A", 3, 1, 10
+                    );
 
             case "Lecturer" ->
-                    new RoleInfo("lecturer", "lecturer_id", "L", 3, 1, 10);
+                    new RoleInfo(
+                            "lecturer", "lecturer_id", "L", 3, 1, 10
+                    );
 
             case "Technical_Officer" ->
                     new RoleInfo(
@@ -89,24 +102,37 @@ public class UserDAO {
         };
     }
 
+    private Connection openConnection() throws SQLException {
+        Connection connection = DBConnection.getConnection();
+
+        if (connection == null) {
+            throw new SQLException(
+                    "Database connection is unavailable."
+            );
+        }
+
+        return connection;
+    }
+
     public GeneratedIds getNextIds(String role) {
         roleInfo(role);
 
-        try (Connection con = DBConnection.getConnection()) {
-            return generateIds(con, role);
-
+        try (Connection connection = openConnection()) {
+            return generateIds(connection, role);
         } catch (SQLException e) {
             throw databaseError(e);
         }
     }
 
-    private GeneratedIds generateIds(Connection con, String role)
-            throws SQLException {
+    private GeneratedIds generateIds(
+            Connection connection,
+            String role
+    ) throws SQLException {
 
         RoleInfo info = roleInfo(role);
 
         String userId = nextId(
-                con,
+                connection,
                 "user",
                 "user_id",
                 "U",
@@ -116,7 +142,7 @@ public class UserDAO {
         );
 
         String roleId = nextId(
-                con,
+                connection,
                 info.table(),
                 info.idColumn(),
                 info.prefix(),
@@ -129,7 +155,7 @@ public class UserDAO {
     }
 
     private String nextId(
-            Connection con,
+            Connection connection,
             String table,
             String column,
             String prefix,
@@ -138,8 +164,6 @@ public class UserDAO {
             int maxLength
     ) throws SQLException {
 
-        // table/column names only come from the fixed mappings above.
-        // Numeric MAX correctly handles values beyond U999.
         String sql =
                 "SELECT COALESCE(MAX(CAST(SUBSTRING(`"
                         + column
@@ -149,25 +173,28 @@ public class UserDAO {
 
         long next;
 
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, prefix.length() + 1);
-            ps.setLong(2, firstNumber - 1);
-            ps.setString(3, "^" + prefix + "[0-9]+$");
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    throw new SQLException("Could not generate the next ID.");
+            statement.setInt(1, prefix.length() + 1);
+            statement.setLong(2, firstNumber - 1);
+            statement.setString(3, "^" + prefix + "[0-9]+$");
+
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) {
+                    throw new SQLException(
+                            "Could not generate the next ID."
+                    );
                 }
 
-                next = rs.getLong(1);
+                next = result.getLong(1);
             }
         }
 
-        if (next < firstNumber) {
-            next = firstNumber;
-        }
+        next = Math.max(next, firstNumber);
 
         String number = Long.toString(next);
+
         String id = prefix
                 + "0".repeat(Math.max(0, digits - number.length()))
                 + number;
@@ -181,61 +208,47 @@ public class UserDAO {
         return id;
     }
 
-    public User authenticateUser(String username, String password) {
+    public User authenticateUser(
+            String username,
+            String password
+    ) {
         String sql = USER_SELECT
                 + " WHERE u.user_name = ? AND u.password = ?";
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection connection = openConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            ps.setString(1, username);
-            ps.setString(2, password);
+            statement.setString(1, username);
+            statement.setString(2, password);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? readUser(rs) : null;
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next() ? readUser(result) : null;
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "User authentication query failed.", e);
+            LOGGER.log(
+                    Level.SEVERE,
+                    "User authentication query failed.",
+                    e
+            );
+
             return null;
-        }
-    }
-
-    public String getPasswordByUserId(String userId) {
-        String sql = """
-            SELECT password
-            FROM `user`
-            WHERE user_id = ?
-            """;
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, userId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("password");
-                }
-                throw new IllegalArgumentException(
-                        "This user no longer exists. Refresh the user list."
-                );
-            }
-        } catch (SQLException e) {
-            throw databaseError(e);
         }
     }
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     USER_SELECT + " ORDER BY u.user_id"
-             );
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection connection = openConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(
+                             USER_SELECT + " ORDER BY u.user_id"
+                     );
+             ResultSet result = statement.executeQuery()) {
 
-            while (rs.next()) {
-                users.add(readUser(rs));
+            while (result.next()) {
+                users.add(readUser(result));
             }
 
             return users;
@@ -245,48 +258,55 @@ public class UserDAO {
         }
     }
 
-    private User readUser(ResultSet rs) throws SQLException {
-        return new User(
-                rs.getString("user_id"),
-                rs.getString("role_specific_id"),
-                rs.getString("user_name"),
+    private User readUser(ResultSet result) throws SQLException {
+        User user = new User(
+                result.getString("user_id"),
+                result.getString("role_specific_id"),
+                result.getString("user_name"),
                 null,
-                rs.getString("first_name"),
-                rs.getString("last_name"),
-                rs.getString("email"),
-                rs.getString("role")
+                result.getString("first_name"),
+                result.getString("last_name"),
+                result.getString("email"),
+                result.getString("role")
         );
+
+        user.setDepartmentName(
+                result.getString("department_name")
+        );
+
+        return user;
     }
 
     public List<Option> getDepartments() {
         return getOptions("""
-            SELECT dept_id AS id, dept_name AS name
-            FROM department
-            ORDER BY dept_name
-            """);
+                SELECT dept_id AS id, dept_name AS name
+                FROM department
+                ORDER BY dept_name
+                """);
     }
 
     public List<Option> getBatches() {
         return getOptions("""
-            SELECT
-                batch_id AS id,
-                CONCAT(batch_name, ' - ', academic_year) AS name
-            FROM batch
-            ORDER BY academic_year DESC, batch_name
-            """);
+                SELECT
+                    batch_id AS id,
+                    CONCAT(batch_name, ' - ', academic_year) AS name
+                FROM batch
+                ORDER BY academic_year DESC, batch_name
+                """);
     }
 
     private List<Option> getOptions(String sql) {
         List<Option> options = new ArrayList<>();
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection connection = openConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql);
+             ResultSet result = statement.executeQuery()) {
 
-            while (rs.next()) {
+            while (result.next()) {
                 options.add(new Option(
-                        rs.getInt("id"),
-                        rs.getString("name")
+                        result.getInt("id"),
+                        result.getString("name")
                 ));
             }
 
@@ -297,8 +317,6 @@ public class UserDAO {
         }
     }
 
-    // Retained for compatibility. Non-admin creation must use the overload
-    // supplying department and, for students, batch.
     public boolean addUser(User user) {
         return addUser(user, null, null);
     }
@@ -310,42 +328,58 @@ public class UserDAO {
     ) {
         validateUser(user, true);
 
-        if (!"Admin".equals(user.getRole()) && departmentId == null) {
-            throw new IllegalArgumentException("Select a department.");
+        if (!"Admin".equals(user.getRole())
+                && departmentId == null) {
+            throw new IllegalArgumentException(
+                    "Select a department."
+            );
         }
 
-        if ("Undergraduate".equals(user.getRole()) && batchId == null) {
-            throw new IllegalArgumentException("Select a batch.");
+        if ("Undergraduate".equals(user.getRole())
+                && batchId == null) {
+            throw new IllegalArgumentException(
+                    "Select a batch."
+            );
         }
 
-        GeneratedIds savedIds = transaction(true, con -> {
-            // Generate again during saving. The preview does not reserve IDs.
-            GeneratedIds ids = generateIds(con, user.getRole());
+        GeneratedIds savedIds = transaction(connection -> {
+            GeneratedIds ids = generateIds(
+                    connection,
+                    user.getRole()
+            );
 
-            try (PreparedStatement ps = con.prepareStatement("""
+            String sql = """
                     INSERT INTO `user`
                         (user_id, user_name, password,
                          first_name, last_name, email, role)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """)) {
+                    """;
 
-                ps.setString(1, ids.userId());
-                ps.setString(2, user.getUsername());
-                ps.setString(3, user.getPassword());
-                ps.setString(4, user.getFirstName());
-                ps.setString(5, user.getLastName());
-                ps.setString(6, user.getEmail());
-                ps.setString(7, user.getRole());
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
 
-                ps.executeUpdate();
+                statement.setString(1, ids.userId());
+                statement.setString(2, user.getUsername());
+                statement.setString(3, user.getPassword());
+                statement.setString(4, user.getFirstName());
+                statement.setString(5, user.getLastName());
+                statement.setString(6, user.getEmail());
+                statement.setString(7, user.getRole());
+
+                statement.executeUpdate();
             }
 
-            insertRole(con, user.getRole(), ids, departmentId, batchId);
+            insertRole(
+                    connection,
+                    user.getRole(),
+                    ids,
+                    departmentId,
+                    batchId
+            );
 
             return ids;
         });
 
-        // Return the actual saved IDs to the controller.
         user.setUserId(savedIds.userId());
         user.setRoleSpecificId(savedIds.roleSpecificId());
 
@@ -353,101 +387,116 @@ public class UserDAO {
     }
 
     private void insertRole(
-            Connection con,
+            Connection connection,
             String role,
             GeneratedIds ids,
             Integer departmentId,
             Integer batchId
     ) throws SQLException {
 
-        String sql;
+        String sql = switch (role) {
+            case "Admin" -> """
+                    INSERT INTO admin (admin_id, user_id)
+                    VALUES (?, ?)
+                    """;
 
-        if ("Admin".equals(role)) {
-            sql = "INSERT INTO `admin` (`admin_id`, `user_id`) "
-                    + "VALUES (?, ?)";
+            case "Lecturer" -> """
+                    INSERT INTO lecturer
+                        (lecturer_id, user_id, dept_id)
+                    VALUES (?, ?, ?)
+                    """;
 
-        } else if ("Lecturer".equals(role)) {
-            sql = "INSERT INTO `lecturer` "
-                    + "(`lecturer_id`, `user_id`, `dept_id`) "
-                    + "VALUES (?, ?, ?)";
+            case "Technical_Officer" -> """
+                    INSERT INTO technical_officer
+                        (to_id, user_id, dept_id)
+                    VALUES (?, ?, ?)
+                    """;
 
-        } else if ("Technical_Officer".equals(role)) {
-            sql = "INSERT INTO `technical_officer` "
-                    + "(`to_id`, `user_id`, `dept_id`) "
-                    + "VALUES (?, ?, ?)";
+            case "Undergraduate" -> """
+                    INSERT INTO undergraduate
+                        (reg_no, user_id, dept_id, batch_id)
+                    VALUES (?, ?, ?, ?)
+                    """;
 
-        } else if ("Undergraduate".equals(role)) {
-            sql = "INSERT INTO `undergraduate` "
-                    + "(`reg_no`, `user_id`, `dept_id`, `batch_id`) "
-                    + "VALUES (?, ?, ?, ?)";
+            default ->
+                    throw new IllegalArgumentException(
+                            "Invalid role."
+                    );
+        };
 
-        } else {
-            throw new IllegalArgumentException("Invalid role.");
-        }
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, ids.roleSpecificId());
-            ps.setString(2, ids.userId());
+            statement.setString(1, ids.roleSpecificId());
+            statement.setString(2, ids.userId());
 
             if (!"Admin".equals(role)) {
-                ps.setInt(3, departmentId);
+                statement.setInt(3, departmentId);
             }
 
             if ("Undergraduate".equals(role)) {
-                ps.setInt(4, batchId);
+                statement.setInt(4, batchId);
             }
 
-            ps.executeUpdate();
+            statement.executeUpdate();
         }
     }
 
-    public boolean updateUser(User user, boolean updatePassword) {
+    public boolean updateUser(
+            User user,
+            boolean updatePassword
+    ) {
         validateUser(user, updatePassword);
 
-        return transaction(false, con -> {
+        return transaction(connection -> {
             String storedRole;
 
-            try (PreparedStatement ps = con.prepareStatement("""
-                    SELECT role FROM `user`
-                    WHERE user_id = ?
-                    FOR UPDATE
-                    """)) {
+            try (PreparedStatement statement =
+                         connection.prepareStatement("""
+                                 SELECT role
+                                 FROM `user`
+                                 WHERE user_id = ?
+                                 FOR UPDATE
+                                 """)) {
 
-                ps.setString(1, user.getUserId());
+                statement.setString(1, user.getUserId());
 
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (!rs.next()) {
+                try (ResultSet result = statement.executeQuery()) {
+                    if (!result.next()) {
                         return false;
                     }
 
-                    storedRole = rs.getString("role");
+                    storedRole = result.getString("role");
                 }
             }
 
             if (!Objects.equals(storedRole, user.getRole())) {
                 throw new IllegalArgumentException(
-                        "An existing user's role cannot be changed here."
+                        "The existing user role cannot be changed."
                 );
             }
 
             RoleInfo info = roleInfo(storedRole);
 
-            String roleSql = "SELECT `" + info.idColumn()
-                    + "` FROM `" + info.table()
-                    + "` WHERE user_id = ?";
+            String roleSql =
+                    "SELECT `" + info.idColumn()
+                            + "` FROM `" + info.table()
+                            + "` WHERE user_id = ?";
 
-            try (PreparedStatement ps = con.prepareStatement(roleSql)) {
-                ps.setString(1, user.getUserId());
+            try (PreparedStatement statement =
+                         connection.prepareStatement(roleSql)) {
 
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (!rs.next()) {
+                statement.setString(1, user.getUserId());
+
+                try (ResultSet result = statement.executeQuery()) {
+                    if (!result.next()) {
                         throw new IllegalArgumentException(
                                 "The user's role record is missing."
                         );
                     }
 
                     if (!Objects.equals(
-                            rs.getString(1),
+                            result.getString(1),
                             user.getRoleSpecificId()
                     )) {
                         throw new IllegalArgumentException(
@@ -458,67 +507,76 @@ public class UserDAO {
             }
 
             String sql = """
-                UPDATE `user`
-                SET user_name = ?,
-                    first_name = ?,
-                    last_name = ?,
-                    email = ?
-                """
+                    UPDATE `user`
+                    SET user_name = ?,
+                        first_name = ?,
+                        last_name = ?,
+                        email = ?
+                    """
                     + (updatePassword ? ", password = ? " : " ")
                     + "WHERE user_id = ?";
 
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
+
                 int index = 1;
 
-                ps.setString(index++, user.getUsername());
-                ps.setString(index++, user.getFirstName());
-                ps.setString(index++, user.getLastName());
-                ps.setString(index++, user.getEmail());
+                statement.setString(index++, user.getUsername());
+                statement.setString(index++, user.getFirstName());
+                statement.setString(index++, user.getLastName());
+                statement.setString(index++, user.getEmail());
 
                 if (updatePassword) {
-                    ps.setString(index++, user.getPassword());
+                    statement.setString(
+                            index++,
+                            user.getPassword()
+                    );
                 }
 
-                ps.setString(index, user.getUserId());
-                ps.executeUpdate();
+                statement.setString(index, user.getUserId());
+                statement.executeUpdate();
             }
 
-            // Department, batch, repeat flags and academic records
-            // remain attached to the same role record.
             return true;
         });
     }
 
     public boolean deleteUser(String userId) {
-        return transaction(false, con -> {
+        return transaction(connection -> {
             List<String> adminUsers = new ArrayList<>();
 
-            try (PreparedStatement ps = con.prepareStatement("""
-                    SELECT user_id
-                    FROM `user`
-                    WHERE role = 'Admin'
-                    ORDER BY user_id
-                    FOR UPDATE
-                    """);
-                 ResultSet rs = ps.executeQuery()) {
+            try (PreparedStatement statement =
+                         connection.prepareStatement("""
+                                 SELECT user_id
+                                 FROM `user`
+                                 WHERE role = 'Admin'
+                                 ORDER BY user_id
+                                 FOR UPDATE
+                                 """);
+                 ResultSet result = statement.executeQuery()) {
 
-                while (rs.next()) {
-                    adminUsers.add(rs.getString("user_id"));
+                while (result.next()) {
+                    adminUsers.add(
+                            result.getString("user_id")
+                    );
                 }
             }
 
-            if (adminUsers.contains(userId) && adminUsers.size() == 1) {
+            if (adminUsers.contains(userId)
+                    && adminUsers.size() == 1) {
+
                 throw new IllegalArgumentException(
                         "The last administrator cannot be deleted."
                 );
             }
 
-            // Existing ON DELETE CASCADE foreign keys handle role records.
-            try (PreparedStatement ps = con.prepareStatement(
-                    "DELETE FROM `user` WHERE user_id = ?")) {
+            try (PreparedStatement statement =
+                         connection.prepareStatement(
+                                 "DELETE FROM `user` WHERE user_id = ?"
+                         )) {
 
-                ps.setString(1, userId);
-                return ps.executeUpdate() > 0;
+                statement.setString(1, userId);
+                return statement.executeUpdate() > 0;
             }
         });
     }
@@ -526,24 +584,32 @@ public class UserDAO {
     public String getLecturerIdByUserId(String userId)
             throws SQLException {
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("""
-                     SELECT lecturer_id
-                     FROM lecturer
-                     WHERE user_id = ?
-                     """)) {
+        try (Connection connection = openConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement("""
+                             SELECT lecturer_id
+                             FROM lecturer
+                             WHERE user_id = ?
+                             """)) {
 
-            ps.setString(1, userId);
+            statement.setString(1, userId);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getString("lecturer_id") : null;
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next()
+                        ? result.getString("lecturer_id")
+                        : null;
             }
         }
     }
 
-    private void validateUser(User user, boolean requirePassword) {
+    private void validateUser(
+            User user,
+            boolean requirePassword
+    ) {
         if (user == null) {
-            throw new IllegalArgumentException("Enter user details.");
+            throw new IllegalArgumentException(
+                    "Enter user details."
+            );
         }
 
         roleInfo(user.getRole());
@@ -564,7 +630,8 @@ public class UserDAO {
         if (requirePassword) {
             String password = user.getPassword();
 
-            if (password == null || password.isBlank()
+            if (password == null
+                    || password.isBlank()
                     || password.length() < 8
                     || password.length() > 255) {
 
@@ -575,9 +642,15 @@ public class UserDAO {
         }
     }
 
-    private void requireText(String value, String label, int maxLength) {
+    private void requireText(
+            String value,
+            String label,
+            int maxLength
+    ) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(label + " is required.");
+            throw new IllegalArgumentException(
+                    label + " is required."
+            );
         }
 
         if (value.length() > maxLength) {
@@ -590,83 +663,36 @@ public class UserDAO {
 
     @FunctionalInterface
     private interface DatabaseWork<T> {
-        T execute(Connection con) throws SQLException;
+        T execute(Connection connection) throws SQLException;
     }
 
-    private <T> T transaction(
-            boolean lockIds,
-            DatabaseWork<T> work
-    ) {
-        try (Connection con = DBConnection.getConnection()) {
-            boolean originalAutoCommit = con.getAutoCommit();
-            boolean lockAcquired = false;
+    private <T> T transaction(DatabaseWork<T> work) {
+        try (Connection connection = openConnection()) {
+            boolean originalAutoCommit =
+                    connection.getAutoCommit();
+
+            connection.setAutoCommit(false);
 
             try {
-                if (lockIds) {
-                    try (PreparedStatement ps = con.prepareStatement(
-                            "SELECT GET_LOCK(?, 10)")) {
+                T result = work.execute(connection);
+                connection.commit();
+                return result;
 
-                        ps.setString(1, ID_LOCK);
-
-                        try (ResultSet rs = ps.executeQuery()) {
-                            if (!rs.next() || rs.getInt(1) != 1) {
-                                throw new SQLException(
-                                        "Could not acquire the ID generation lock."
-                                );
-                            }
-                        }
-                    }
-
-                    lockAcquired = true;
-                }
-
-                con.setAutoCommit(false);
-
+            } catch (SQLException | RuntimeException e) {
                 try {
-                    T result = work.execute(con);
-                    con.commit();
-                    return result;
-
-                } catch (SQLException | RuntimeException e) {
-                    try {
-                        con.rollback();
-                    } catch (SQLException rollbackError) {
-                        e.addSuppressed(rollbackError);
-                    }
-
-                    throw e;
+                    connection.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
                 }
+
+                throw e;
 
             } finally {
-                try {
-                    con.setAutoCommit(originalAutoCommit);
-
-                } finally {
-                    if (lockAcquired) {
-                        releaseIdLock(con);
-                    }
-                }
+                connection.setAutoCommit(originalAutoCommit);
             }
 
         } catch (SQLException e) {
             throw databaseError(e);
-        }
-    }
-
-    private void releaseIdLock(Connection con) {
-        try (PreparedStatement ps = con.prepareStatement(
-                "SELECT RELEASE_LOCK(?)")) {
-
-            ps.setString(1, ID_LOCK);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next() || rs.getInt(1) != 1) {
-                    LOGGER.warning("The user ID generation lock was not released.");
-                }
-            }
-
-        } catch (SQLException e) {
-            LOGGER.log(Level.WARNING, "Could not release the user ID lock.", e);
         }
     }
 
@@ -688,8 +714,8 @@ public class UserDAO {
                     "One of the entered values is too long.";
 
             default ->
-                    "Database operation failed. Check the database connection "
-                            + "and try again.";
+                    "Database operation failed. "
+                            + "Check the database connection and try again.";
         };
 
         return new RuntimeException(message, e);
@@ -697,59 +723,90 @@ public class UserDAO {
 
     public String getTechnicalOfficerIdByUserId(String userId)
             throws SQLException {
+
         String sql = """
-            SELECT t.to_id
-            FROM technical_officer t
-            JOIN `user` u ON u.user_id = t.user_id
-            WHERE t.user_id = ? AND u.role = 'Technical_Officer'
-            """;
+                SELECT t.to_id
+                FROM technical_officer t
+                JOIN `user` u ON u.user_id = t.user_id
+                WHERE t.user_id = ?
+                  AND u.role = 'Technical_Officer'
+                """;
+
         return queryTechnicalOfficerText(sql, userId);
     }
 
-    public User getTechnicalOfficerProfile(String technicalOfficerId)
-            throws SQLException {
-        String sql = USER_SELECT
-                + " WHERE t.to_id = ? AND u.role = 'Technical_Officer'";
+    public User getTechnicalOfficerProfile(
+            String technicalOfficerId
+    ) throws SQLException {
 
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, technicalOfficerId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? readUser(rs) : null;
+        String sql = USER_SELECT
+                + " WHERE t.to_id = ? "
+                + "AND u.role = 'Technical_Officer'";
+
+        try (Connection connection = openConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, technicalOfficerId);
+
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next() ? readUser(result) : null;
             }
         }
     }
 
-    public String getTechnicalOfficerDepartment(String technicalOfficerId)
-            throws SQLException {
+    public String getTechnicalOfficerDepartment(
+            String technicalOfficerId
+    ) throws SQLException {
+
         String sql = """
-            SELECT d.dept_name
-            FROM technical_officer t
-            JOIN department d ON d.dept_id = t.dept_id
-            JOIN `user` u ON u.user_id = t.user_id
-            WHERE t.to_id = ? AND u.role = 'Technical_Officer'
-            """;
-        return queryTechnicalOfficerText(sql, technicalOfficerId);
+                SELECT d.dept_name
+                FROM technical_officer t
+                JOIN department d ON d.dept_id = t.dept_id
+                JOIN `user` u ON u.user_id = t.user_id
+                WHERE t.to_id = ?
+                  AND u.role = 'Technical_Officer'
+                """;
+
+        return queryTechnicalOfficerText(
+                sql,
+                technicalOfficerId
+        );
     }
 
-    public String getTechnicalOfficerPhoto(String technicalOfficerId)
-            throws SQLException {
+    public String getTechnicalOfficerPhoto(
+            String technicalOfficerId
+    ) throws SQLException {
+
         String sql = """
-            SELECT u.profile_image
-            FROM `user` u
-            JOIN technical_officer t ON t.user_id = u.user_id
-            WHERE t.to_id = ? AND u.role = 'Technical_Officer'
-            """;
-        return queryTechnicalOfficerText(sql, technicalOfficerId);
+                SELECT u.profile_image
+                FROM `user` u
+                JOIN technical_officer t ON t.user_id = u.user_id
+                WHERE t.to_id = ?
+                  AND u.role = 'Technical_Officer'
+                """;
+
+        return queryTechnicalOfficerText(
+                sql,
+                technicalOfficerId
+        );
     }
 
-    private String queryTechnicalOfficerText(String sql, String value)
-            throws SQLException {
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, value);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getString(1) : null;
+    private String queryTechnicalOfficerText(
+            String sql,
+            String value
+    ) throws SQLException {
+
+        try (Connection connection = openConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, value);
+
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next()
+                        ? result.getString(1)
+                        : null;
             }
         }
     }
@@ -760,8 +817,14 @@ public class UserDAO {
             String lastName,
             String email
     ) throws SQLException {
+
         return saveTechnicalOfficerProfile(
-                technicalOfficerId, firstName, lastName, email, null, false
+                technicalOfficerId,
+                firstName,
+                lastName,
+                email,
+                null,
+                false
         );
     }
 
@@ -772,8 +835,14 @@ public class UserDAO {
             String email,
             String photoPath
     ) throws SQLException {
+
         return saveTechnicalOfficerProfile(
-                technicalOfficerId, firstName, lastName, email, photoPath, true
+                technicalOfficerId,
+                firstName,
+                lastName,
+                email,
+                photoPath,
+                true
         );
     }
 
@@ -785,79 +854,120 @@ public class UserDAO {
             String photoPath,
             boolean updatePhoto
     ) throws SQLException {
-        if (technicalOfficerId == null || technicalOfficerId.isBlank()) {
-            throw new SQLException("Technical Officer ID is missing.");
+
+        if (technicalOfficerId == null
+                || technicalOfficerId.isBlank()) {
+            throw new SQLException(
+                    "Technical Officer ID is missing."
+            );
         }
+
         if (firstName == null || firstName.isBlank()
                 || firstName.trim().length() > 50
                 || lastName == null || lastName.isBlank()
                 || lastName.trim().length() > 50) {
+
             throw new SQLException(
                     "First name and last name must contain 1 to 50 characters."
             );
         }
+
         if (email == null || email.trim().length() > 100
-                || !email.trim().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
-            throw new SQLException("Enter a valid email address.");
-        }
-        if (updatePhoto && photoPath != null && photoPath.length() > 255) {
-            throw new SQLException("Profile photo path exceeds 255 characters.");
+                || !email.trim().matches(
+                "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+
+            throw new SQLException(
+                    "Enter a valid email address."
+            );
         }
 
-        try (Connection con = DBConnection.getConnection()) {
-            boolean originalAutoCommit = con.getAutoCommit();
-            con.setAutoCommit(false);
+        if (updatePhoto
+                && photoPath != null
+                && photoPath.length() > 255) {
+
+            throw new SQLException(
+                    "Profile photo path exceeds 255 characters."
+            );
+        }
+
+        try (Connection connection = openConnection()) {
+            boolean originalAutoCommit =
+                    connection.getAutoCommit();
+
+            connection.setAutoCommit(false);
 
             try {
                 String userId;
-                try (PreparedStatement ps = con.prepareStatement("""
-                        SELECT u.user_id
-                        FROM `user` u
-                        JOIN technical_officer t ON t.user_id = u.user_id
-                        WHERE t.to_id = ? AND u.role = 'Technical_Officer'
-                        FOR UPDATE
-                        """)) {
-                    ps.setString(1, technicalOfficerId.trim());
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (!rs.next()) {
-                            con.rollback();
+
+                try (PreparedStatement statement =
+                             connection.prepareStatement("""
+                                     SELECT u.user_id
+                                     FROM `user` u
+                                     JOIN technical_officer t
+                                         ON t.user_id = u.user_id
+                                     WHERE t.to_id = ?
+                                       AND u.role = 'Technical_Officer'
+                                     FOR UPDATE
+                                     """)) {
+
+                    statement.setString(
+                            1,
+                            technicalOfficerId.trim()
+                    );
+
+                    try (ResultSet result =
+                                 statement.executeQuery()) {
+
+                        if (!result.next()) {
+                            connection.rollback();
                             return false;
                         }
-                        userId = rs.getString(1);
+
+                        userId = result.getString(1);
                     }
                 }
 
-                String sql = "UPDATE `user` SET first_name = ?, "
-                        + "last_name = ?, email = ?"
-                        + (updatePhoto ? ", profile_image = ? " : " ")
-                        + "WHERE user_id = ? AND role = 'Technical_Officer'";
+                String sql = """
+                        UPDATE `user`
+                        SET first_name = ?, last_name = ?, email = ?
+                        """
+                        + (updatePhoto
+                        ? ", profile_image = ? "
+                        : " ")
+                        + "WHERE user_id = ? "
+                        + "AND role = 'Technical_Officer'";
 
-                try (PreparedStatement ps = con.prepareStatement(sql)) {
+                try (PreparedStatement statement =
+                             connection.prepareStatement(sql)) {
+
                     int index = 1;
-                    ps.setString(index++, firstName.trim());
-                    ps.setString(index++, lastName.trim());
-                    ps.setString(index++, email.trim());
+
+                    statement.setString(index++, firstName.trim());
+                    statement.setString(index++, lastName.trim());
+                    statement.setString(index++, email.trim());
+
                     if (updatePhoto) {
-                        ps.setString(index++, photoPath);
+                        statement.setString(index++, photoPath);
                     }
-                    ps.setString(index, userId);
-                    ps.executeUpdate();
+
+                    statement.setString(index, userId);
+                    statement.executeUpdate();
                 }
 
-                // Existing account + successful UPDATE is success, even
-                // if the driver reports zero changed rows for identical data.
-                con.commit();
+                connection.commit();
                 return true;
 
             } catch (SQLException | RuntimeException e) {
                 try {
-                    con.rollback();
+                    connection.rollback();
                 } catch (SQLException rollbackError) {
                     e.addSuppressed(rollbackError);
                 }
+
                 throw e;
+
             } finally {
-                con.setAutoCommit(originalAutoCommit);
+                connection.setAutoCommit(originalAutoCommit);
             }
         }
     }

@@ -24,7 +24,7 @@ public class TimetableDAO {
 
     private static final String TIMETABLE_SELECT = """
         SELECT t.timetable_id, t.admin_id, t.course_id,
-               c.course_code, c.course_name, t.day_of_week,
+               c.course_code, c.course_name, t.`day_of_week`,
                TIME_FORMAT(t.start_time, '%H:%i:%s') AS start_time,
                TIME_FORMAT(t.end_time, '%H:%i:%s') AS end_time,
                t.lecture_hall, t.session_type,
@@ -42,8 +42,7 @@ public class TimetableDAO {
         String sql = """
             SELECT DISTINCT academic_year
             FROM batch
-            WHERE academic_year IS NOT NULL
-              AND TRIM(academic_year) <> ''
+            WHERE TRIM(academic_year) <> ''
             ORDER BY academic_year DESC
             """;
 
@@ -129,7 +128,7 @@ public class TimetableDAO {
              WHERE officer.to_id = ?
              ORDER BY t.academic_year, t.semester,
                       FIELD(
-                          t.day_of_week,
+                          t.`day_of_week`,
                           'Monday', 'Tuesday', 'Wednesday',
                           'Thursday', 'Friday'
                       ),
@@ -151,10 +150,6 @@ public class TimetableDAO {
         return entries;
     }
 
-    /*
-     * Preview for the read-only ID field.
-     * The actual ID is recalculated inside the write transaction.
-     */
     public int getNextTimetableId() throws SQLException {
         try (Connection con = DBConnection.getConnection()) {
             return nextTimetableId(con);
@@ -188,9 +183,6 @@ public class TimetableDAO {
         }
     }
 
-    /*
-     * Keeps compatibility with screens using the old boolean method.
-     */
     public boolean addTimetable(Timetable entry) throws SQLException {
         return addTimetableReturningId(entry) > 0;
     }
@@ -213,13 +205,8 @@ public class TimetableDAO {
             checkAdmin(con, entry.getAdminId());
             checkAcademicYear(con, entry.getAcademicYear());
             getCourseInfo(con, entry.getCourseId());
-
             checkConflicts(con, entry, 0);
 
-            /*
-             * Read the last saved ID and calculate the next ID
-             * while holding the shared timetable write lock.
-             */
             int nextId = nextTimetableId(con);
 
             String sql = """
@@ -273,10 +260,6 @@ public class TimetableDAO {
             checkAcademicYear(con, entry.getAcademicYear());
             getCourseInfo(con, entry.getCourseId());
 
-            /*
-             * Exclude only the selected row.
-             * Other entries must still be checked for conflicts.
-             */
             checkConflicts(
                     con,
                     entry,
@@ -302,9 +285,6 @@ public class TimetableDAO {
                 ps.executeUpdate();
             }
 
-            /*
-             * An unchanged existing row can report zero changed rows.
-             */
             return true;
         });
     }
@@ -485,16 +465,6 @@ public class TimetableDAO {
             int excludedId
     ) throws SQLException {
 
-        /*
-         * Block every overlapping subject within the same
-         * day, academic year and semester.
-         *
-         * Different courses, halls, lecturers and session types
-         * cannot bypass this validation.
-         *
-         * Strict inequalities allow adjacent sessions:
-         * 09:00-11:00 and 11:00-13:00.
-         */
         String sql = """
             SELECT t.timetable_id,
                    c.course_code,
@@ -503,7 +473,7 @@ public class TimetableDAO {
                    t.lecture_hall
             FROM timetable t
             JOIN course c ON c.course_id = t.course_id
-            WHERE t.day_of_week = ?
+            WHERE t.`day_of_week` = ?
               AND t.academic_year = ?
               AND t.semester = ?
               AND t.start_time < ?
@@ -599,11 +569,6 @@ public class TimetableDAO {
             WriteWork work
     ) throws SQLException {
 
-        /*
-         * All writes using this DAO share a database named lock.
-         * This prevents two administrators from both finding a
-         * free slot and inserting conflicting entries together.
-         */
         try (Connection con = DBConnection.getConnection()) {
             boolean autoCommit = con.getAutoCommit();
             boolean locked = false;

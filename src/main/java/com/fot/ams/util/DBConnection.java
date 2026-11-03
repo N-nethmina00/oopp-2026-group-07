@@ -47,7 +47,7 @@ public final class DBConnection {
     public static Connection getStudentConnection()
             throws SQLException {
 
-        return INSTANCE.createConnection("student", "");
+        return INSTANCE.createConnection("student", "123");
     }
 
     // Lecturer Connection

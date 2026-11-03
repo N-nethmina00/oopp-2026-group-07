@@ -10,7 +10,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
@@ -28,6 +27,7 @@ public class AdminUserManagementController {
 
     @FXML private TextField userIdField;
     @FXML private TextField roleSpecificIdField;
+
     @FXML private Label roleSpecificIdLabel;
     @FXML private Label modeLabel;
     @FXML private Label idHintLabel;
@@ -67,6 +67,7 @@ public class AdminUserManagementController {
     @FXML private TableColumn<User, String> fullNameColumn;
     @FXML private TableColumn<User, String> emailColumn;
     @FXML private TableColumn<User, String> roleColumn;
+    @FXML private TableColumn<User, String> departmentColumn;
 
     private final UserDAO userDAO = new UserDAO();
 
@@ -100,7 +101,7 @@ public class AdminUserManagementController {
                 "Undergraduate"
         );
 
-        roleComboBox.setConverter(new StringConverter<>() {
+        roleComboBox.setConverter(new StringConverter<String>() {
             @Override
             public String toString(String value) {
                 return roleName(value);
@@ -114,6 +115,9 @@ public class AdminUserManagementController {
             }
         });
 
+        configureOptionBox(departmentComboBox);
+        configureOptionBox(batchComboBox);
+
         userIdField.setEditable(false);
         roleSpecificIdField.setEditable(false);
 
@@ -124,6 +128,7 @@ public class AdminUserManagementController {
         passwordField.visibleProperty().bind(
                 showPasswordCheckBox.selectedProperty().not()
         );
+
         passwordField.managedProperty().bind(
                 passwordField.visibleProperty()
         );
@@ -131,6 +136,7 @@ public class AdminUserManagementController {
         visiblePasswordField.visibleProperty().bind(
                 showPasswordCheckBox.selectedProperty()
         );
+
         visiblePasswordField.managedProperty().bind(
                 visiblePasswordField.visibleProperty()
         );
@@ -146,7 +152,14 @@ public class AdminUserManagementController {
                 user -> roleName(user.getRole())
         );
 
-        SortedList<User> sortedUsers = new SortedList<>(filteredUsers);
+        configureColumn(
+                departmentColumn,
+                this::departmentName
+        );
+
+        SortedList<User> sortedUsers =
+                new SortedList<>(filteredUsers);
+
         sortedUsers.comparatorProperty().bind(
                 usersTable.comparatorProperty()
         );
@@ -170,12 +183,16 @@ public class AdminUserManagementController {
         roleComboBox.valueProperty().addListener(
                 (observable, oldRole, newRole) -> {
                     updateRoleLabel(newRole);
-                    updateActions();
 
                     if (!resetting && editingUser == null) {
+                        departmentComboBox.setValue(null);
+                        batchComboBox.setValue(null);
                         loadNextIds();
                     }
-                });
+
+                    updateActions();
+                }
+        );
 
         searchField.textProperty().addListener(
                 (observable, oldValue, newValue) -> filterUsers()
@@ -183,6 +200,26 @@ public class AdminUserManagementController {
 
         clearFields();
         loadPage("Select a role to create a new user.");
+    }
+
+    private void configureOptionBox(
+            ComboBox<UserDAO.Option> comboBox
+    ) {
+        comboBox.setEditable(false);
+
+        comboBox.setConverter(
+                new StringConverter<UserDAO.Option>() {
+                    @Override
+                    public String toString(UserDAO.Option option) {
+                        return option == null ? "" : option.name();
+                    }
+
+                    @Override
+                    public UserDAO.Option fromString(String value) {
+                        return null;
+                    }
+                }
+        );
     }
 
     private void configureColumn(
@@ -196,26 +233,39 @@ public class AdminUserManagementController {
         );
     }
 
+    private String departmentName(User user) {
+        String name = user.getDepartmentName();
+
+        return name == null || name.isBlank()
+                ? "—"
+                : name;
+    }
+
     private void filterUsers() {
         String query = safe(searchField.getText())
                 .trim()
                 .toLowerCase(Locale.ROOT);
 
         filteredUsers.setPredicate(user -> {
-            String text = String.join(" ",
+            String text = String.join(
+                    " ",
                     safe(user.getUserId()),
                     safe(user.getRoleSpecificId()),
                     safe(user.getUsername()),
                     safe(user.getFullName()),
                     safe(user.getEmail()),
-                    roleName(user.getRole())
+                    roleName(user.getRole()),
+                    safe(user.getDepartmentName())
             ).toLowerCase(Locale.ROOT);
 
             return text.contains(query);
         });
 
         countLabel.setText(
-                filteredUsers.size() + " of " + userList.size() + " users"
+                filteredUsers.size()
+                        + " of "
+                        + userList.size()
+                        + " users"
         );
 
         usersTable.setPlaceholder(new Label(
@@ -247,7 +297,6 @@ public class AdminUserManagementController {
         runDatabase(
                 () -> userDAO.getNextIds(role),
                 ids -> {
-                    // Ignore an old response if the role or selection changed.
                     if (request != idRequestNumber
                             || editingUser != null
                             || busy
@@ -261,8 +310,7 @@ public class AdminUserManagementController {
                     idsReady = true;
 
                     idHintLabel.setText(
-                            "IDs are automatic. The latest available IDs "
-                                    + "will be confirmed when saving."
+                            "IDs are automatic and will be confirmed when saving."
                     );
 
                     updateActions();
@@ -277,8 +325,8 @@ public class AdminUserManagementController {
                     idsReady = false;
 
                     idHintLabel.setText(
-                            "Could not generate IDs. Select the role again "
-                                    + "or click Refresh."
+                            "Could not generate IDs. "
+                                    + "Select the role again or click Refresh."
                     );
 
                     messageLabel.setText(errorMessage(error));
@@ -310,6 +358,7 @@ public class AdminUserManagementController {
             roleComboBox.setValue(user.getRole());
 
             userIdField.setText(user.getUserId());
+
             roleSpecificIdField.setText(
                     safe(user.getRoleSpecificId())
             );
@@ -322,6 +371,9 @@ public class AdminUserManagementController {
             passwordField.clear();
             showPasswordCheckBox.setSelected(false);
 
+            departmentComboBox.setValue(null);
+            batchComboBox.setValue(null);
+
         } finally {
             resetting = false;
         }
@@ -329,12 +381,14 @@ public class AdminUserManagementController {
         modeLabel.setText("Edit User: " + user.getUserId());
 
         idHintLabel.setText(
-                "Existing IDs and role are fixed. "
-                        + "Leave the password empty to keep the current password."
+                "Existing role and IDs are fixed. "
+                        + "Department and batch remain unchanged."
         );
 
         messageLabel.setText(
-                "Update the details, or click New / Clear to add another user."
+                "Department: " + departmentName(user)
+                        + ". Leave the password empty "
+                        + "to keep the current password."
         );
 
         updateRoleLabel(user.getRole());
@@ -348,7 +402,6 @@ public class AdminUserManagementController {
         }
 
         ++idRequestNumber;
-
         resetting = true;
 
         try {
@@ -360,21 +413,16 @@ public class AdminUserManagementController {
             roleComboBox.setValue(null);
             userIdField.clear();
             roleSpecificIdField.clear();
-
             usernameField.clear();
             firstNameField.clear();
             lastNameField.clear();
             emailField.clear();
-
             passwordField.clear();
+
             showPasswordCheckBox.setSelected(false);
 
             departmentComboBox.setValue(null);
             batchComboBox.setValue(null);
-
-            if (departmentComboBox.getItems().size() == 1) {
-                departmentComboBox.getSelectionModel().selectFirst();
-            }
 
         } finally {
             resetting = false;
@@ -401,17 +449,19 @@ public class AdminUserManagementController {
         try {
             User user = readAndValidate(true);
 
-            Integer departmentId =
-                    departmentComboBox.getValue() == null
-                            ? null
-                            : departmentComboBox.getValue().id();
+            boolean needsDepartment =
+                    !"Admin".equals(user.getRole());
 
-            Integer batchId =
-                    batchComboBox.getValue() == null
-                            ? null
-                            : batchComboBox.getValue().id();
+            boolean needsBatch =
+                    "Undergraduate".equals(user.getRole());
 
-            if (!"Admin".equals(user.getRole()) && departmentId == null) {
+            UserDAO.Option department =
+                    departmentComboBox.getValue();
+
+            UserDAO.Option batch =
+                    batchComboBox.getValue();
+
+            if (needsDepartment && department == null) {
                 departmentComboBox.requestFocus();
 
                 throw new IllegalArgumentException(
@@ -419,33 +469,55 @@ public class AdminUserManagementController {
                 );
             }
 
-            if ("Undergraduate".equals(user.getRole()) && batchId == null) {
+            if (needsBatch && batch == null) {
                 batchComboBox.requestFocus();
 
                 throw new IllegalArgumentException(
-                        "Select a batch."
+                        "Select an undergraduate batch."
                 );
             }
 
+            Integer departmentId =
+                    needsDepartment ? department.id() : null;
+
+            Integer batchId =
+                    needsBatch ? batch.id() : null;
+
             ++idRequestNumber;
             setBusy(true);
+
             messageLabel.setText("Creating user...");
 
             runDatabase(
-                    () -> userDAO.addUser(user, departmentId, batchId),
+                    () -> userDAO.addUser(
+                            user,
+                            departmentId,
+                            batchId
+                    ),
                     saved -> {
                         user.setPassword(null);
                         passwordField.clear();
 
                         setBusy(false);
 
+                        if (!saved) {
+                            messageLabel.setText(
+                                    "The user could not be created."
+                            );
+                            loadNextIds();
+                            return;
+                        }
+
                         loadPage(
-                                "User created: " + user.getUserId()
-                                        + " | Role ID: " + user.getRoleSpecificId()
+                                "User created: "
+                                        + user.getUserId()
+                                        + " | Role ID: "
+                                        + user.getRoleSpecificId()
                         );
                     },
                     error -> {
                         user.setPassword(null);
+
                         setBusy(false);
 
                         messageLabel.setText(errorMessage(error));
@@ -474,7 +546,10 @@ public class AdminUserManagementController {
             messageLabel.setText("Updating user...");
 
             runDatabase(
-                    () -> userDAO.updateUser(user, changePassword),
+                    () -> userDAO.updateUser(
+                            user,
+                            changePassword
+                    ),
                     updated -> {
                         user.setPassword(null);
                         passwordField.clear();
@@ -489,7 +564,9 @@ public class AdminUserManagementController {
                     },
                     error -> {
                         user.setPassword(null);
+
                         setBusy(false);
+
                         messageLabel.setText(errorMessage(error));
                     }
             );
@@ -507,14 +584,18 @@ public class AdminUserManagementController {
 
         User selected = editingUser;
 
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert confirmation = new Alert(
+                Alert.AlertType.CONFIRMATION
+        );
 
         Window window = owner();
+
         if (window != null) {
             confirmation.initOwner(window);
         }
 
         confirmation.setTitle("Delete User");
+
         confirmation.setHeaderText(
                 "Delete " + selected.getFullName() + "?"
         );
@@ -522,34 +603,14 @@ public class AdminUserManagementController {
         confirmation.setContentText(
                 "User ID: " + selected.getUserId()
                         + "\nRole ID: " + selected.getRoleSpecificId()
-                        + "\n\nThis permanently deletes the account and role record."
-                        + "\nLinked records may also be deleted by your database's "
-                        + "cascade rules, including student marks and attendance."
-                        + "\n\nThis action cannot be undone."
+                        + "\n\nThis permanently deletes the account "
+                        + "and its role record."
+                        + "\nLinked records may also be deleted "
+                        + "by database cascade rules."
         );
 
-        ButtonType deleteType = new ButtonType(
-                "Delete User",
-                ButtonBar.ButtonData.OK_DONE
-        );
-
-        confirmation.getButtonTypes().setAll(
-                deleteType,
-                ButtonType.CANCEL
-        );
-
-        Button deleteConfirm = (Button)
-                confirmation.getDialogPane().lookupButton(deleteType);
-
-        deleteConfirm.setDefaultButton(false);
-
-        Button cancel = (Button)
-                confirmation.getDialogPane().lookupButton(ButtonType.CANCEL);
-
-        cancel.setDefaultButton(true);
-
-        if (confirmation.showAndWait().orElse(ButtonType.CANCEL)
-                != deleteType) {
+        if (confirmation.showAndWait()
+                .orElse(ButtonType.CANCEL) != ButtonType.OK) {
             return;
         }
 
@@ -569,6 +630,7 @@ public class AdminUserManagementController {
                 },
                 error -> {
                     setBusy(false);
+
                     messageLabel.setText(errorMessage(error));
                 }
         );
@@ -576,7 +638,9 @@ public class AdminUserManagementController {
 
     @FXML
     private void refreshUsers() {
-        loadPage("Users refreshed. Select a role to create a new user.");
+        loadPage(
+                "Users refreshed. Select a role to create a new user."
+        );
     }
 
     private void loadPage(String successMessage) {
@@ -585,9 +649,12 @@ public class AdminUserManagementController {
         }
 
         ++idRequestNumber;
+
         setBusy(true);
 
-        messageLabel.setText("Loading users and available options...");
+        messageLabel.setText(
+                "Loading users, departments and batches..."
+        );
 
         runDatabase(
                 () -> new PageData(
@@ -599,7 +666,8 @@ public class AdminUserManagementController {
                     resetting = true;
 
                     try {
-                        usersTable.getSelectionModel().clearSelection();
+                        usersTable.getSelectionModel()
+                                .clearSelection();
 
                         userList.setAll(data.users());
 
@@ -616,6 +684,7 @@ public class AdminUserManagementController {
                     }
 
                     ready = true;
+
                     setBusy(false);
 
                     clearFields();
@@ -625,17 +694,23 @@ public class AdminUserManagementController {
                 },
                 error -> {
                     setBusy(false);
+
                     messageLabel.setText(errorMessage(error));
                 }
         );
     }
 
     private User readAndValidate(boolean creating) {
-        String role = roleComboBox.getValue();
+        String role = creating
+                ? roleComboBox.getValue()
+                : editingUser.getRole();
 
         if (role == null) {
             roleComboBox.requestFocus();
-            throw new IllegalArgumentException("Select a role first.");
+
+            throw new IllegalArgumentException(
+                    "Select a role first."
+            );
         }
 
         if (creating && !idsReady) {
@@ -644,12 +719,25 @@ public class AdminUserManagementController {
             );
         }
 
-        String username = required(usernameField, "Username", 50);
-        String firstName = required(firstNameField, "First name", 50);
-        String lastName = required(lastNameField, "Last name", 50);
-        String email = required(emailField, "Email", 100);
+        String username = required(
+                usernameField, "Username", 50
+        );
 
-        if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+        String firstName = required(
+                firstNameField, "First name", 50
+        );
+
+        String lastName = required(
+                lastNameField, "Last name", 50
+        );
+
+        String email = required(
+                emailField, "Email", 100
+        );
+
+        if (!email.matches(
+                "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+
             emailField.requestFocus();
 
             throw new IllegalArgumentException(
@@ -671,8 +759,7 @@ public class AdminUserManagementController {
                 }
 
                 throw new IllegalArgumentException(
-                        "Password must contain 8 to 255 characters. "
-                                + "Letters, numbers, or a combination are allowed."
+                        "Password must contain 8 to 255 characters."
                 );
             }
         }
@@ -700,7 +787,7 @@ public class AdminUserManagementController {
             String label,
             int maxLength
     ) {
-        String value = field.getText().trim();
+        String value = safe(field.getText()).trim();
 
         if (value.isEmpty()) {
             field.requestFocus();
@@ -724,13 +811,17 @@ public class AdminUserManagementController {
 
     private void updateActions() {
         boolean editing = editingUser != null;
+
         String role = roleComboBox.getValue();
 
         boolean showDepartment =
-                !editing && role != null && !"Admin".equals(role);
+                !editing
+                        && role != null
+                        && !"Admin".equals(role);
 
         boolean showBatch =
-                !editing && "Undergraduate".equals(role);
+                !editing
+                        && "Undergraduate".equals(role);
 
         departmentBox.setVisible(showDepartment);
         departmentBox.setManaged(showDepartment);
@@ -738,7 +829,21 @@ public class AdminUserManagementController {
         batchBox.setVisible(showBatch);
         batchBox.setManaged(showBatch);
 
-        roleComboBox.setDisable(busy || !ready || editing);
+        departmentComboBox.setPromptText(
+                departmentComboBox.getItems().isEmpty()
+                        ? "No departments available"
+                        : "Select department"
+        );
+
+        batchComboBox.setPromptText(
+                batchComboBox.getItems().isEmpty()
+                        ? "No batches available"
+                        : "Select undergraduate batch"
+        );
+
+        roleComboBox.setDisable(
+                busy || !ready || editing
+        );
 
         detailsBox.setDisable(
                 busy || !ready || role == null
@@ -783,10 +888,19 @@ public class AdminUserManagementController {
             }
         };
 
-        task.setOnSucceeded(event -> success.accept(task.getValue()));
-        task.setOnFailed(event -> failure.accept(task.getException()));
+        task.setOnSucceeded(
+                event -> success.accept(task.getValue())
+        );
 
-        Thread thread = new Thread(task, "ams-user-management");
+        task.setOnFailed(
+                event -> failure.accept(task.getException())
+        );
+
+        Thread thread = new Thread(
+                task,
+                "ams-user-management"
+        );
+
         thread.setDaemon(true);
         thread.start();
     }
@@ -808,14 +922,11 @@ public class AdminUserManagementController {
     }
 
     private String errorMessage(Throwable error) {
-        if (error != null) {
-            error.printStackTrace();
+        if (error != null
+                && error.getMessage() != null
+                && !error.getMessage().isBlank()) {
 
-            if (error.getMessage() != null
-                    && !error.getMessage().isBlank()) {
-
-                return error.getMessage();
-            }
+            return error.getMessage();
         }
 
         return "The operation failed. Please try again.";

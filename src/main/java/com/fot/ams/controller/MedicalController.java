@@ -16,15 +16,21 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 // TG2070 - Technical Officer medical page controller
 public class MedicalController {
 
-    // TG2070 - ID received from Technical Officer dashboard
+    // ID received from Technical Officer dashboard
     private String technicalOfficerId;
 
     public void setTechnicalOfficerId(String technicalOfficerId) {
@@ -86,14 +92,13 @@ public class MedicalController {
 
         medicalStatusFilter.setValue("All statuses");
 
-        // TG2070 - Status options for the selected record
         medicalUpdateStatusComboBox.getItems().addAll(
                 "Pending",
                 "Approved",
                 "Rejected"
         );
 
-        // TG2070 - Display selected record's current status
+        // Display selected record's current status
         medicalTable.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldRecord, selectedRecord) -> {
                     if (selectedRecord == null) {
@@ -110,7 +115,7 @@ public class MedicalController {
         loadMedicalRecords();
     }
 
-    // TG2070 - Connect table columns to model getters
+    // Connect table columns to model getters
     private void setupTable() {
         medicalIdColumn.setCellValueFactory(
                 new PropertyValueFactory<>("medicalId")
@@ -141,7 +146,7 @@ public class MedicalController {
         );
     }
 
-    // TG2070 - Load courses from database
+    // Load courses from database
     private void loadCourses() {
         CourseDAO courseDAO = new CourseDAO();
 
@@ -162,7 +167,7 @@ public class MedicalController {
         }
     }
 
-    // TG2070 - Load and search medical records
+    // Load and search medical records
     @FXML
     private void loadMedicalRecords() {
         MedicalDAO medicalDAO = new MedicalDAO();
@@ -192,7 +197,7 @@ public class MedicalController {
         }
     }
 
-    // TG2070 - Save a new medical record as Pending
+    // Save a new medical record as Pending
     @FXML
     private void saveMedical() {
         String registrationNumber =
@@ -229,7 +234,6 @@ public class MedicalController {
             return;
         }
 
-        // TG2070 - Use integer ID from updated Course model
         int courseId = selectedCourse.getCourseId();
 
         MedicalDAO medicalDAO = new MedicalDAO();
@@ -283,7 +287,7 @@ public class MedicalController {
         }
     }
 
-    // TG2070 - Update selected medical record status
+    // Update selected medical record status
     @FXML
     private void updateMedicalStatus() {
         MedicalRecord selectedRecord =
@@ -321,7 +325,6 @@ public class MedicalController {
             return;
         }
 
-        // Avoid updating an unchanged status
         if (selectedStatus.equals(selectedRecord.getStatus())) {
             showMessage(
                     Alert.AlertType.INFORMATION,
@@ -366,7 +369,148 @@ public class MedicalController {
         }
     }
 
-    // TG2070 - Clear medical entry form
+    // TG2070 - Open the selected student's medical attachment
+    @FXML
+    private void viewMedicalDocument() {
+        if (technicalOfficerId == null
+                || technicalOfficerId.isBlank()) {
+
+            showMessage(
+                    Alert.AlertType.WARNING,
+                    "Login Required",
+                    "Please log in as a Technical Officer."
+            );
+            return;
+        }
+
+        MedicalRecord selectedRecord =
+                medicalTable.getSelectionModel().getSelectedItem();
+
+        if (selectedRecord == null) {
+            showMessage(
+                    Alert.AlertType.WARNING,
+                    "No Record Selected",
+                    "Please select a medical record from the table."
+            );
+            return;
+        }
+
+        String documentPath = selectedRecord.getDocumentPath();
+
+        if (documentPath == null || documentPath.isBlank()) {
+            showMessage(
+                    Alert.AlertType.INFORMATION,
+                    "No Document",
+                    "No medical document is attached to this record."
+            );
+            return;
+        }
+
+        try {
+            Path document = resolveMedicalDocument(documentPath);
+
+            String fileName = document.getFileName()
+                    .toString()
+                    .toLowerCase(Locale.ROOT);
+
+            if (!fileName.endsWith(".pdf")
+                    && !fileName.endsWith(".png")
+                    && !fileName.endsWith(".jpg")
+                    && !fileName.endsWith(".jpeg")) {
+
+                showMessage(
+                        Alert.AlertType.WARNING,
+                        "Unsupported Document",
+                        "Only PDF, PNG and JPG medical documents can be opened."
+                );
+                return;
+            }
+
+            if (!Files.isRegularFile(document)
+                    || !Files.isReadable(document)) {
+
+                showMessage(
+                        Alert.AlertType.WARNING,
+                        "Document Not Found",
+                        "The attached file is not available on this computer.\n\n"
+                                + "Expected location:\n" + document
+                                + "\n\nThe actual file must be available "
+                                + "as well as its database path."
+                );
+                return;
+            }
+
+            if (!Desktop.isDesktopSupported()) {
+                showMessage(
+                        Alert.AlertType.WARNING,
+                        "Document Viewer",
+                        "Opening documents is not supported on this computer."
+                );
+                return;
+            }
+
+            Desktop desktop = Desktop.getDesktop();
+
+            if (!desktop.isSupported(Desktop.Action.OPEN)) {
+                showMessage(
+                        Alert.AlertType.WARNING,
+                        "Document Viewer",
+                        "No supported document opening action is available."
+                );
+                return;
+            }
+
+            desktop.open(document.toFile());
+
+        } catch (IOException
+                 | IllegalArgumentException
+                 | UnsupportedOperationException
+                 | SecurityException exception) {
+
+            exception.printStackTrace();
+
+            showMessage(
+                    Alert.AlertType.ERROR,
+                    "Document Error",
+                    "Could not open the medical document.\n"
+                            + "Check the file and its default viewer.\n\n"
+                            + exception.getMessage()
+            );
+        }
+    }
+
+    // Student uploads use paths such as medical-documents/<file>.jpg
+    private Path resolveMedicalDocument(String documentPath)
+            throws IOException {
+
+        Path projectFolder = Path.of(
+                System.getProperty("user.dir")
+        ).toAbsolutePath().normalize();
+
+        Path document;
+
+        try {
+            // Accept path separators stored by Windows or other platforms
+            String normalizedPath = documentPath.trim()
+                    .replace('\\', '/');
+
+            Path savedPath = Path.of(normalizedPath);
+
+            document = savedPath.isAbsolute()
+                    ? savedPath.normalize()
+                    : projectFolder.resolve(savedPath).normalize();
+
+        } catch (InvalidPathException exception) {
+            throw new IOException(
+                    "The stored document path is invalid.",
+                    exception
+            );
+        }
+
+        return document;
+    }
+
+    // Clear medical entry form
     @FXML
     private void clearForm() {
         registrationField.clear();
@@ -376,10 +520,12 @@ public class MedicalController {
         registrationField.requestFocus();
     }
 
-    // TG2070 - Display information and validation messages
-    private void showMessage(Alert.AlertType type,
-                             String title,
-                             String message) {
+    // Display information and validation messages
+    private void showMessage(
+            Alert.AlertType type,
+            String title,
+            String message) {
+
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -387,9 +533,11 @@ public class MedicalController {
         alert.showAndWait();
     }
 
-    // TG2070 - Display database errors
-    private void showDatabaseError(String message,
-                                   SQLException exception) {
+    // Display database errors
+    private void showDatabaseError(
+            String message,
+            SQLException exception) {
+
         exception.printStackTrace();
 
         Alert alert = new Alert(Alert.AlertType.ERROR);

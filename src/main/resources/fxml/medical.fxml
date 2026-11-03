@@ -29,6 +29,7 @@
 
                     <VBox spacing="7">
                         <Label text="Registration Number"/>
+
                         <TextField fx:id="registrationField"
                                    promptText="Enter registration number"
                                    prefWidth="220"/>
@@ -36,6 +37,7 @@
 
                     <VBox spacing="7">
                         <Label text="Course"/>
+
                         <ComboBox fx:id="medicalCourseComboBox"
                                   promptText="Select course"
                                   prefWidth="220"/>
@@ -43,6 +45,7 @@
 
                     <VBox spacing="7">
                         <Label text="Medical Date"/>
+
                         <DatePicker fx:id="medicalDatePicker"
                                     promptText="Select date"
                                     prefWidth="180"/>
@@ -52,6 +55,7 @@
 
                 <VBox spacing="7">
                     <Label text="Reason"/>
+
                     <TextArea fx:id="medicalReasonArea"
                               promptText="Enter the medical reason"
                               wrapText="true"
@@ -59,14 +63,15 @@
                 </VBox>
 
                 <HBox alignment="CENTER_RIGHT" spacing="12">
+
                     <Button text="Clear"
                             styleClass="medical-secondary-button"
-
-                                onAction="#clearForm"/>
+                            onAction="#clearForm"/>
 
                     <Button text="Save Medical"
                             styleClass="medical-primary-button"
                             onAction="#saveMedical"/>
+
                 </HBox>
 
             </VBox>
@@ -96,6 +101,7 @@
                            prefHeight="260">
 
                     <columns>
+
                         <TableColumn fx:id="medicalIdColumn"
                                      text="Medical ID"
                                      prefWidth="90"/>
@@ -119,6 +125,7 @@
                         <TableColumn fx:id="statusColumn"
                                      text="Status"
                                      prefWidth="110"/>
+
                     </columns>
 
                     <placeholder>
@@ -126,6 +133,20 @@
                     </placeholder>
 
                 </TableView>
+
+                <!-- TG2070 - View the selected medical attachment -->
+                <HBox alignment="CENTER_LEFT" spacing="12">
+
+                    <Button text="View Document"
+                            styleClass="medical-secondary-button"
+                            onAction="#viewMedicalDocument"/>
+
+                    <Label text="Select a medical record to open its attached photo or PDF."
+                           wrapText="true"
+                           styleClass="medical-subtitle"/>
+
+                </HBox>
+
                 <!-- TG2070 - Update selected medical record status -->
                 <HBox alignment="CENTER_RIGHT" spacing="12">
 

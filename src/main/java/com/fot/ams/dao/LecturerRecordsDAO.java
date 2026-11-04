@@ -34,7 +34,7 @@ public class LecturerRecordsDAO {
                 ORDER BY s.session_date DESC, s.start_time DESC, e.reg_no
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
@@ -88,7 +88,7 @@ public class LecturerRecordsDAO {
                 ORDER BY m.medical_date DESC, m.medical_id DESC
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);

@@ -33,7 +33,7 @@ public class LecturerProfileDAO {
                 WHERE l.lecturer_id = ?
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
@@ -53,7 +53,11 @@ public class LecturerProfileDAO {
                             rs.getString("user_id"),
                             rs.getInt("dept_id"),
                             rs.getString("dept_name"),
-                            user
+                            rs.getString("user_name"),
+                            null,
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getString("email")
                     );
                 }
             }
@@ -72,7 +76,7 @@ public class LecturerProfileDAO {
                   AND u.role = 'Lecturer'
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
@@ -161,7 +165,7 @@ public class LecturerProfileDAO {
                   AND u.role = 'Lecturer'
                 """;
 
-        try (Connection con = DBConnection.getConnection()) {
+        try (Connection con = DBConnection.getLecturerConnection()) {
             con.setAutoCommit(false);
 
             try {

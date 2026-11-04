@@ -129,7 +129,7 @@ public class EligibilityDAO {
                 ORDER BY e.reg_no
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);

@@ -225,28 +225,13 @@
                                         <Label text="Password"
                                                styleClass="field-label"/>
 
-                                        <StackPane>
-                                            <PasswordField fx:id="passwordField"
-                                                           promptText="At least 8 characters"
-                                                           minWidth="0"
-                                                           maxWidth="Infinity"
-                                                           minHeight="38"
-                                                           prefHeight="38"
-                                                           maxHeight="38"/>
-
-                                            <TextField fx:id="visiblePasswordField"
+                                        <PasswordField fx:id="passwordField"
                                                        promptText="At least 8 characters"
-                                                       visible="false"
-                                                       managed="false"
                                                        minWidth="0"
                                                        maxWidth="Infinity"
                                                        minHeight="38"
                                                        prefHeight="38"
                                                        maxHeight="38"/>
-                                        </StackPane>
-
-                                        <CheckBox fx:id="showPasswordCheckBox"
-                                                  text="Show password"/>
                                     </VBox>
 
                                     <VBox spacing="7" minWidth="0"

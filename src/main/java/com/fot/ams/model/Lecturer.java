@@ -1,47 +1,54 @@
-
 package com.fot.ams.model;
 
-public class Lecturer {
+public class Lecturer extends User {
 
-    private String lecturerId;
-    private String userId;
     private int deptId;
     private String departmentName;
-    private User user;
 
+    // No-argument constructor
     public Lecturer() {
+        super();
+        setRole("Lecturer");
     }
 
+    // Parameterized constructor
     public Lecturer(
             String lecturerId,
             String userId,
             int deptId,
             String departmentName,
-            User user) {
+            String username,
+            String password,
+            String firstName,
+            String lastName,
+            String email) {
 
-        this.lecturerId = lecturerId;
-        this.userId = userId;
+        // Call parent constructor
+        super(
+                userId,
+                lecturerId,
+                username,
+                password,
+                firstName,
+                lastName,
+                email,
+                "Lecturer"
+        );
+
         this.deptId = deptId;
         this.departmentName = departmentName;
-        this.user = user;
     }
 
+    // Lecturer-specific ID
     public String getLecturerId() {
-        return lecturerId;
+        return getRoleSpecificId();
     }
 
     public void setLecturerId(String lecturerId) {
-        this.lecturerId = lecturerId;
+        setRoleSpecificId(lecturerId);
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
+    // Department ID
     public int getDeptId() {
         return deptId;
     }
@@ -50,19 +57,12 @@ public class Lecturer {
         this.deptId = deptId;
     }
 
+    // Department Name
     public String getDepartmentName() {
         return departmentName;
     }
 
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }

@@ -7,7 +7,7 @@
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.fot.ams.controller.AdminUserManagementController"
-            stylesheets="@/css/admin-users.css"
+            stylesheets="@../css/admin-users.css"
             styleClass="user-management"
             minWidth="0"
             minHeight="0"
@@ -24,11 +24,13 @@
                 <VBox spacing="18" minWidth="0" fillWidth="true">
 
                     <padding>
-                        <Insets top="24" right="24" bottom="24" left="24"/>
+                        <Insets top="24" right="24"
+                                bottom="24" left="24"/>
                     </padding>
 
                     <VBox spacing="5">
                         <Label text="User Profile Management"
+                               wrapText="true"
                                styleClass="page-title"/>
 
                         <Label text="Select a role first. User ID and role-specific ID are generated automatically."
@@ -41,7 +43,8 @@
                           styleClass="card">
 
                         <padding>
-                            <Insets top="20" right="20" bottom="20" left="20"/>
+                            <Insets top="20" right="20"
+                                    bottom="20" left="20"/>
                         </padding>
 
                         <Label fx:id="modeLabel"
@@ -50,13 +53,13 @@
 
                         <GridPane hgap="16" vgap="16" minWidth="0">
                             <columnConstraints>
-                                <ColumnConstraints percentWidth="30"
+                                <ColumnConstraints percentWidth="34"
                                                    minWidth="0"
                                                    hgrow="ALWAYS"/>
-                                <ColumnConstraints percentWidth="45"
+                                <ColumnConstraints percentWidth="33"
                                                    minWidth="0"
                                                    hgrow="ALWAYS"/>
-                                <ColumnConstraints percentWidth="25"
+                                <ColumnConstraints percentWidth="33"
                                                    minWidth="0"
                                                    hgrow="ALWAYS"/>
                             </columnConstraints>
@@ -64,7 +67,7 @@
                             <children>
                                 <VBox spacing="7" minWidth="0"
                                       GridPane.columnIndex="0">
-                                    <Label text="1. Select Role *"
+                                    <Label text="Role *"
                                            styleClass="field-label"/>
 
                                     <ComboBox fx:id="roleComboBox"
@@ -78,7 +81,7 @@
 
                                 <VBox spacing="7" minWidth="0"
                                       GridPane.columnIndex="1">
-                                    <Label text="2. User ID"
+                                    <Label text="User ID"
                                            styleClass="field-label"/>
 
                                     <TextField fx:id="userIdField"
@@ -96,6 +99,7 @@
                                       GridPane.columnIndex="2">
                                     <Label fx:id="roleSpecificIdLabel"
                                            text="Role-specific ID"
+                                           wrapText="true"
                                            styleClass="field-label"/>
 
                                     <TextField fx:id="roleSpecificIdField"
@@ -119,68 +123,82 @@
                         <Separator/>
 
                         <VBox fx:id="detailsBox"
-                              spacing="14"
+                              spacing="16"
                               disable="true">
 
-                            <GridPane hgap="16" vgap="16" minWidth="0">
+                            <GridPane hgap="16"
+                                      vgap="16"
+                                      minWidth="0">
                                 <columnConstraints>
-                                    <ColumnConstraints percentWidth="30"
+                                    <ColumnConstraints percentWidth="33"
                                                        minWidth="0"
                                                        hgrow="ALWAYS"/>
-                                    <ColumnConstraints percentWidth="45"
+                                    <ColumnConstraints percentWidth="34"
                                                        minWidth="0"
                                                        hgrow="ALWAYS"/>
-                                    <ColumnConstraints percentWidth="25"
+                                    <ColumnConstraints percentWidth="33"
                                                        minWidth="0"
                                                        hgrow="ALWAYS"/>
                                 </columnConstraints>
 
-                                <VBox fx:id="departmentBox"
-                                      spacing="7"
-                                      minWidth="0"
-                                      GridPane.columnIndex="0"
-                                      visible="false"
-                                      managed="false">
-                                    <Label text="Department *"
-                                           styleClass="field-label"/>
+                                <children>
+                                    <VBox fx:id="departmentBox"
+                                          spacing="7"
+                                          minWidth="0"
+                                          visible="false"
+                                          managed="false"
+                                          GridPane.columnIndex="0"
+                                          GridPane.valignment="TOP">
 
-                                    <ComboBox fx:id="departmentComboBox"
-                                              promptText="Select department"
-                                              minWidth="0"
-                                              maxWidth="Infinity"
-                                              minHeight="38"
-                                              prefHeight="38"
-                                              maxHeight="38"/>
-                                </VBox>
+                                        <Label text="Department *"
+                                               styleClass="field-label"/>
 
-                                <VBox fx:id="batchBox"
-                                      spacing="7"
-                                      minWidth="0"
-                                      GridPane.columnIndex="1"
-                                      visible="false"
-                                      managed="false">
-                                    <Label text="Batch *"
-                                           styleClass="field-label"/>
+                                        <ComboBox fx:id="departmentComboBox"
+                                                  promptText="Select department"
+                                                  minWidth="0"
+                                                  maxWidth="Infinity"
+                                                  minHeight="38"
+                                                  prefHeight="38"
+                                                  maxHeight="38"
+                                                  visibleRowCount="8"/>
 
-                                    <ComboBox fx:id="batchComboBox"
-                                              promptText="Select batch"
-                                              minWidth="0"
-                                              maxWidth="Infinity"
-                                              minHeight="38"
-                                              prefHeight="38"
-                                              maxHeight="38"/>
-                                </VBox>
+                                        <Label text="Required for Lecturer, Undergraduate and Technical Officer accounts."
+                                               wrapText="true"
+                                               styleClass="muted"/>
+                                    </VBox>
+
+                                    <VBox fx:id="batchBox"
+                                          spacing="7"
+                                          minWidth="0"
+                                          visible="false"
+                                          managed="false"
+                                          GridPane.columnIndex="1"
+                                          GridPane.valignment="TOP">
+
+                                        <Label text="Batch *"
+                                               styleClass="field-label"/>
+
+                                        <ComboBox fx:id="batchComboBox"
+                                                  promptText="Select undergraduate batch"
+                                                  minWidth="0"
+                                                  maxWidth="Infinity"
+                                                  minHeight="38"
+                                                  prefHeight="38"
+                                                  maxHeight="38"
+                                                  visibleRowCount="8"/>
+                                    </VBox>
+                                </children>
                             </GridPane>
 
                             <GridPane hgap="16" vgap="16" minWidth="0">
                                 <columnConstraints>
-                                    <ColumnConstraints percentWidth="30"
+                                    <ColumnConstraints percentWidth="33"
                                                        minWidth="0"
                                                        hgrow="ALWAYS"/>
-                                    <ColumnConstraints percentWidth="45"
+                                    <ColumnConstraints percentWidth="34"
                                                        minWidth="0"
                                                        hgrow="ALWAYS"/>
-                                    <ColumnConstraints percentWidth="25"
+                                    <ColumnConstraints percentWidth="33"
                                                        minWidth="0"
                                                        hgrow="ALWAYS"/>
                                 </columnConstraints>
@@ -232,6 +250,21 @@
                                     </VBox>
 
                                     <VBox spacing="7" minWidth="0"
+                                          GridPane.columnIndex="2"
+                                          GridPane.rowIndex="0">
+                                        <Label text="Email *"
+                                               styleClass="field-label"/>
+
+                                        <TextField fx:id="emailField"
+                                                   promptText="name@example.com"
+                                                   minWidth="0"
+                                                   maxWidth="Infinity"
+                                                   minHeight="38"
+                                                   prefHeight="38"
+                                                   maxHeight="38"/>
+                                    </VBox>
+
+                                    <VBox spacing="7" minWidth="0"
                                           GridPane.columnIndex="0"
                                           GridPane.rowIndex="1">
                                         <Label text="First Name *"
@@ -260,135 +293,83 @@
                                                    prefHeight="38"
                                                    maxHeight="38"/>
                                     </VBox>
-
-                                    <VBox spacing="7" minWidth="0"
-                                          GridPane.columnIndex="2"
-                                          GridPane.rowIndex="0">
-                                        <Label text="Email *"
-                                               styleClass="field-label"/>
-
-                                        <TextField fx:id="emailField"
-                                                   promptText="name@example.com"
-                                                   minWidth="0"
-                                                   maxWidth="Infinity"
-                                                   minHeight="38"
-                                                   prefHeight="38"
-                                                   maxHeight="38"/>
-                                    </VBox>
                                 </children>
                             </GridPane>
 
-                            <Label text="New users need a password with at least 8 characters. When updating, leave it empty to keep the current password."
+                            <Label text="Use 8 to 255 characters for a new password. When updating, leave it empty to keep the current password."
                                    wrapText="true"
                                    styleClass="muted"/>
                         </VBox>
 
-                        <!-- CRUD buttons styled like the supplied screenshot -->
-                        <FlowPane hgap="13"
-                                  vgap="10"
-                                  alignment="CENTER_LEFT">
+                        <FlowPane hgap="13" vgap="10">
 
                             <Button fx:id="addButton"
                                     text="Add User"
                                     onAction="#addUser"
                                     mnemonicParsing="false"
-                                    minWidth="138"
                                     prefWidth="138"
-                                    minHeight="49"
                                     prefHeight="49"
-                                    maxHeight="49"
                                     disable="true"
                                     style="-fx-background-color: #4F50D2;
                                            -fx-text-fill: white;
                                            -fx-font-size: 14px;
                                            -fx-font-weight: bold;
                                            -fx-background-radius: 9;
-                                           -fx-background-insets: 0;
-                                           -fx-border-width: 0;
                                            -fx-padding: 12 20;
-                                           -fx-effect: null;
                                            -fx-cursor: hand;"/>
 
                             <Button fx:id="updateButton"
                                     text="Update"
                                     onAction="#updateUser"
                                     mnemonicParsing="false"
-                                    minWidth="113"
                                     prefWidth="113"
-                                    minHeight="49"
                                     prefHeight="49"
-                                    maxHeight="49"
                                     disable="true"
                                     style="-fx-background-color: #EEF0FF;
                                            -fx-text-fill: #4F50D2;
                                            -fx-font-size: 14px;
-                                           -fx-font-weight: normal;
                                            -fx-background-radius: 9;
-                                           -fx-background-insets: 0;
-                                           -fx-border-width: 0;
                                            -fx-padding: 12 20;
-                                           -fx-effect: null;
                                            -fx-cursor: hand;"/>
 
                             <Button fx:id="deleteButton"
                                     text="Delete"
                                     onAction="#deleteUser"
                                     mnemonicParsing="false"
-                                    minWidth="113"
                                     prefWidth="113"
-                                    minHeight="49"
                                     prefHeight="49"
-                                    maxHeight="49"
                                     disable="true"
                                     style="-fx-background-color: #FCE8E8;
-                                           -fx-text-fill: red;
+                                           -fx-text-fill: #B42318;
                                            -fx-font-size: 14px;
-                                           -fx-font-weight: normal;
                                            -fx-background-radius: 9;
-                                           -fx-background-insets: 0;
-                                           -fx-border-width: 0;
                                            -fx-padding: 12 20;
-                                           -fx-effect: null;
                                            -fx-cursor: hand;"/>
 
                             <Button fx:id="clearButton"
                                     text="Clear"
                                     onAction="#clearFields"
                                     mnemonicParsing="false"
-                                    minWidth="113"
                                     prefWidth="113"
-                                    minHeight="49"
                                     prefHeight="49"
-                                    maxHeight="49"
                                     style="-fx-background-color: #EEF0FF;
                                            -fx-text-fill: #4F50D2;
                                            -fx-font-size: 14px;
-                                           -fx-font-weight: normal;
                                            -fx-background-radius: 9;
-                                           -fx-background-insets: 0;
-                                           -fx-border-width: 0;
                                            -fx-padding: 12 20;
-                                           -fx-effect: null;
                                            -fx-cursor: hand;"/>
 
                             <Button fx:id="refreshButton"
                                     text="Refresh"
                                     onAction="#refreshUsers"
                                     mnemonicParsing="false"
-                                    minWidth="113"
                                     prefWidth="113"
-                                    minHeight="49"
                                     prefHeight="49"
-                                    maxHeight="49"
                                     style="-fx-background-color: #EEF0FF;
                                            -fx-text-fill: #4F50D2;
                                            -fx-font-size: 14px;
-                                           -fx-font-weight: normal;
                                            -fx-background-radius: 9;
-                                           -fx-background-insets: 0;
-                                           -fx-border-width: 0;
                                            -fx-padding: 12 20;
-                                           -fx-effect: null;
                                            -fx-cursor: hand;"/>
                         </FlowPane>
 
@@ -412,7 +393,8 @@
                           styleClass="card">
 
                         <padding>
-                            <Insets top="20" right="20" bottom="20" left="20"/>
+                            <Insets top="20" right="20"
+                                    bottom="20" left="20"/>
                         </padding>
 
                         <HBox spacing="12" alignment="CENTER_LEFT">
@@ -427,12 +409,10 @@
                         </HBox>
 
                         <TextField fx:id="searchField"
-                                   promptText="Search by ID, registration number, name, username, email or role..."
+                                   promptText="Search by ID, name, username, email, role or department..."
                                    minWidth="0"
                                    maxWidth="Infinity"
-                                   minHeight="38"
-                                   prefHeight="38"
-                                   maxHeight="38"/>
+                                   prefHeight="38"/>
 
                         <TableView fx:id="usersTable"
                                    prefHeight="360"
@@ -447,33 +427,38 @@
                             <columns>
                                 <TableColumn fx:id="userIdColumn"
                                              text="User ID"
-                                             minWidth="65"
-                                             prefWidth="90"/>
+                                             minWidth="55"
+                                             prefWidth="75"/>
 
                                 <TableColumn fx:id="roleSpecificIdColumn"
                                              text="Role / Reg. ID"
-                                             minWidth="90"
-                                             prefWidth="120"/>
+                                             minWidth="75"
+                                             prefWidth="100"/>
 
                                 <TableColumn fx:id="usernameColumn"
                                              text="Username"
-                                             minWidth="90"
-                                             prefWidth="130"/>
+                                             minWidth="75"
+                                             prefWidth="110"/>
 
                                 <TableColumn fx:id="fullNameColumn"
                                              text="Full Name"
-                                             minWidth="110"
-                                             prefWidth="180"/>
+                                             minWidth="90"
+                                             prefWidth="150"/>
 
                                 <TableColumn fx:id="emailColumn"
                                              text="Email"
-                                             minWidth="120"
-                                             prefWidth="220"/>
+                                             minWidth="100"
+                                             prefWidth="180"/>
 
                                 <TableColumn fx:id="roleColumn"
                                              text="Role"
+                                             minWidth="85"
+                                             prefWidth="130"/>
+
+                                <TableColumn fx:id="departmentColumn"
+                                             text="Department"
                                              minWidth="100"
-                                             prefWidth="150"/>
+                                             prefWidth="180"/>
                             </columns>
 
                             <placeholder>
@@ -481,7 +466,7 @@
                             </placeholder>
                         </TableView>
 
-                        <Label text="Select a row to edit a user. Click Clear to create another account."
+                        <Label text="Select a row to edit. Department, batch, role and existing IDs are preserved when updating."
                                wrapText="true"
                                styleClass="muted"/>
                     </VBox>

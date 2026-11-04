@@ -14,7 +14,7 @@ import java.util.ArrayList;
 // TG2070 - Medical database operations
 public class MedicalDAO {
 
-    // TG2070 - START: Load and filter medical records
+    // TG2070 - Load and filter medical records with document paths
     public ArrayList<MedicalRecord> getMedicalRecords(
             String registrationNumber,
             String status) throws SQLException {
@@ -23,7 +23,8 @@ public class MedicalDAO {
 
         String sql =
                 "SELECT m.medical_id, m.reg_no, m.course_id, " +
-                        "c.course_code, m.medical_date, m.reason, m.status " +
+                        "c.course_code, m.medical_date, m.reason, " +
+                        "m.status, m.document_path " +
                         "FROM medical m " +
                         "INNER JOIN course c ON m.course_id = c.course_id " +
                         "WHERE m.reg_no LIKE ? ";
@@ -38,7 +39,8 @@ public class MedicalDAO {
         sql += "ORDER BY m.medical_date DESC, m.medical_id DESC";
 
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
             String searchText = "";
 
@@ -53,7 +55,6 @@ public class MedicalDAO {
             }
 
             try (ResultSet resultSet = statement.executeQuery()) {
-
                 while (resultSet.next()) {
 
                     MedicalRecord record = new MedicalRecord(
@@ -63,7 +64,8 @@ public class MedicalDAO {
                             resultSet.getString("course_code"),
                             resultSet.getDate("medical_date").toLocalDate(),
                             resultSet.getString("reason"),
-                            resultSet.getString("status")
+                            resultSet.getString("status"),
+                            resultSet.getString("document_path")
                     );
 
                     records.add(record);
@@ -73,9 +75,8 @@ public class MedicalDAO {
 
         return records;
     }
-    // TG2070 - END
 
-    // TG2070 - START: Check student course enrollment
+    // TG2070 - Check student course enrollment
     public boolean isStudentEnrolled(
             String registrationNumber,
             int courseId) throws SQLException {
@@ -86,7 +87,8 @@ public class MedicalDAO {
                         "AND status <> 'Dropped'";
 
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
             statement.setString(1, registrationNumber);
             statement.setInt(2, courseId);
@@ -96,9 +98,8 @@ public class MedicalDAO {
             }
         }
     }
-    // TG2070 - END
 
-    // TG2070 - START: Save a new pending medical record
+    // TG2070 - Save a new pending medical record
     public boolean addMedical(
             String registrationNumber,
             int courseId,
@@ -111,7 +112,8 @@ public class MedicalDAO {
                         "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
             statement.setString(1, registrationNumber);
             statement.setInt(2, courseId);
@@ -122,8 +124,8 @@ public class MedicalDAO {
             return statement.executeUpdate() > 0;
         }
     }
-    // TG2070 - END
-    // TG2070 - START: Update medical status using logged-in TO ID
+
+    // TG2070 - Update medical status using logged-in TO ID
     public boolean updateMedicalStatus(
             int medicalId,
             String status,
@@ -132,11 +134,13 @@ public class MedicalDAO {
         if (!"Pending".equals(status)
                 && !"Approved".equals(status)
                 && !"Rejected".equals(status)) {
+
             throw new SQLException("Invalid medical status.");
         }
 
         if (technicalOfficerId == null
                 || technicalOfficerId.isBlank()) {
+
             throw new SQLException(
                     "Please log in as a Technical Officer."
             );
@@ -168,5 +172,4 @@ public class MedicalDAO {
             return statement.executeUpdate() > 0;
         }
     }
-    // TG2070 - END
 }

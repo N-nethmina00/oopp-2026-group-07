@@ -12,7 +12,9 @@ public class MedicalRecord {
     private LocalDate medicalDate;
     private String reason;
     private String status;
+    private String documentPath;
 
+    // Existing constructor retained
     public MedicalRecord(int medicalId,
                          String regNo,
                          int courseId,
@@ -21,6 +23,28 @@ public class MedicalRecord {
                          String reason,
                          String status) {
 
+        this(
+                medicalId,
+                regNo,
+                courseId,
+                courseCode,
+                medicalDate,
+                reason,
+                status,
+                null
+        );
+    }
+
+    // Constructor including the uploaded document path
+    public MedicalRecord(int medicalId,
+                         String regNo,
+                         int courseId,
+                         String courseCode,
+                         LocalDate medicalDate,
+                         String reason,
+                         String status,
+                         String documentPath) {
+
         this.medicalId = medicalId;
         this.regNo = regNo;
         this.courseId = courseId;
@@ -28,6 +52,7 @@ public class MedicalRecord {
         this.medicalDate = medicalDate;
         this.reason = reason;
         this.status = status;
+        this.documentPath = documentPath;
     }
 
     public int getMedicalId() {
@@ -56,5 +81,9 @@ public class MedicalRecord {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getDocumentPath() {
+        return documentPath;
     }
 }

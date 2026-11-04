@@ -10,6 +10,7 @@ public class User {
     private String lastName;
     private String email;
     private String role;
+    private String departmentName;
 
     public User() {
     }
@@ -85,7 +86,6 @@ public class User {
     public String getFullName() {
         String first = firstName == null ? "" : firstName;
         String last = lastName == null ? "" : lastName;
-
         return (first + " " + last).trim();
     }
 
@@ -103,5 +103,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
     }
 }

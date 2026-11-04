@@ -1,12 +1,16 @@
 package com.fot.ams.controller;
 
+// Provides the logged-in user details passed from the login screen.
 import com.fot.ams.model.User;
+// Provides the method used to connect to the application database.
 import com.fot.ams.util.DBConnection;
 
+// These JavaFX classes create a small animation when a menu button is selected.
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+// Lets the dashboard query the database in the background without freezing the UI
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,23 +27,29 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
+// JDBC types used to connect to the database and read query results
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+// Used to show when the dashboard was last refreshed
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+// Controls the admin dashboard, navigation, counts, and logout
 public class AdminController {
 
+    // Main layout: pages are displayed in its center area
     @FXML private BorderPane mainPane;
 
+    // Dashboard labels display totals and loading/error status
     @FXML private Label lblUserCount;
     @FXML private Label lblCourseCount;
     @FXML private Label lblNoticeCount;
     @FXML private Label lblTimetableCount;
     @FXML private Label lblDashboardStatus;
 
+    // Buttons connected to the refresh action and sidebar navigation
     @FXML private Button btnRefresh;
     @FXML private Button dashboardBtn;
     @FXML private Button usersBtn;
@@ -48,29 +58,39 @@ public class AdminController {
     @FXML private Button timetablesBtn;
     @FXML private Button accountBtn;
 
+    // Keep the original dashboard view so it can be shown again after navigation
     private Node dashboardContent;
+    // Remember which admin is logged in, for session checks and the account page
     private String loggedInUserId;
+    // Prevent starting multiple dashboard queries at the same time
     private boolean loadingDashboard;
+    // Track the active menu item and its animation.
     private Button selectedMenuButton;
     private Timeline menuAnimation;
 
+    // JavaFX calls this after loading the FXML and connecting its controls
     @FXML
     private void initialize() {
+        // Save the dashboard page before other pages replace it
         dashboardContent = mainPane.getCenter();
         selectMenu(dashboardBtn, false);
     }
 
+    // Called after login to pass the authenticated user into this controller
     public void setLoggedInUser(User user) {
+        // Only a valid Admin account should use the admin dashboard
         if (user == null || !"Admin".equals(user.getRole())) {
             throw new IllegalArgumentException(
                     "A valid admin account is required."
             );
         }
 
+        // Save the admin ID and load the dashboard totals
         loggedInUserId = user.getUserId();
         refreshDashboard();
     }
 
+    // Clear the old selection, select the new menu button, and optionally animate it
     private void selectMenu(Button target, boolean animate) {
         if (target == null || target == selectedMenuButton) {
             return;
@@ -80,6 +100,7 @@ public class AdminController {
             menuAnimation.stop();
         }
 
+        // Group the sidebar buttons so all can be reset consistently
         Button[] buttons = {
                 dashboardBtn,
                 usersBtn,
@@ -99,6 +120,7 @@ public class AdminController {
             }
         }
 
+        // Apply the CSS style used to show which page is active
         target.getStyleClass().add("selected");
         selectedMenuButton = target;
 
@@ -106,6 +128,7 @@ public class AdminController {
             return;
         }
 
+        // Create a short movement and scale animation for visual feedback
         menuAnimation = new Timeline(
                 new KeyFrame(
                         Duration.ZERO,
@@ -162,6 +185,7 @@ public class AdminController {
         menuAnimation.play();
     }
 
+    // Return to the saved dashboard view when its sidebar button is clicked
     @FXML
     private void showDashboard() {
         mainPane.setCenter(dashboardContent);
@@ -169,6 +193,7 @@ public class AdminController {
         refreshDashboard();
     }
 
+    // Open the user-management page
     @FXML
     private void showUsers() {
         openPage(
@@ -177,6 +202,7 @@ public class AdminController {
         );
     }
 
+    // Open the course-management page
     @FXML
     private void showCourses() {
         openPage(
@@ -185,6 +211,7 @@ public class AdminController {
         );
     }
 
+    // Open the notice-management page
     @FXML
     private void showNotices() {
         openPage(
@@ -193,6 +220,7 @@ public class AdminController {
         );
     }
 
+    // Open the timetable-management page
     @FXML
     private void showTimetables() {
         openPage(
@@ -201,6 +229,7 @@ public class AdminController {
         );
     }
 
+    // Open the admin account page
     @FXML
     private void showAccount() {
         openPage(
@@ -209,7 +238,9 @@ public class AdminController {
         );
     }
 
+    // Load an FXML page, show it inside the main layout, and mark its menu button
     private void openPage(String fileName, Button button) {
+        // Do not open admin pages if the admin session is missing
         if (loggedInUserId == null || loggedInUserId.isBlank()) {
             showError(
                     "Session Required",
@@ -219,6 +250,7 @@ public class AdminController {
         }
 
         try {
+            // Find the requested screen in the app resources
             URL resource = getClass().getResource(
                     "/fxml/" + fileName
             );
@@ -229,15 +261,18 @@ public class AdminController {
                 );
             }
 
+            // FXMLLoader creates both the page UI and its controller
             FXMLLoader loader = new FXMLLoader(resource);
             Node page = loader.load();
 
             Object controller = loader.getController();
 
+            // The account page needs the logged-in admin ID to load that account
             if (controller instanceof AdminAccountController account) {
                 account.setUserId(loggedInUserId);
             }
 
+            // For a BorderPane page, place only its center content in the dashboard
             if (page instanceof BorderPane borderPane) {
                 Node content = borderPane.getCenter();
 
@@ -247,6 +282,7 @@ public class AdminController {
                     );
                 }
 
+                // A JavaFX node can have only one parent, so detach it first
                 borderPane.setCenter(null);
                 mainPane.setCenter(content);
 
@@ -266,6 +302,7 @@ public class AdminController {
         }
     }
 
+    // Fetch and display the latest counts without blocking the JavaFX interface
     @FXML
     private void refreshDashboard() {
         if (loadingDashboard
@@ -274,6 +311,7 @@ public class AdminController {
             return;
         }
 
+        // Mark loading and prevent another refresh until this one finishes
         loadingDashboard = true;
         btnRefresh.setDisable(true);
 
@@ -287,14 +325,18 @@ public class AdminController {
                 "Loading dashboard..."
         );
 
+        // Run the database query in a background task; return four totals
         Task<long[]> task = new Task<>() {
             @Override
+            // This method runs off the UI thread and performs the database work.
             protected long[] call() throws SQLException {
                 return fetchDashboardCounts();
             }
         };
 
+        // Update labels when the background query succeeds.
         task.setOnSucceeded(event -> {
+            // Read the four totals returned by the background task
             long[] counts = task.getValue();
 
             lblUserCount.setText(
@@ -330,9 +372,11 @@ public class AdminController {
             btnRefresh.setDisable(false);
         });
 
+        // Show a useful message and restore the button if the query fails
         task.setOnFailed(event -> {
             clearCounts();
 
+            // Get the reason the background task failed
             Throwable error = task.getException();
 
             lblDashboardStatus.setTextFill(
@@ -351,6 +395,7 @@ public class AdminController {
             btnRefresh.setDisable(false);
         });
 
+        // A separate daemon thread keeps the dashboard responsive during the query.
         Thread thread = new Thread(
                 task,
                 "admin-dashboard-loader"
@@ -360,7 +405,9 @@ public class AdminController {
         thread.start();
     }
 
+    // Count records in the four tables shown on the admin dashboard
     private long[] fetchDashboardCounts() throws SQLException {
+        // One SQL statement returns all four counts in a single result row
         String sql = """
                 SELECT
                     (SELECT COUNT(*) FROM `user`) AS user_count,
@@ -376,18 +423,21 @@ public class AdminController {
                 );
             }
 
+            // Set a limit so a slow database cannot leave the dashboard waiting forever
             try (PreparedStatement statement =
                          connection.prepareStatement(sql)) {
 
                 statement.setQueryTimeout(15);
 
                 try (ResultSet result = statement.executeQuery()) {
+                    // The count query should return one row; report an error if it does not
                     if (!result.next()) {
                         throw new SQLException(
                                 "No dashboard data was returned."
                         );
                     }
 
+                    // Return counts in the same order used by the four dashboard labels.
                     return new long[]{
                             result.getLong("user_count"),
                             result.getLong("course_count"),
@@ -399,6 +449,7 @@ public class AdminController {
         }
     }
 
+    // Show placeholders while counts are loading or if loading fails
     private void clearCounts() {
         lblUserCount.setText("—");
         lblCourseCount.setText("—");
@@ -406,8 +457,10 @@ public class AdminController {
         lblTimetableCount.setText("—");
     }
 
+    // Confirm logout, then replace the admin screen with the login screen
     @FXML
     private void handleLogout() {
+        // Ask before ending the current admin session.
         Alert alert = new Alert(
                 Alert.AlertType.CONFIRMATION
         );
@@ -428,6 +481,7 @@ public class AdminController {
         }
 
         try {
+            // Locate the login screen that should appear after logout
             URL resource = getClass().getResource(
                     "/fxml/login.fxml"
             );
@@ -448,6 +502,7 @@ public class AdminController {
                 menuAnimation.stop();
             }
 
+            // Clear the saved session ID before leaving the admin screen
             loggedInUserId = null;
 
             stage.setScene(
@@ -466,6 +521,7 @@ public class AdminController {
         }
     }
 
+    // Reusable helper to show errors consistently throughout this controller
     private void showError(String title, String message) {
         Alert alert = new Alert(
                 Alert.AlertType.ERROR

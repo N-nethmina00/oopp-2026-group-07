@@ -33,7 +33,7 @@ public class CourseMaterialDAO {
                          cm.material_id DESC
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
@@ -73,7 +73,7 @@ public class CourseMaterialDAO {
                   AND c.lecturer_id = ?
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
@@ -106,7 +106,7 @@ public class CourseMaterialDAO {
                   AND c.lecturer_id = ?
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setInt(1, materialId);
@@ -135,7 +135,7 @@ public class CourseMaterialDAO {
                   AND c.lecturer_id = ?
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setInt(1, materialId);
@@ -172,7 +172,7 @@ public class CourseMaterialDAO {
                     cm.material_id DESC
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);

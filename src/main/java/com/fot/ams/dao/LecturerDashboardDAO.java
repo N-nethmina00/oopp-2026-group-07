@@ -72,7 +72,7 @@ public class LecturerDashboardDAO {
     private int getCount(String sql, String lecturerId)
             throws SQLException {
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt =
                      con.prepareStatement(sql)) {
 
@@ -121,7 +121,7 @@ public class LecturerDashboardDAO {
                 LIMIT 10
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt =
                      con.prepareStatement(sql)) {
 
@@ -176,7 +176,7 @@ public class LecturerDashboardDAO {
                 LIMIT 30
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt =
                      con.prepareStatement(sql)) {
 

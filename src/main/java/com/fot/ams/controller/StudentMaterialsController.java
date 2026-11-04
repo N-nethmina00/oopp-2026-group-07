@@ -234,6 +234,7 @@ public class StudentMaterialsController {
                 return;
             }
 
+            // comment
             FileChooser chooser = new FileChooser();
             chooser.setTitle("Download Course Material");
 

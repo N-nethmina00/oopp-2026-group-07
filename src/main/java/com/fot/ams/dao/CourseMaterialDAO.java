@@ -56,6 +56,8 @@ public class CourseMaterialDAO {
         return materials;
     }
 
+    //insert the material details
+
     public void addMaterial(
             String lecturerId,
             String courseCode,
@@ -94,6 +96,8 @@ public class CourseMaterialDAO {
         }
     }
 
+    //retrive the material file path
+
     public String getMaterialPath(int materialId, String lecturerId)
             throws SQLException {
 
@@ -122,6 +126,8 @@ public class CourseMaterialDAO {
 
         return null;
     }
+
+    //delete material from database
 
     public boolean deleteMaterial(int materialId, String lecturerId)
             throws SQLException {

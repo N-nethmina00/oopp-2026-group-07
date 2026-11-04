@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class StudentDashboardDAO {
 
-
+    //get student details using user id
     public Student getStudentByUserId(String userId)
             throws SQLException {
 
@@ -24,7 +24,7 @@ public class StudentDashboardDAO {
             AND role = 'Undergraduate'
             """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getStudentConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, userId);
@@ -43,7 +43,7 @@ public class StudentDashboardDAO {
 
         return null;
     }
-
+    //count enrolled courses
     public int getEnrolledCourseCount(String userId)
             throws SQLException {
 
@@ -69,7 +69,7 @@ public class StudentDashboardDAO {
 
         return 0;
     }
-
+    //retrive latest semseter gpa
     public Double getStudentGPA(String userId)
             throws SQLException {
 
@@ -99,6 +99,7 @@ public class StudentDashboardDAO {
 
         return null;
     }
+    //calculate details,course count and gpa
     public Student getStudentDashboardData(String userId)
             throws SQLException {
 
@@ -121,7 +122,7 @@ public class StudentDashboardDAO {
 
         return student;
     }
-
+    //get time tables records which courses enrolled
     public List<Timetable> getStudentTimetable(String userId)
             throws SQLException {
 

@@ -40,13 +40,14 @@ public class LoginController {
 
     @FXML
     private void initialize() {
+        //automatically runs when the fxml file is load.
         txtUsername.clear();
         txtPassword.clear();
         hideError();
 
         bindFocusStyle(txtUsername, boxUsername);
         bindFocusStyle(txtPassword, boxPassword);
-
+        //login files and register
         txtUsername.setOnAction(
                 event -> txtPassword.requestFocus()
         );
@@ -54,7 +55,7 @@ public class LoginController {
         txtPassword.setOnAction(
                 event -> handleLogin()
         );
-
+        //event listeners
         txtUsername.textProperty().addListener(
                 (observable, oldValue, newValue) -> hideError()
         );
@@ -64,6 +65,7 @@ public class LoginController {
         );
     }
 
+    //add c css style and hightlight
     private void bindFocusStyle(TextField field, HBox box) {
         field.focusedProperty().addListener(
                 (observable, oldValue, focused) -> {
@@ -77,7 +79,7 @@ public class LoginController {
                 }
         );
     }
-
+//validate enterted username nad password
     @FXML
     private void handleLogin() {
         String username = txtUsername.getText().trim();
@@ -87,7 +89,7 @@ public class LoginController {
             showError("Please enter username and password.");
             return;
         }
-
+        //check the use role
         hideError();
 
         try {
@@ -105,7 +107,7 @@ public class LoginController {
                 showError("This account has no assigned role.");
                 return;
             }
-
+            // opens the correct dashboard
             switch (user.getRole()) {
                 case "Admin" -> navigateToAdminDashboard(user);
 
@@ -134,7 +136,7 @@ public class LoginController {
             );
         }
     }
-
+    //load the fxmlloader object
     private FXMLLoader createLoader(String path) {
         URL resource = getClass().getResource(path);
 
@@ -143,16 +145,16 @@ public class LoginController {
                     "Cannot find " + path
             );
         }
-
+//load fxml file
         return new FXMLLoader(resource);
     }
-
+//replace login scence
     private void openScene(
             Parent root,
             String title,
             double width,
             double height) {
-
+    //selected dashboard scence
         Stage stage = (Stage) txtUsername
                 .getScene()
                 .getWindow();
@@ -164,7 +166,7 @@ public class LoginController {
         stage.centerOnScreen();
         stage.show();
     }
-
+//dosent create student object
     private void navigateToAdminDashboard(User user) {
         try {
             FXMLLoader loader = createLoader(
@@ -172,7 +174,7 @@ public class LoginController {
             );
 
             Parent root = loader.load();
-
+        //authenticated user object
             AdminController controller = loader.getController();
             controller.setLoggedInUser(user);
 
@@ -182,7 +184,7 @@ public class LoginController {
                     1100,
                     680
             );
-
+        //get user id and pass controler
         } catch (Exception exception) {
             exception.printStackTrace();
 
@@ -231,7 +233,7 @@ public class LoginController {
             );
         }
     }
-
+//if login successful load the student dashboard
     private void navigateToStudentDashboard(User user) {
         try {
             FXMLLoader loader = createLoader(

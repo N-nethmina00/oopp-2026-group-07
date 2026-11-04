@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StudentAttendanceDAO {
-
+    // list interafce
     public List<Attendance> getStudentAttendance(
             String userId,
             int courseId) throws SQLException {

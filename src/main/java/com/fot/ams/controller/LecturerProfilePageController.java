@@ -61,7 +61,7 @@ public final class LecturerProfilePageController extends LecturerPageBase {
                 return;
             }
 
-            User user = lecturer.getUser();
+            User user = lecturer;
 
             GridPane profileGrid = new GridPane();
             profileGrid.setHgap(25);
@@ -259,7 +259,7 @@ public final class LecturerProfilePageController extends LecturerPageBase {
         dialog.setTitle("Edit My Profile");
         dialog.setHeaderText("Update Lecturer Profile");
 
-        User user = lecturer.getUser();
+        User user = lecturer;
         TextField firstNameField = new TextField(user.getFirstName());
         TextField lastNameField = new TextField(user.getLastName());
         TextField emailField = new TextField(user.getEmail());

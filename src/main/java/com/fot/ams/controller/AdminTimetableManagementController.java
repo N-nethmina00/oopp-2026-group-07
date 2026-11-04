@@ -21,6 +21,7 @@ import java.time.format.DateTimeParseException;
 
 public class AdminTimetableManagementController {
 
+    // Connects the entry ID field and form controls to the FXML file.
     @FXML private TextField entryIdField;
     @FXML private ComboBox<Course> courseComboBox;
     @FXML private ComboBox<String> dayComboBox;
@@ -32,50 +33,41 @@ public class AdminTimetableManagementController {
     @FXML private ComboBox<String> semesterComboBox;
     @FXML private Label messageLabel;
 
+    // Table that displays the timetable entries.
     @FXML private TableView<Timetable> timetableTable;
 
-    @FXML
-    private TableColumn<Timetable, Integer> entryIdColumn;
+    // Table columns for each timetable detail.
+    @FXML private TableColumn<Timetable, Integer> entryIdColumn;
+    @FXML private TableColumn<Timetable, String> courseColumn;
+    @FXML private TableColumn<Timetable, String> dayColumn;
+    @FXML private TableColumn<Timetable, String> timeColumn;
+    @FXML private TableColumn<Timetable, String> venueColumn;
+    @FXML private TableColumn<Timetable, String> sessionTypeColumn;
+    @FXML private TableColumn<Timetable, String> yearColumn;
+    @FXML private TableColumn<Timetable, String> semesterColumn;
 
-    @FXML
-    private TableColumn<Timetable, String> courseColumn;
-
-    @FXML
-    private TableColumn<Timetable, String> dayColumn;
-
-    @FXML
-    private TableColumn<Timetable, String> timeColumn;
-
-    @FXML
-    private TableColumn<Timetable, String> venueColumn;
-
-    @FXML
-    private TableColumn<Timetable, String> sessionTypeColumn;
-
-    @FXML
-    private TableColumn<Timetable, String> yearColumn;
-
-    @FXML
-    private TableColumn<Timetable, String> semesterColumn;
-
+    // Handles timetable-related database operations.
     private final TimetableDAO dao = new TimetableDAO();
 
+    // Stores timetable entries and updates the table when they change.
     private final ObservableList<Timetable> timetableList =
             FXCollections.observableArrayList();
 
     /*
-     * Compatibility default for the supplied database.
-     * The dashboard can pass the logged-in administrator's
-     * role-specific ID using setAdminId().
+     * Default admin ID used by the supplied database.
+     * The dashboard can replace it by calling setAdminId().
      */
     private String adminId = "A001";
 
+    // Values used to calculate the table's height.
     private static final double ROW_HEIGHT = 38.0;
     private static final double HEADER_SPACE = 48.0;
 
+    // Displays times in 24-hour HH:mm format.
     private static final DateTimeFormatter TIME_FORMAT =
             DateTimeFormatter.ofPattern("HH:mm");
 
+    // Receives and checks the logged-in administrator's role ID.
     public void setAdminId(String adminId) {
         if (adminId == null
                 || adminId.isBlank()
@@ -88,35 +80,46 @@ public class AdminTimetableManagementController {
         this.adminId = adminId.trim();
     }
 
+    // JavaFX calls this after loading the FXML controls.
     @FXML
     public void initialize() {
+        // Connect table columns to Timetable properties.
         configureColumns();
+
+        // Control how courses appear in the course dropdown.
         configureCourseDropdown();
 
+        // The database assigns the entry ID, so it cannot be edited here.
         entryIdField.setEditable(false);
 
+        // Add the allowed days to the dropdown.
         dayComboBox.setItems(
                 FXCollections.observableArrayList(
                         Timetable.DAYS
                 )
         );
 
+        // Add the allowed session types to the dropdown.
         sessionTypeComboBox.setItems(
                 FXCollections.observableArrayList(
                         Timetable.SESSION_TYPES
                 )
         );
 
+        // Add the supported semesters to the dropdown.
         semesterComboBox.setItems(
                 FXCollections.observableArrayList(
                         Timetable.SEMESTERS
                 )
         );
 
+        // Display the timetable list in the table.
         timetableTable.setItems(timetableList);
 
+        // Make the table height fit its rows.
         configureTableHeight();
 
+        // Fill the form when a table row is selected.
         timetableTable.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, oldValue, selected) -> {
@@ -125,15 +128,18 @@ public class AdminTimetableManagementController {
                     }
                 });
 
+        // Require academic year and semester to be selected from their lists.
         academicYearComboBox.setEditable(false);
         semesterComboBox.setEditable(false);
 
+        // Load dropdown options and timetable entries from the database.
         loadCourses();
         loadAcademicYears();
         loadTimetables();
         refreshNextEntryId();
     }
 
+    // Connects each table column to the matching Timetable value.
     private void configureColumns() {
         entryIdColumn.setCellValueFactory(
                 new PropertyValueFactory<>("timetableId")
@@ -147,6 +153,7 @@ public class AdminTimetableManagementController {
                 new PropertyValueFactory<>("dayOfWeek")
         );
 
+        // Show the start and end times together in one column.
         timeColumn.setCellValueFactory(cell -> {
             Timetable entry = cell.getValue();
 
@@ -173,15 +180,18 @@ public class AdminTimetableManagementController {
                 new PropertyValueFactory<>("semester")
         );
 
+        // Let the table columns share the available width.
         timetableTable.setColumnResizePolicy(
                 TableView.CONSTRAINED_RESIZE_POLICY
         );
 
+        // Show this text if the table has no entries.
         timetableTable.setPlaceholder(
                 new Label("No timetable entries available.")
         );
     }
 
+    // Makes courses display as "course code - course name".
     private void configureCourseDropdown() {
         courseComboBox.setEditable(false);
 
@@ -200,15 +210,18 @@ public class AdminTimetableManagementController {
 
                     @Override
                     public Course fromString(String value) {
+                        // Users select a course; they do not type a new one.
                         return null;
                     }
                 }
         );
     }
 
+    // Sets the table height based on the number of entries.
     private void configureTableHeight() {
         timetableTable.setFixedCellSize(ROW_HEIGHT);
 
+        // Prevent the parent layout from shrinking the table.
         timetableTable.setMinHeight(
                 Region.USE_PREF_SIZE
         );
@@ -218,7 +231,7 @@ public class AdminTimetableManagementController {
         );
 
         /*
-         * The table expands with its rows.
+         * The table grows to fit its rows.
          * The outer ScrollPane handles vertical scrolling.
          */
         timetableTable.prefHeightProperty().bind(
@@ -232,6 +245,7 @@ public class AdminTimetableManagementController {
         );
     }
 
+    // Loads academic years for the academic-year dropdown.
     private void loadAcademicYears() {
         try {
             academicYearComboBox.setItems(
@@ -240,6 +254,7 @@ public class AdminTimetableManagementController {
                     )
             );
 
+            // Tell the user if there are no years to choose from.
             if (academicYearComboBox.getItems().isEmpty()) {
                 showError(
                         "No academic years are available. "
@@ -256,6 +271,7 @@ public class AdminTimetableManagementController {
         }
     }
 
+    // Loads courses for the course dropdown.
     private void loadCourses() {
         try {
             courseComboBox.setItems(
@@ -272,6 +288,7 @@ public class AdminTimetableManagementController {
         }
     }
 
+    // Loads all timetable entries into the table list.
     private void loadTimetables() {
         try {
             timetableList.setAll(
@@ -286,9 +303,11 @@ public class AdminTimetableManagementController {
         }
     }
 
+    // Validates the form and adds a timetable entry.
     @FXML
     private void handleAdd() {
         try {
+            // Require Clear to be clicked before adding after selecting a row.
             if (timetableTable.getSelectionModel()
                     .getSelectedItem() != null) {
                 showError(
@@ -298,8 +317,10 @@ public class AdminTimetableManagementController {
                 return;
             }
 
+            // Read the form and validate its values.
             Timetable timetable = readForm();
 
+            // Save the entry and get the ID assigned by the database.
             int addedId = dao.addTimetableReturningId(
                     timetable
             );
@@ -328,12 +349,14 @@ public class AdminTimetableManagementController {
         }
     }
 
+    // Updates the selected timetable entry.
     @FXML
     private void handleUpdate() {
         Timetable selected = timetableTable
                 .getSelectionModel()
                 .getSelectedItem();
 
+        // A table row must be selected before updating.
         if (selected == null) {
             showError(
                     "Select a timetable entry first."
@@ -342,8 +365,10 @@ public class AdminTimetableManagementController {
         }
 
         try {
+            // Read and validate the edited form values.
             Timetable form = readForm();
 
+            // Keep the selected entry's ID and admin ID.
             Timetable timetable = new Timetable(
                     selected.getTimetableId(),
                     selected.getAdminId(),
@@ -359,6 +384,7 @@ public class AdminTimetableManagementController {
                     form.getSemester()
             );
 
+            // Save changes and refresh the table.
             if (dao.updateTimetable(timetable)) {
                 loadTimetables();
                 handleClear();
@@ -381,6 +407,7 @@ public class AdminTimetableManagementController {
         }
     }
 
+    // Confirms and deletes the selected timetable entry.
     @FXML
     private void handleDelete() {
         Timetable selected = timetableTable
@@ -394,6 +421,7 @@ public class AdminTimetableManagementController {
             return;
         }
 
+        // Ask before permanently deleting the entry.
         Alert confirm = new Alert(
                 Alert.AlertType.CONFIRMATION
         );
@@ -407,12 +435,14 @@ public class AdminTimetableManagementController {
                         + "?"
         );
 
+        // Stop if the user cancels the confirmation.
         if (confirm.showAndWait()
                 .orElse(ButtonType.CANCEL) != ButtonType.OK) {
             return;
         }
 
         try {
+            // Delete the selected entry from the database.
             if (dao.deleteTimetable(
                     selected.getTimetableId()
             )) {
@@ -437,6 +467,7 @@ public class AdminTimetableManagementController {
         }
     }
 
+    // Clears all form values and removes the selected row.
     @FXML
     private void handleClear() {
         timetableTable.getSelectionModel()
@@ -470,9 +501,11 @@ public class AdminTimetableManagementController {
 
         messageLabel.setText("");
 
+        // Show the next ID after clearing the form.
         refreshNextEntryId();
     }
 
+    // Gets the next timetable ID from the database.
     private void refreshNextEntryId() {
         try {
             entryIdField.setText(
@@ -499,9 +532,11 @@ public class AdminTimetableManagementController {
         }
     }
 
+    // Reads the form, checks its values and creates a Timetable object.
     private Timetable readForm() {
         Course course = courseComboBox.getValue();
 
+        // Require a course to be selected.
         if (course == null) {
             courseComboBox.requestFocus();
 
@@ -510,6 +545,7 @@ public class AdminTimetableManagementController {
             );
         }
 
+        // Read the entered start and end times.
         String start = startTimeField
                 .getText()
                 .trim();
@@ -518,6 +554,7 @@ public class AdminTimetableManagementController {
                 .getText()
                 .trim();
 
+        // Require times in 24-hour HH:mm format.
         if (!start.matches("[0-9]{2}:[0-9]{2}")
                 || !end.matches("[0-9]{2}:[0-9]{2}")) {
             throw new IllegalArgumentException(
@@ -526,6 +563,7 @@ public class AdminTimetableManagementController {
             );
         }
 
+        // Make sure the academic year is one of the available choices.
         String year = academicYearComboBox.getValue();
 
         if (year == null
@@ -539,6 +577,7 @@ public class AdminTimetableManagementController {
             );
         }
 
+        // Make sure a supported semester is selected.
         String semester = semesterComboBox.getValue();
 
         if (semester == null
@@ -550,6 +589,7 @@ public class AdminTimetableManagementController {
             );
         }
 
+        // Create a timetable object using the form values.
         Timetable entry = new Timetable(
                 0,
                 adminId,
@@ -565,11 +605,13 @@ public class AdminTimetableManagementController {
                 semester
         );
 
+        // Run the model's timetable validation checks.
         Timetable.validate(entry);
 
         return entry;
     }
 
+    // Copies the selected timetable entry into the form.
     private void fillForm(Timetable timetable) {
         entryIdField.setText(
                 String.valueOf(
@@ -577,6 +619,7 @@ public class AdminTimetableManagementController {
                 )
         );
 
+        // Find the matching course in the dropdown.
         courseComboBox.getSelectionModel()
                 .clearSelection();
         courseComboBox.setValue(null);
@@ -589,6 +632,7 @@ public class AdminTimetableManagementController {
             }
         }
 
+        // Display the selected entry's details in the form.
         dayComboBox.setValue(
                 timetable.getDayOfWeek()
         );
@@ -613,6 +657,7 @@ public class AdminTimetableManagementController {
                 timetable.getSessionType()
         );
 
+        // Only select the academic year if it is in the dropdown.
         boolean yearAvailable = academicYearComboBox
                 .getItems()
                 .contains(
@@ -628,6 +673,7 @@ public class AdminTimetableManagementController {
                         : null
         );
 
+        // Only select a semester supported by the application.
         boolean semesterAvailable =
                 timetable.getSemester() != null
                         && Timetable.SEMESTERS.contains(
@@ -640,6 +686,7 @@ public class AdminTimetableManagementController {
                         : null
         );
 
+        // Tell the user if old data needs a new academic year or semester.
         String message = "Selected entry ID: "
                 + timetable.getTimetableId();
 
@@ -658,6 +705,7 @@ public class AdminTimetableManagementController {
         messageLabel.setText(message);
     }
 
+    // Formats a time as HH:mm, while keeping unrecognized values unchanged.
     private String displayTime(String value) {
         if (value == null || value.isBlank()) {
             return "";
@@ -673,6 +721,7 @@ public class AdminTimetableManagementController {
         }
     }
 
+    // Displays an error in the label and in an alert dialog.
     private void showError(String message) {
         messageLabel.setText(message);
 
@@ -684,6 +733,7 @@ public class AdminTimetableManagementController {
         alert.setHeaderText("Operation failed");
         alert.setContentText(message);
 
+        // Attach the alert to this screen's window when possible.
         if (timetableTable.getScene() != null) {
             alert.initOwner(
                     timetableTable.getScene()

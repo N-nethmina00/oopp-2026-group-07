@@ -16,12 +16,15 @@ import java.util.logging.Logger;
 
 public class TimetableDAO {
 
+    // Records warnings and errors related to this DAO.
     private static final Logger LOGGER =
             Logger.getLogger(TimetableDAO.class.getName());
 
+    // Name of the database lock used to coordinate timetable changes.
     private static final String WRITE_LOCK =
             "com.fot.ams.timetable";
 
+    // Shared query for loading a timetable entry with its course details.
     private static final String TIMETABLE_SELECT = """
         SELECT t.timetable_id, t.admin_id, t.course_id,
                c.course_code, c.course_name, t.`day_of_week`,
@@ -33,9 +36,11 @@ public class TimetableDAO {
         JOIN course c ON c.course_id = t.course_id
         """;
 
+    // Holds course details needed while checking the database.
     private record CourseInfo(String code, String lecturerId) {
     }
 
+    // Returns the academic years that are available in the batch table.
     public List<String> getAcademicYears() throws SQLException {
         List<String> years = new ArrayList<>();
 
@@ -46,10 +51,12 @@ public class TimetableDAO {
             ORDER BY academic_year DESC
             """;
 
+        // Automatically closes the connection and query objects afterward.
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
+            // Add each returned academic year to the list.
             while (rs.next()) {
                 years.add(rs.getString("academic_year"));
             }
@@ -58,6 +65,7 @@ public class TimetableDAO {
         return years;
     }
 
+    // Returns all courses with their department names.
     public List<Course> getCourses() throws SQLException {
         List<Course> courses = new ArrayList<>();
 
@@ -74,6 +82,7 @@ public class TimetableDAO {
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
+            // Create a Course object for each database row.
             while (rs.next()) {
                 courses.add(new Course(
                         rs.getInt("course_id"),
@@ -91,6 +100,7 @@ public class TimetableDAO {
         return courses;
     }
 
+    // Loads every timetable entry, ordered by its ID.
     public List<Timetable> getAllTimetables() throws SQLException {
         List<Timetable> entries = new ArrayList<>();
 
@@ -101,6 +111,7 @@ public class TimetableDAO {
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
+            // Convert each database row into a Timetable object.
             while (rs.next()) {
                 entries.add(readTimetable(rs));
             }
@@ -109,10 +120,12 @@ public class TimetableDAO {
         return entries;
     }
 
+    // Loads timetable entries for the department of a Technical Officer.
     public List<Timetable> getTimetablesForTechnicalOfficer(
             String technicalOfficerId
     ) throws SQLException {
 
+        // A Technical Officer ID is required to find the correct department.
         if (technicalOfficerId == null
                 || technicalOfficerId.isBlank()) {
             throw new SQLException(
@@ -122,6 +135,7 @@ public class TimetableDAO {
 
         List<Timetable> entries = new ArrayList<>();
 
+        // Match the officer's department to the course's department.
         String sql = TIMETABLE_SELECT + """
              JOIN technical_officer officer
                ON officer.dept_id = c.dept_id
@@ -138,9 +152,11 @@ public class TimetableDAO {
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
+            // Fill the placeholder with the officer's ID.
             ps.setString(1, technicalOfficerId.trim());
 
             try (ResultSet rs = ps.executeQuery()) {
+                // Convert each result row into a Timetable object.
                 while (rs.next()) {
                     entries.add(readTimetable(rs));
                 }
@@ -150,12 +166,14 @@ public class TimetableDAO {
         return entries;
     }
 
+    // Returns the next timetable ID that would be assigned.
     public int getNextTimetableId() throws SQLException {
         try (Connection con = DBConnection.getConnection()) {
             return nextTimetableId(con);
         }
     }
 
+    // Calculates the next ID using the current database connection.
     private int nextTimetableId(Connection con) throws SQLException {
         String sql = """
             SELECT COALESCE(MAX(timetable_id), 0) + 1
@@ -165,6 +183,7 @@ public class TimetableDAO {
         try (PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
+            // The query should return one row with the next ID.
             if (!rs.next()) {
                 throw new SQLException(
                         "Unable to calculate the next entry ID."
@@ -173,6 +192,7 @@ public class TimetableDAO {
 
             long next = rs.getLong(1);
 
+            // Check that the ID can fit inside a Java int.
             if (next > Integer.MAX_VALUE) {
                 throw new SQLException(
                         "Timetable IDs are exhausted."
@@ -183,28 +203,36 @@ public class TimetableDAO {
         }
     }
 
+    // Adds an entry and returns true if the database created an ID.
     public boolean addTimetable(Timetable entry) throws SQLException {
         return addTimetableReturningId(entry) > 0;
     }
 
+    // Adds an entry and returns the ID assigned to it.
     public int addTimetableReturningId(
             Timetable entry
     ) throws SQLException {
 
+        // Check the entry's values before saving it.
         Timetable.validate(entry);
 
+        // New entries must not already have an ID.
         if (entry.getTimetableId() != 0) {
             throw new IllegalArgumentException(
                     "Click Clear before adding a new entry."
             );
         }
 
+        // Store the newly assigned ID so it can be returned afterward.
         int[] insertedId = {0};
 
+        // Run the insert and its checks inside a write transaction.
         writeTransaction(con -> {
             checkAdmin(con, entry.getAdminId());
             checkAcademicYear(con, entry.getAcademicYear());
             getCourseInfo(con, entry.getCourseId());
+
+            // Check that this entry does not overlap another one.
             checkConflicts(con, entry, 0);
 
             int nextId = nextTimetableId(con);
@@ -224,8 +252,10 @@ public class TimetableDAO {
                 ps.setInt(1, nextId);
                 ps.setString(2, entry.getAdminId());
 
+                // Fill the remaining placeholders with entry details.
                 setEntryParameters(ps, entry, 3);
 
+                // The insert should create exactly one row.
                 if (ps.executeUpdate() != 1) {
                     throw new SQLException(
                             "Timetable entry could not be added."
@@ -240,12 +270,15 @@ public class TimetableDAO {
         return insertedId[0];
     }
 
+    // Updates the selected timetable entry.
     public boolean updateTimetable(
             Timetable entry
     ) throws SQLException {
 
+        // Check the values before updating.
         Timetable.validate(entry);
 
+        // An existing entry must have a positive ID.
         if (entry.getTimetableId() <= 0) {
             throw new IllegalArgumentException(
                     "Select a timetable entry to update."
@@ -253,6 +286,7 @@ public class TimetableDAO {
         }
 
         return writeTransaction(con -> {
+            // Stop if this entry no longer exists.
             if (!entryExists(con, entry.getTimetableId())) {
                 return false;
             }
@@ -260,6 +294,7 @@ public class TimetableDAO {
             checkAcademicYear(con, entry.getAcademicYear());
             getCourseInfo(con, entry.getCourseId());
 
+            // Exclude this entry itself while checking for overlaps.
             checkConflicts(
                     con,
                     entry,
@@ -289,7 +324,9 @@ public class TimetableDAO {
         });
     }
 
+    // Deletes an entry using its ID.
     public boolean deleteTimetable(int id) throws SQLException {
+        // Do not try to delete an invalid ID.
         if (id <= 0) {
             throw new IllegalArgumentException(
                     "Select a timetable entry to delete."
@@ -304,17 +341,21 @@ public class TimetableDAO {
 
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setInt(1, id);
+
+                // Returns true if at least one row was deleted.
                 return ps.executeUpdate() > 0;
             }
         });
     }
 
+    // Places timetable values into a prepared SQL statement.
     private void setEntryParameters(
             PreparedStatement ps,
             Timetable entry,
             int index
     ) throws SQLException {
 
+        // Add the course, day and start/end times.
         ps.setInt(index++, entry.getCourseId());
         ps.setString(index++, entry.getDayOfWeek());
 
@@ -338,6 +379,7 @@ public class TimetableDAO {
                 )
         );
 
+        // Remove extra spaces from the lecture hall name.
         ps.setString(
                 index++,
                 entry.getLectureHall()
@@ -345,11 +387,13 @@ public class TimetableDAO {
                         .replaceAll("\\s+", " ")
         );
 
+        // Add the remaining timetable details.
         ps.setString(index++, entry.getSessionType());
         ps.setString(index++, entry.getAcademicYear());
         ps.setString(index, entry.getSemester());
     }
 
+    // Checks that the selected academic year exists in the batch table.
     private void checkAcademicYear(
             Connection con,
             String academicYear
@@ -378,6 +422,7 @@ public class TimetableDAO {
         }
     }
 
+    // Checks that the admin ID belongs to a valid Admin user.
     private void checkAdmin(
             Connection con,
             String adminId
@@ -407,6 +452,7 @@ public class TimetableDAO {
         }
     }
 
+    // Gets course details and checks that the course exists.
     private CourseInfo getCourseInfo(
             Connection con,
             int courseId
@@ -430,6 +476,7 @@ public class TimetableDAO {
                     );
                 }
 
+                // Return the course code and lecturer ID from the row.
                 return new CourseInfo(
                         rs.getString("course_code"),
                         rs.getString("lecturer_id")
@@ -438,6 +485,7 @@ public class TimetableDAO {
         }
     }
 
+    // Checks whether a timetable entry with this ID exists.
     private boolean entryExists(
             Connection con,
             int id
@@ -459,6 +507,7 @@ public class TimetableDAO {
         }
     }
 
+    // Prevents overlapping timetable entries on the same day and term.
     private void checkConflicts(
             Connection con,
             Timetable entry,
@@ -488,6 +537,7 @@ public class TimetableDAO {
             ps.setString(2, entry.getAcademicYear());
             ps.setString(3, entry.getSemester());
 
+            // Find entries that start before this entry ends.
             ps.setTime(
                     4,
                     Time.valueOf(
@@ -498,6 +548,7 @@ public class TimetableDAO {
                     )
             );
 
+            // Find entries that end after this entry starts.
             ps.setTime(
                     5,
                     Time.valueOf(
@@ -508,6 +559,7 @@ public class TimetableDAO {
                     )
             );
 
+            // Ignore the current entry when updating it.
             ps.setInt(6, excludedId);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -540,6 +592,7 @@ public class TimetableDAO {
         }
     }
 
+    // Converts the current ResultSet row into a Timetable object.
     private Timetable readTimetable(
             ResultSet rs
     ) throws SQLException {
@@ -560,20 +613,24 @@ public class TimetableDAO {
         );
     }
 
+    // Describes database work that returns true or false.
     @FunctionalInterface
     private interface WriteWork {
         boolean execute(Connection con) throws SQLException;
     }
 
+    // Runs a database change safely inside a transaction and lock.
     private boolean writeTransaction(
             WriteWork work
     ) throws SQLException {
 
         try (Connection con = DBConnection.getConnection()) {
+            // Remember the connection's original auto-commit setting.
             boolean autoCommit = con.getAutoCommit();
             boolean locked = false;
 
             try {
+                // Ask MySQL for a named lock so writes do not overlap.
                 String lockSql = "SELECT GET_LOCK(?, 10)";
 
                 try (PreparedStatement ps =
@@ -592,14 +649,20 @@ public class TimetableDAO {
                 }
 
                 locked = true;
+
+                // Turn off automatic commits so this work is one transaction.
                 con.setAutoCommit(false);
 
                 try {
+                    // Run the requested insert, update or delete.
                     boolean result = work.execute(con);
+
+                    // Save all transaction changes.
                     con.commit();
                     return result;
 
                 } catch (SQLException | RuntimeException e) {
+                    // Undo changes if the operation fails.
                     try {
                         con.rollback();
                     } catch (SQLException rollbackError) {
@@ -610,9 +673,11 @@ public class TimetableDAO {
                 }
 
             } finally {
+                // Restore the connection's original setting.
                 try {
                     con.setAutoCommit(autoCommit);
                 } finally {
+                    // Release the named lock after the operation.
                     if (locked) {
                         releaseLock(con);
                     }
@@ -621,6 +686,7 @@ public class TimetableDAO {
         }
     }
 
+    // Releases the named MySQL lock.
     private void releaseLock(Connection con) {
         String sql = "SELECT RELEASE_LOCK(?)";
 
@@ -637,6 +703,7 @@ public class TimetableDAO {
             }
 
         } catch (SQLException e) {
+            // Record the issue if the lock could not be released.
             LOGGER.log(
                     Level.WARNING,
                     "Unable to release timetable write lock.",

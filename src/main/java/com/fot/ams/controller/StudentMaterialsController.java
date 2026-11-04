@@ -206,9 +206,11 @@ public class StudentMaterialsController {
                     System.getProperty("user.dir")
             ).toAbsolutePath().normalize();
 
+// Get the actual course materials folder inside uploads.
             Path materialsFolder =
-                    projectRoot.resolve("materials").normalize();
-
+                    projectRoot.resolve("uploads")
+                            .resolve("materials")
+                            .normalize();
             Path storedPath = Path.of(filePath.replace('\\', '/'));
 
             Path source = storedPath.isAbsolute()

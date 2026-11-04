@@ -16,9 +16,12 @@ import java.util.Map;
 
 public class StudentMaterialDAO {
 
+        //retrieves the enrolled courses of a student
+        //return course id and course name
     public Map<Integer, String> getEnrolledCourses(
             String userId) throws SQLException {
 
+        //create an empty object  to store these details
         Map<Integer, String> courses = new LinkedHashMap<>();
 
         String sql = """
@@ -56,7 +59,7 @@ public class StudentMaterialDAO {
 
         return courses;
     }
-
+    //return course materials when stdunt is logged
     public List<CourseMaterial> getStudentMaterials(
             String userId) throws SQLException {
 
@@ -97,7 +100,7 @@ public class StudentMaterialDAO {
             try (ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
-
+                    // to store meterails values and set refernce list
                     CourseMaterial material = new CourseMaterial();
 
                     material.setMaterialId(
@@ -135,11 +138,8 @@ public class StudentMaterialDAO {
                     java.sql.Date date =
                             rs.getDate("uploaded_date");
 
-                    material.setUploadedDate(
-                            date == null
-                                    ? null
-                                    : date.toLocalDate()
-                    );
+                    material.setUploadedDate(date == null ? null : date.toLocalDate());
+
 
                     materials.add(material);
                 }

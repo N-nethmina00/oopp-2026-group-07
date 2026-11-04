@@ -27,10 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-// TG2070 - Technical Officer medical page controller
+// TG2070 - Manage medical records, statuses and attached documents.
 public class MedicalController {
 
-    // ID received from Technical Officer dashboard
+    // Receive the logged-in Technical Officer ID.
     private String technicalOfficerId;
 
     public void setTechnicalOfficerId(String technicalOfficerId) {
@@ -79,6 +79,7 @@ public class MedicalController {
     @FXML
     private TableColumn<MedicalRecord, String> statusColumn;
 
+    // Set up the table, status lists and initial data.
     @FXML
     private void initialize() {
         setupTable();
@@ -98,7 +99,7 @@ public class MedicalController {
                 "Rejected"
         );
 
-        // Display selected record's current status
+        // Show the selected record's status in the update dropdown.
         medicalTable.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldRecord, selectedRecord) -> {
                     if (selectedRecord == null) {
@@ -115,7 +116,7 @@ public class MedicalController {
         loadMedicalRecords();
     }
 
-    // Connect table columns to model getters
+    // Connect table columns to MedicalRecord getters.
     private void setupTable() {
         medicalIdColumn.setCellValueFactory(
                 new PropertyValueFactory<>("medicalId")
@@ -146,7 +147,7 @@ public class MedicalController {
         );
     }
 
-    // Load courses from database
+    // Load courses through CourseDAO.
     private void loadCourses() {
         CourseDAO courseDAO = new CourseDAO();
 
@@ -167,7 +168,7 @@ public class MedicalController {
         }
     }
 
-    // Load and search medical records
+    // Load records using the registration search and status filter.
     @FXML
     private void loadMedicalRecords() {
         MedicalDAO medicalDAO = new MedicalDAO();
@@ -197,7 +198,7 @@ public class MedicalController {
         }
     }
 
-    // Save a new medical record as Pending
+    // Validate the form and save a new Pending medical record.
     @FXML
     private void saveMedical() {
         String registrationNumber =
@@ -239,6 +240,7 @@ public class MedicalController {
         MedicalDAO medicalDAO = new MedicalDAO();
 
         try {
+            // Check the student's course enrollment before saving.
             boolean enrolled = medicalDAO.isStudentEnrolled(
                     registrationNumber,
                     courseId
@@ -287,7 +289,7 @@ public class MedicalController {
         }
     }
 
-    // Update selected medical record status
+    // Check the selection and officer ID before updating the status.
     @FXML
     private void updateMedicalStatus() {
         MedicalRecord selectedRecord =
@@ -369,7 +371,7 @@ public class MedicalController {
         }
     }
 
-    // TG2070 - Open the selected student's medical attachment
+    // Open the selected record's attachment using the computer's viewer.
     @FXML
     private void viewMedicalDocument() {
         if (technicalOfficerId == null
@@ -413,6 +415,7 @@ public class MedicalController {
                     .toString()
                     .toLowerCase(Locale.ROOT);
 
+            // Allow only PDF, PNG and JPG file extensions.
             if (!fileName.endsWith(".pdf")
                     && !fileName.endsWith(".png")
                     && !fileName.endsWith(".jpg")
@@ -426,6 +429,7 @@ public class MedicalController {
                 return;
             }
 
+            // The actual file must exist and be readable on this computer.
             if (!Files.isRegularFile(document)
                     || !Files.isReadable(document)) {
 
@@ -479,7 +483,7 @@ public class MedicalController {
         }
     }
 
-    // Student uploads use paths such as medical-documents/<file>.jpg
+    // Convert the database path into a local file path.
     private Path resolveMedicalDocument(String documentPath)
             throws IOException {
 
@@ -490,12 +494,12 @@ public class MedicalController {
         Path document;
 
         try {
-            // Accept path separators stored by Windows or other platforms
             String normalizedPath = documentPath.trim()
                     .replace('\\', '/');
 
             Path savedPath = Path.of(normalizedPath);
 
+            // Use absolute paths directly; resolve relative paths from the project folder.
             document = savedPath.isAbsolute()
                     ? savedPath.normalize()
                     : projectFolder.resolve(savedPath).normalize();
@@ -510,7 +514,7 @@ public class MedicalController {
         return document;
     }
 
-    // Clear medical entry form
+    // Reset the medical entry form.
     @FXML
     private void clearForm() {
         registrationField.clear();
@@ -520,7 +524,7 @@ public class MedicalController {
         registrationField.requestFocus();
     }
 
-    // Display information and validation messages
+    // Display information and validation messages.
     private void showMessage(
             Alert.AlertType type,
             String title,
@@ -533,7 +537,7 @@ public class MedicalController {
         alert.showAndWait();
     }
 
-    // Display database errors
+    // Display database errors.
     private void showDatabaseError(
             String message,
             SQLException exception) {

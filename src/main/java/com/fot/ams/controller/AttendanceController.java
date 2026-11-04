@@ -22,9 +22,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-// TG2070 - Attendance page controller
+// TG2070 - Manage attendance and session creation.
 public class AttendanceController {
 
+    // Connect these controls to the FXML file.
     @FXML
     private ComboBox<Batch> batchComboBox;
 
@@ -40,9 +41,11 @@ public class AttendanceController {
     @FXML
     private ComboBox<AttendanceSession> sessionComboBox;
 
+    // Each table row contains one StudentAttendance object.
     @FXML
     private TableView<StudentAttendance> attendanceTable;
 
+    // Each column displays a String value from the student object.
     @FXML
     private TableColumn<StudentAttendance, String> regNoColumn;
 
@@ -55,13 +58,14 @@ public class AttendanceController {
     @FXML
     private Label studentCountLabel;
 
-    // TG2070 - Logged-in Technical Officer ID
     private String technicalOfficerId;
 
+    // Receive the logged-in Technical Officer ID.
     public void setTechnicalOfficerId(String technicalOfficerId) {
         this.technicalOfficerId = technicalOfficerId;
     }
 
+    // JavaFX calls this method after loading the FXML controls.
     @FXML
     private void initialize() {
         setupTable();
@@ -72,20 +76,23 @@ public class AttendanceController {
         sessionTypeComboBox.getItems().add("Theory");
         sessionTypeComboBox.getItems().add("Practical");
 
+        // Enable this dropdown only when matching sessions are available.
         sessionComboBox.setDisable(true);
 
-        // TG2070 - Reload sessions when any filter changes
+        // These event handlers run when the user changes a selection.
         courseComboBox.setOnAction(event -> loadSessions());
         batchComboBox.setOnAction(event -> loadSessions());
         sessionDatePicker.setOnAction(event -> loadSessions());
         sessionTypeComboBox.setOnAction(event -> loadSessions());
 
-        // Clear students when the selected session changes
+        // Remove old students when a different session is selected.
         sessionComboBox.setOnAction(event -> clearStudents());
     }
 
-    // TG2070 - Configure editable attendance table
+    // Set up table columns and the editable attendance status.
     private void setupTable() {
+        // Property names match getters in StudentAttendance.
+        // For example, "regNo" uses getRegNo().
         regNoColumn.setCellValueFactory(
                 new PropertyValueFactory<>("regNo")
         );
@@ -98,11 +105,13 @@ public class AttendanceController {
                 new PropertyValueFactory<>("status")
         );
 
+        // Allow editing only in the status column.
         attendanceTable.setEditable(true);
         regNoColumn.setEditable(false);
         studentNameColumn.setEditable(false);
         statusColumn.setEditable(true);
 
+        // Show a dropdown inside each status cell.
         statusColumn.setCellFactory(
                 ComboBoxTableCell.forTableColumn(
                         "Present",
@@ -112,6 +121,8 @@ public class AttendanceController {
                 )
         );
 
+        // Update the model when the user finishes editing a status.
+        // This does not save the change to the database yet.
         statusColumn.setOnEditCommit(event -> {
             StudentAttendance student = event.getRowValue();
             student.setStatus(event.getNewValue());
@@ -120,7 +131,7 @@ public class AttendanceController {
         clearStudents();
     }
 
-    // TG2070 - Load batches
+    // Get batches through the DAO and add them to the dropdown.
     private void loadBatches() {
         AttendanceDAO attendanceDAO = new AttendanceDAO();
 
@@ -138,7 +149,7 @@ public class AttendanceController {
         }
     }
 
-    // TG2070 - Load courses
+    // Get courses through CourseDAO and add them to the dropdown.
     private void loadCourses() {
         CourseDAO courseDAO = new CourseDAO();
 
@@ -156,10 +167,11 @@ public class AttendanceController {
         }
     }
 
-    // TG2070 - Load sessions for selected course, batch, date and type
+    // Load sessions for the selected course, batch, date and type.
     private void loadSessions() {
         clearStudents();
 
+        // Remove the previous session selection and list.
         sessionComboBox.getSelectionModel().clearSelection();
         sessionComboBox.getItems().clear();
         sessionComboBox.setDisable(true);
@@ -169,6 +181,7 @@ public class AttendanceController {
         LocalDate selectedDate = sessionDatePicker.getValue();
         String selectedType = sessionTypeComboBox.getValue();
 
+        // Stop until all required filters are selected.
         if (selectedCourse == null
                 || selectedBatch == null
                 || selectedDate == null
@@ -191,6 +204,7 @@ public class AttendanceController {
                             selectedBatch.getBatchId()
                     );
 
+            // Replace the dropdown items with the returned sessions.
             sessionComboBox.getItems().setAll(sessions);
 
             if (sessions.isEmpty()) {
@@ -206,7 +220,7 @@ public class AttendanceController {
         }
     }
 
-    // TG2070 - Load students and existing attendance
+    // Load students and existing attendance for the selected session.
     @FXML
     private void loadStudents() {
         Batch selectedBatch = batchComboBox.getValue();
@@ -234,6 +248,7 @@ public class AttendanceController {
 
             attendanceTable.getItems().setAll(students);
 
+            // Use "student" for one person and "students" for other counts.
             studentCountLabel.setText(
                     students.size()
                             + (students.size() == 1 ? " student" : " students")
@@ -252,12 +267,14 @@ public class AttendanceController {
         }
     }
 
-    // TG2070 - Clear old students when selections change
+    // Clear table data when the selected filters or session change.
     private void clearStudents() {
+        // Stop editing the current table cell.
         attendanceTable.edit(-1, null);
         attendanceTable.getItems().clear();
         studentCountLabel.setText("0 students");
 
+        // This message appears when the table has no rows.
         attendanceTable.setPlaceholder(
                 new Label(
                         "Select a batch and session, then click Load Students."
@@ -265,6 +282,7 @@ public class AttendanceController {
         );
     }
 
+    // Print database error details and display an alert.
     private void showDatabaseError(
             String message,
             SQLException exception) {
@@ -278,7 +296,7 @@ public class AttendanceController {
         alert.showAndWait();
     }
 
-    // TG2070 - Mark all loaded students as Present
+    // Set every loaded student's status to Present.
     @FXML
     private void markAllPresent() {
         if (attendanceTable.getItems().isEmpty()) {
@@ -296,10 +314,12 @@ public class AttendanceController {
             student.setStatus("Present");
         }
 
+        // Redraw the table to show the changed model values.
+        // The user still needs to click Save Attendance.
         attendanceTable.refresh();
     }
 
-    // TG2070 - Save or update attendance
+    // Send the table's attendance data to the DAO for saving.
     @FXML
     private void saveAttendance() {
         AttendanceSession selectedSession = sessionComboBox.getValue();
@@ -317,6 +337,7 @@ public class AttendanceController {
             return;
         }
 
+        // Do not save while a status cell is still being edited.
         if (attendanceTable.getEditingCell() != null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Finish Editing");
@@ -355,9 +376,10 @@ public class AttendanceController {
         }
     }
 
-    // TG2070 - Open Add Session form for the selected batch
+    // Create a session using the selected course, batch, date and type.
     @FXML
     private void showAddSession() {
+        // Check that the logged-in officer ID is available.
         if (technicalOfficerId == null
                 || technicalOfficerId.isBlank()) {
 
@@ -385,6 +407,7 @@ public class AttendanceController {
             return;
         }
 
+        // Create the popup form. Void means no result value is returned.
         javafx.scene.control.Dialog<Void> dialog =
                 new javafx.scene.control.Dialog<>();
 
@@ -397,6 +420,7 @@ public class AttendanceController {
                         + " | " + selectedType
         );
 
+        // Set the current application window as the popup's owner.
         dialog.initOwner(courseComboBox.getScene().getWindow());
 
         javafx.scene.control.TextField startField =
@@ -410,6 +434,7 @@ public class AttendanceController {
         Label errorLabel = new Label();
         errorLabel.setWrapText(true);
 
+        // Arrange form controls in rows and columns.
         javafx.scene.layout.GridPane form =
                 new javafx.scene.layout.GridPane();
 
@@ -417,12 +442,14 @@ public class AttendanceController {
         form.setVgap(12);
         form.setPadding(new javafx.geometry.Insets(20));
 
+        // The numbers represent the column and row positions.
         form.add(new Label("Start Time (HH:mm)"), 0, 0);
         form.add(startField, 1, 0);
 
         form.add(new Label("End Time (HH:mm)"), 0, 1);
         form.add(endField, 1, 1);
 
+        // Make the error label span two columns.
         form.add(errorLabel, 0, 2, 2, 1);
 
         dialog.getDialogPane().setContent(form);
@@ -438,19 +465,22 @@ public class AttendanceController {
                 javafx.scene.control.ButtonType.CANCEL
         );
 
+        // Get the actual Save button created by the dialog.
         javafx.scene.Node saveButton =
                 dialog.getDialogPane().lookupButton(saveButtonType);
 
-        // Keep the form open if validation or saving fails
+        // Handle Save clicks before the dialog closes automatically.
         saveButton.addEventFilter(
                 javafx.event.ActionEvent.ACTION,
                 event -> {
+                    // Keep the form open until saving succeeds.
                     event.consume();
                     errorLabel.setText("");
 
                     String startText = startField.getText().trim();
                     String endText = endField.getText().trim();
 
+                    // Require two digits, a colon and two digits.
                     if (!startText.matches("\\d{2}:\\d{2}")
                             || !endText.matches("\\d{2}:\\d{2}")) {
 
@@ -464,6 +494,7 @@ public class AttendanceController {
                     java.time.LocalTime endTime;
 
                     try {
+                        // Convert the text into actual time values.
                         startTime = java.time.LocalTime.parse(startText);
                         endTime = java.time.LocalTime.parse(endText);
 
@@ -486,6 +517,7 @@ public class AttendanceController {
                     AttendanceDAO attendanceDAO = new AttendanceDAO();
 
                     try {
+                        // Pass the officer ID and session details to the DAO.
                         boolean saved = attendanceDAO.addSession(
                                 technicalOfficerId,
                                 selectedCourse.getCourseId(),
@@ -496,6 +528,7 @@ public class AttendanceController {
                                 selectedBatch.getBatchId()
                         );
 
+                        // Show a message if the DAO did not add the session.
                         if (!saved) {
                             errorLabel.setText(
                                     "Session was not added. Check the batch, "
@@ -506,9 +539,10 @@ public class AttendanceController {
                             return;
                         }
 
+                        // Close the form only after a successful save.
                         dialog.close();
 
-                        // Refresh sessions for the selected batch
+                        // Reload sessions so the new session is available.
                         loadSessions();
 
                         showSessionMessage(
@@ -529,10 +563,11 @@ public class AttendanceController {
                 }
         );
 
+        // Show the popup and wait until it is closed.
         dialog.showAndWait();
     }
 
-    // TG2070 - Show session messages
+    // Display a session-related alert.
     private void showSessionMessage(
             Alert.AlertType type,
             String message) {

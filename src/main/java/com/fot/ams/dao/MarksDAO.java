@@ -64,7 +64,7 @@ public class MarksDAO {
             ORDER BY e.reg_no
             """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
@@ -197,6 +197,8 @@ public class MarksDAO {
                 q1 + q2 + q3 - Math.min(q1, Math.min(q2, q3))
         );
 
+        double quizAverage = round2(quizTotal / 2.0);
+
         // Raw CA maximum = 70
         double rawCATotal = round2(
                 quizTotal + Math.max(a1, a2) + mid
@@ -226,7 +228,7 @@ public class MarksDAO {
         double gradePoint = pointFor(grade);
 
 
-        try (Connection con = DBConnection.getConnection()) {
+        try (Connection con = DBConnection.getLecturerConnection()) {
 
             con.setAutoCommit(false);
 
@@ -284,7 +286,7 @@ public class MarksDAO {
                         stmt.setDouble(1, q1);
                         stmt.setDouble(2, q2);
                         stmt.setDouble(3, q3);
-                        stmt.setDouble(4, quizTotal);
+                        stmt.setDouble(4, quizAverage);
                         stmt.setDouble(5, quizTotal);
                         stmt.setDouble(6, a1);
                         stmt.setDouble(7, a2);
@@ -323,7 +325,7 @@ public class MarksDAO {
                         stmt.setDouble(2, q1);
                         stmt.setDouble(3, q2);
                         stmt.setDouble(4, q3);
-                        stmt.setDouble(5, quizTotal);
+                        stmt.setDouble(5, quizAverage);
                         stmt.setDouble(6, quizTotal);
                         stmt.setDouble(7, a1);
                         stmt.setDouble(8, a2);
@@ -582,7 +584,7 @@ public class MarksDAO {
             ORDER BY e.reg_no
             """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
@@ -642,7 +644,7 @@ public class MarksDAO {
             ORDER BY e.reg_no
             """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
@@ -722,7 +724,7 @@ public class MarksDAO {
             ORDER BY e.reg_no
             """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);

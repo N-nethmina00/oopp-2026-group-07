@@ -33,7 +33,7 @@ public class CourseMaterialDAO {
                          cm.material_id DESC
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
@@ -56,6 +56,8 @@ public class CourseMaterialDAO {
         return materials;
     }
 
+    //insert the material details
+
     public void addMaterial(
             String lecturerId,
             String courseCode,
@@ -73,7 +75,7 @@ public class CourseMaterialDAO {
                   AND c.lecturer_id = ?
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);
@@ -94,6 +96,8 @@ public class CourseMaterialDAO {
         }
     }
 
+    //retrive the material file path
+
     public String getMaterialPath(int materialId, String lecturerId)
             throws SQLException {
 
@@ -106,7 +110,7 @@ public class CourseMaterialDAO {
                   AND c.lecturer_id = ?
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setInt(1, materialId);
@@ -123,6 +127,8 @@ public class CourseMaterialDAO {
         return null;
     }
 
+    //delete material from database
+
     public boolean deleteMaterial(int materialId, String lecturerId)
             throws SQLException {
 
@@ -135,7 +141,7 @@ public class CourseMaterialDAO {
                   AND c.lecturer_id = ?
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setInt(1, materialId);
@@ -172,7 +178,7 @@ public class CourseMaterialDAO {
                     cm.material_id DESC
                 """;
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, lecturerId);

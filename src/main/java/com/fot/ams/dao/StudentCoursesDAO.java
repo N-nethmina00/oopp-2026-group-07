@@ -15,7 +15,7 @@ public class StudentCoursesDAO {
 
     public List<Course> getEnrolledCourses(String userId)
             throws SQLException {
-
+        //create array list object
         List<Course> courses = new ArrayList<>();
 
         String sql = """

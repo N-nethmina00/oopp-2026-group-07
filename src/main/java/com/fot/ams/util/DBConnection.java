@@ -11,8 +11,7 @@ public final class DBConnection {
             "jdbc:mysql://localhost:3307/university_db";
 
     // Singleton instance
-    private static final DBConnection INSTANCE =
-            new DBConnection();
+    private static final DBConnection INSTANCE = new DBConnection();
 
     // Private constructor prevents creating objects
     // from outside this class
@@ -25,9 +24,7 @@ public final class DBConnection {
     }
 
     // Common connection creation method
-    private Connection createConnection(
-            String username,
-            String password) throws SQLException {
+    private Connection createConnection(String username, String password) throws SQLException {
 
         return DriverManager.getConnection(
                 URL,
@@ -54,7 +51,7 @@ public final class DBConnection {
     public static Connection getLecturerConnection()
             throws SQLException {
 
-        return INSTANCE.createConnection("lecturer", "");
+        return INSTANCE.createConnection("lecturer", "123");
     }
 
     // Technical Officer Connection
@@ -62,7 +59,7 @@ public final class DBConnection {
             throws SQLException {
 
         return INSTANCE.createConnection(
-                "technical_officer", ""
+                "technical_officer", "123"
         );
     }
 

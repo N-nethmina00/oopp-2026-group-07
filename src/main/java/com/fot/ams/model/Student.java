@@ -1,12 +1,12 @@
 
 package com.fot.ams.model;
 
-
+// Import ArrayList to store multiple course results.
 import java.util.ArrayList;
 import java.util.List;
 
 public class Student extends User {
-
+    // Student inherits properties and methods from User.
     private String regNo;
     private String batchId;
     private int enrolledCourses;
@@ -15,10 +15,10 @@ public class Student extends User {
 
     public Student() {
         super();
+        //call super class
     }
 
-    public Student(String userId, String firstName,
-                   String lastName) {
+    public Student(String userId, String firstName,String lastName) {
 
         super();
 
@@ -68,13 +68,14 @@ public class Student extends User {
         this.profileImage = profileImage;
     }
 
-    private List<CourseResult> semesterResults =
-            new ArrayList<>();
-
+    // List to store the student's course results.
+    private List<CourseResult> semesterResults = new ArrayList<>();
+    // Return the stored semester results.
     public List<CourseResult> getSemesterResults() {
         return semesterResults;
     }
 
+    // Update the semester results list.
     public void setSemesterResults(List<CourseResult> results) {
         this.semesterResults = results;
     }

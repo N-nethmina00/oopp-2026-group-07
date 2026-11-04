@@ -1,8 +1,11 @@
 
 package com.fot.ams.model;
+// This class belongs to the model package.
 
 import java.time.LocalDate;
 
+
+// This class represents one student medical record.
 public class Medical {
 
     private final int medicalId;
@@ -15,6 +18,7 @@ public class Medical {
     private final String documentPath;
     private final String status;
 
+    // Constructor to initialize a Medical object.
     public Medical(
             int medicalId,
             String regNo,
@@ -73,14 +77,17 @@ public class Medical {
         return status;
     }
 
+
     public String getDateDisplay() {
 
-        if (endDate == null ||
-                endDate.equals(medicalDate)) {
+        // Check if the medical is for a single day.
+        if (endDate == null || endDate.equals(medicalDate)) {
 
+            // Return only the starting date.
             return medicalDate.toString();
         }
 
+        // Return the date range for a multi-day medical.
         return medicalDate + " to " + endDate;
     }
 }

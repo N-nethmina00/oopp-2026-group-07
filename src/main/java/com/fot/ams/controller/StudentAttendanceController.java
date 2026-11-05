@@ -217,23 +217,30 @@ public class StudentAttendanceController {
         barAttendance.setProgress(overall);
         setBarColor(barAttendance, overall, total);
 
+        // Check exam eligibility based on attendance percentage.
         if (total == 0) {
 
+            // No attendance records found.
             lblEligibility.setText("No records");
+
             lblEligibility.getStyleClass().setAll(
                     "badge", "badge-pending"
             );
 
         } else if (overall >= MIN_REQUIRED) {
 
-            lblEligibility.setText("80% or above");
+            // Student has 80% or more attendance.
+            lblEligibility.setText("Eligible");
+
             lblEligibility.getStyleClass().setAll(
                     "badge", "badge-present"
             );
 
         } else {
 
-            lblEligibility.setText("Below 80%");
+            // Student has less than 80% attendance.
+            lblEligibility.setText("Not Eligible");
+
             lblEligibility.getStyleClass().setAll(
                     "badge", "badge-absent"
             );

@@ -104,8 +104,16 @@ public class StudentMedicalController {
 
                 super.updateItem(date, empty);
 
-                setDisable(empty ||
-                        date.isAfter(LocalDate.now()));
+                LocalDate today =LocalDate.now();
+
+                // For multiple-day medicals, older start dates
+                // are allowed if the end date is within 14 days.
+                boolean tooOld = rbSingle.isSelected()
+                        && date.isBefore(today.minusDays(14));
+
+                setDisable(empty
+                        || date.isAfter(today)
+                        || tooOld);
             }
         });
 
@@ -117,11 +125,14 @@ public class StudentMedicalController {
 
                 super.updateItem(date, empty);
 
+                LocalDate today = LocalDate.now();
+
                 setDisable(
-                        empty ||
-                                date.isAfter(LocalDate.now()) ||
-                                (dpFrom.getValue() != null &&
-                                        date.isBefore(dpFrom.getValue()))
+                        empty
+                                || date.isAfter(today)
+                                || date.isBefore(today.minusDays(14))
+                                || (dpFrom.getValue() != null
+                                && date.isBefore(dpFrom.getValue()))
                 );
             }
         });

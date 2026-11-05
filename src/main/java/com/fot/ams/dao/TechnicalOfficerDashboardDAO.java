@@ -76,6 +76,7 @@ public class TechnicalOfficerDashboardDAO {
     }
 
     // TG2070 - Execute a count query using TO ID
+    // this is helper method
     private int getCount(String sql, String technicalOfficerId)
             throws SQLException {
 

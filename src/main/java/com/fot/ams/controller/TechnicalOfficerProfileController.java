@@ -1,10 +1,12 @@
 package com.fot.ams.controller;
 
+import com.fot.ams.dao.TechnicalOfficerPersonalDAO;
 import com.fot.ams.dao.UserDAO;
 import com.fot.ams.model.User;
 import javafx.fxml.FXML;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -18,11 +20,14 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.MonthDay;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.UUID;
 
 // TG2070 - Manage Technical Officer profile details and photo.
-public class    TechnicalOfficerProfileController {
+public class TechnicalOfficerProfileController {
 
     // Connect the FXML controls to this controller.
     @FXML
@@ -46,7 +51,20 @@ public class    TechnicalOfficerProfileController {
     @FXML
     private Label profileAvatarLabel;
 
+    // TG2070 - NIC and birthday controls.
+    @FXML
+    private TextField profileNicField;
+
+    @FXML
+    private DatePicker profileBirthdayPicker;
+
+    @FXML
+    private Label birthdayCountdownLabel;
+
     private final UserDAO userDAO = new UserDAO();
+
+    private final TechnicalOfficerPersonalDAO personalDAO =
+            new TechnicalOfficerPersonalDAO();
 
     private String technicalOfficerId;
     private String savedPhotoPath;
@@ -113,6 +131,7 @@ public class    TechnicalOfficerProfileController {
             selectedPhoto = null;
 
             loadSavedPhoto();
+            loadPersonalDetails();
 
         } catch (SQLException exception) {
             showDatabaseError(exception);
@@ -388,6 +407,127 @@ public class    TechnicalOfficerProfileController {
                     Alert.AlertType.INFORMATION,
                     "Profile",
                     "Profile details saved successfully."
+            );
+        }
+    }
+
+    // TG2070 - Load the saved NIC and birthday.
+    private void loadPersonalDetails() throws SQLException {
+        TechnicalOfficerPersonalDAO.PersonalDetails details =
+                personalDAO.getPersonalDetails(technicalOfficerId);
+
+        profileNicField.clear();
+        profileBirthdayPicker.setValue(null);
+        birthdayCountdownLabel.setText("Birthday is not saved.");
+
+        if (details != null) {
+            profileNicField.setText(
+                    details.nic() == null ? "" : details.nic()
+            );
+
+            profileBirthdayPicker.setValue(details.birthday());
+            showBirthdayCountdown(details.birthday());
+        }
+    }
+
+    // TG2070 - Validate and save NIC and birthday separately.
+    @FXML
+    private void savePersonalDetails() {
+        if (!hasTechnicalOfficerId()) {
+            showMessage(
+                    Alert.AlertType.ERROR,
+                    "Profile Error",
+                    "Please log in again."
+            );
+            return;
+        }
+
+        String nic = profileNicField.getText()
+                .trim().toUpperCase(Locale.ROOT);
+
+        LocalDate birthday = profileBirthdayPicker.getValue();
+
+        // Check the old or new NIC format.
+        if (!nic.matches("([0-9]{9}[VX]|[0-9]{12})")) {
+            showMessage(
+                    Alert.AlertType.WARNING,
+                    "Invalid NIC",
+                    "Enter 9 digits followed by V or X, or 12 digits."
+            );
+            return;
+        }
+
+        if (birthday == null
+                || !birthday.isBefore(LocalDate.now())) {
+            showMessage(
+                    Alert.AlertType.WARNING,
+                    "Invalid Birthday",
+                    "Select a date of birth before today."
+            );
+            return;
+        }
+
+        try {
+            boolean saved = personalDAO.savePersonalDetails(
+                    technicalOfficerId,
+                    nic,
+                    birthday
+            );
+
+            if (saved) {
+                profileNicField.setText(nic);
+                showBirthdayCountdown(birthday);
+
+                showMessage(
+                        Alert.AlertType.INFORMATION,
+                        "Personal Details",
+                        "NIC and birthday saved successfully."
+                );
+
+            } else {
+                showMessage(
+                        Alert.AlertType.WARNING,
+                        "Personal Details",
+                        "Officer account was not found. "
+                                + "Please reload your profile."
+                );
+            }
+
+        } catch (SQLException exception) {
+            showDatabaseError(exception);
+        }
+    }
+
+    // TG2070 - Count days until the next birthday.
+    private void showBirthdayCountdown(LocalDate birthday) {
+        if (birthday == null) {
+            birthdayCountdownLabel.setText("Birthday is not saved.");
+            return;
+        }
+
+        LocalDate today = LocalDate.now();
+        MonthDay birthMonthDay = MonthDay.from(birthday);
+
+        // Use February 28 for February 29 in a non-leap year.
+        LocalDate nextBirthday =
+                birthMonthDay.atYear(today.getYear());
+
+        // If this year's birthday has passed, use next year.
+        if (nextBirthday.isBefore(today)) {
+            nextBirthday = birthMonthDay.atYear(
+                    today.getYear() + 1
+            );
+        }
+
+        long days = ChronoUnit.DAYS.between(today, nextBirthday);
+
+        if (days == 0) {
+            birthdayCountdownLabel.setText("Happy Birthday!");
+
+        } else {
+            birthdayCountdownLabel.setText(
+                    "Your birthday is in " + days
+                            + (days == 1 ? " day." : " days.")
             );
         }
     }

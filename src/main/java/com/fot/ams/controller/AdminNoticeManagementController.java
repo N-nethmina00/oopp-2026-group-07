@@ -23,43 +23,57 @@ import java.util.Optional;
 
 public class AdminNoticeManagementController {
 
+    // Connects the notice input fields to the FXML file.
     @FXML private TextField noticeIdField;
     @FXML private TextField titleField;
     @FXML private TextArea contentArea;
 
+    // Date selectors for the notice.
     @FXML private DatePicker publishedDatePicker;
     @FXML private DatePicker createdDatePicker;
 
+    // Table that displays notices.
     @FXML private TableView<Notice> noticesTable;
 
+    // Table columns for each notice detail.
     @FXML private TableColumn<Notice, String> noticeIdColumn;
     @FXML private TableColumn<Notice, String> titleColumn;
     @FXML private TableColumn<Notice, String> contentColumn;
     @FXML private TableColumn<Notice, String> publishedDateColumn;
     @FXML private TableColumn<Notice, String> createdDateColumn;
 
+    // Displays status and error messages.
     @FXML private Label messageLabel;
 
+    // Handles notice-related database operations.
     private final NoticeDAO noticeDAO = new NoticeDAO();
 
+    // Stores notices and updates the table when the list changes.
     private final ObservableList<Notice> noticeList =
             FXCollections.observableArrayList();
 
+    // Heights used to calculate the table's size.
     private static final double TABLE_ROW_HEIGHT = 38.0;
 
-    // Allows space for the header and table borders.
+    // Extra space for the table header and borders.
     private static final double TABLE_HEADER_SPACE = 48.0;
 
+    // JavaFX calls this after loading the FXML controls.
     @FXML
     public void initialize() {
+        // Connect the table columns to Notice properties.
         configureColumns();
 
+        // Notice IDs come from the database, so they cannot be edited.
         noticeIdField.setEditable(false);
 
+        // Show the notices stored in noticeList in the table.
         noticesTable.setItems(noticeList);
 
+        // Set the table height based on the number of notices.
         configureTableHeight();
 
+        // Show a selected notice's details in the form.
         noticesTable.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, oldNotice, selectedNotice) -> {
@@ -68,28 +82,34 @@ public class AdminNoticeManagementController {
                     }
                 });
 
+        // Load the notices from the database.
         loadNotices();
     }
 
+    // Connects each table column to the matching Notice value.
     private void configureColumns() {
+        // Display the notice ID as text.
         noticeIdColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(
                         String.valueOf(data.getValue().getNoticeId())
                 )
         );
 
+        // Display the notice title.
         titleColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(
                         data.getValue().getTitle()
                 )
         );
 
+        // Display the notice content.
         contentColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(
                         data.getValue().getContent()
                 )
         );
 
+        // Display the published date, or a blank value if it is missing.
         publishedDateColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(
                         data.getValue().getPublishedDate() == null
@@ -100,6 +120,7 @@ public class AdminNoticeManagementController {
                 )
         );
 
+        // Display the created date, or a blank value if it is missing.
         createdDateColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(
                         data.getValue().getCreatedDate() == null
@@ -110,15 +131,18 @@ public class AdminNoticeManagementController {
                 )
         );
 
+        // Let the columns use the available table width.
         noticesTable.setColumnResizePolicy(
                 TableView.CONSTRAINED_RESIZE_POLICY
         );
 
+        // Show this text if the table has no notices.
         noticesTable.setPlaceholder(
                 new Label("No notices available.")
         );
     }
 
+    // Makes the table tall enough to show all its rows.
     private void configureTableHeight() {
         noticesTable.setFixedCellSize(TABLE_ROW_HEIGHT);
 
@@ -126,16 +150,17 @@ public class AdminNoticeManagementController {
         noticesTable.setMinHeight(Region.USE_PREF_SIZE);
         noticesTable.setMaxHeight(Region.USE_PREF_SIZE);
 
-        // noticeList is reused by loadNotices(), so this binding
-        // updates after loading, adding, updating or deleting rows.
+        // Keep the preferred height matched to the number of notices.
         noticesTable.prefHeightProperty().bind(
                 Bindings.createDoubleBinding(
                         () -> {
+                            // Keep one row of space for the empty-table message.
                             int visibleRows = Math.max(
                                     1,
                                     noticeList.size()
                             );
 
+                            // Add the row heights and header space together.
                             return visibleRows
                                     * noticesTable.getFixedCellSize()
                                     + TABLE_HEADER_SPACE;
@@ -146,12 +171,15 @@ public class AdminNoticeManagementController {
         );
     }
 
+    // Validates the form and publishes a new notice.
     @FXML
     private void handlePublish() {
+        // Stop if any required value is missing.
         if (!validateForm()) {
             return;
         }
 
+        // Create a Notice object using the form values.
         Notice notice = new Notice();
 
         notice.setTitle(titleField.getText().trim());
@@ -160,6 +188,7 @@ public class AdminNoticeManagementController {
         notice.setCreatedDate(createdDatePicker.getValue());
 
         try {
+            // Save the notice and refresh the table if successful.
             if (noticeDAO.addNotice(notice)) {
                 loadNotices();
                 clearForm();
@@ -178,12 +207,15 @@ public class AdminNoticeManagementController {
             }
 
         } catch (SQLException e) {
+            // Display a message if the database operation fails.
             handleDatabaseError(e);
         }
     }
 
+    // Updates the notice currently selected in the table.
     @FXML
     private void handleUpdate() {
+        // A notice must be selected before it can be updated.
         if (noticeIdField.getText().trim().isEmpty()) {
             showAlert(
                     Alert.AlertType.WARNING,
@@ -193,11 +225,13 @@ public class AdminNoticeManagementController {
             return;
         }
 
+        // Make sure the required form values are present.
         if (!validateForm()) {
             return;
         }
 
         try {
+            // Create an updated Notice object from the form.
             Notice notice = new Notice(
                     Integer.parseInt(
                             noticeIdField.getText().trim()
@@ -208,6 +242,7 @@ public class AdminNoticeManagementController {
                     createdDatePicker.getValue()
             );
 
+            // Save the changes and refresh the table if successful.
             if (noticeDAO.updateNotice(notice)) {
                 loadNotices();
                 clearForm();
@@ -226,6 +261,7 @@ public class AdminNoticeManagementController {
             }
 
         } catch (NumberFormatException e) {
+            // Show an error if the notice ID is not a valid number.
             showAlert(
                     Alert.AlertType.ERROR,
                     "Invalid ID",
@@ -237,8 +273,10 @@ public class AdminNoticeManagementController {
         }
     }
 
+    // Confirms and deletes the selected notice.
     @FXML
     private void handleDelete() {
+        // A notice must be selected before it can be deleted.
         if (noticeIdField.getText().trim().isEmpty()) {
             showAlert(
                     Alert.AlertType.WARNING,
@@ -248,6 +286,7 @@ public class AdminNoticeManagementController {
             return;
         }
 
+        // Ask the admin to confirm before deleting.
         Alert confirmation = new Alert(
                 Alert.AlertType.CONFIRMATION
         );
@@ -262,6 +301,7 @@ public class AdminNoticeManagementController {
         Optional<ButtonType> result =
                 confirmation.showAndWait();
 
+        // Stop if the admin cancels or closes the confirmation.
         if (result.isEmpty() || result.get() != ButtonType.OK) {
             return;
         }
@@ -271,6 +311,7 @@ public class AdminNoticeManagementController {
                     noticeIdField.getText().trim()
             );
 
+            // Delete the notice and refresh the screen if successful.
             if (noticeDAO.deleteNotice(noticeId)) {
                 loadNotices();
                 clearForm();
@@ -289,6 +330,7 @@ public class AdminNoticeManagementController {
             }
 
         } catch (NumberFormatException e) {
+            // Show an error if the notice ID is not a valid number.
             showAlert(
                     Alert.AlertType.ERROR,
                     "Invalid ID",
@@ -300,13 +342,16 @@ public class AdminNoticeManagementController {
         }
     }
 
+    // Clears the notice form when the Clear button is pressed.
     @FXML
     private void handleClear() {
         clearForm();
     }
 
+    // Loads all notices from the database into the table list.
     private void loadNotices() {
         try {
+            // Replace the current list with the database results.
             noticeList.setAll(
                     noticeDAO.getAllNotices()
             );
@@ -316,6 +361,7 @@ public class AdminNoticeManagementController {
         }
     }
 
+    // Copies a selected notice's values into the form.
     private void fillForm(Notice notice) {
         noticeIdField.setText(
                 String.valueOf(notice.getNoticeId())
@@ -337,12 +383,15 @@ public class AdminNoticeManagementController {
                 notice.getCreatedDate()
         );
 
+        // Tell the admin which notice is selected.
         messageLabel.setText(
                 "Selected Notice ID: " + notice.getNoticeId()
         );
     }
 
+    // Checks that all required notice details have been entered.
     private boolean validateForm() {
+        // Require a notice title.
         if (titleField.getText() == null
                 || titleField.getText().trim().isEmpty()) {
 
@@ -356,6 +405,7 @@ public class AdminNoticeManagementController {
             return false;
         }
 
+        // Require notice content.
         if (contentArea.getText() == null
                 || contentArea.getText().trim().isEmpty()) {
 
@@ -369,6 +419,7 @@ public class AdminNoticeManagementController {
             return false;
         }
 
+        // Require a published date.
         if (publishedDatePicker.getValue() == null) {
             showAlert(
                     Alert.AlertType.WARNING,
@@ -380,6 +431,7 @@ public class AdminNoticeManagementController {
             return false;
         }
 
+        // Require a created date.
         if (createdDatePicker.getValue() == null) {
             showAlert(
                     Alert.AlertType.WARNING,
@@ -391,9 +443,11 @@ public class AdminNoticeManagementController {
             return false;
         }
 
+        // All required values are present.
         return true;
     }
 
+    // Clears the form and removes the selected table row.
     private void clearForm() {
         noticesTable.getSelectionModel().clearSelection();
 
@@ -406,9 +460,11 @@ public class AdminNoticeManagementController {
 
         messageLabel.setText("");
 
+        // Put the cursor back in the title field.
         titleField.requestFocus();
     }
 
+    // Logs and displays an error from a database operation.
     private void handleDatabaseError(SQLException e) {
         e.printStackTrace();
 
@@ -419,6 +475,7 @@ public class AdminNoticeManagementController {
         );
     }
 
+    // Displays a message in the screen label and an alert window.
     private void showAlert(
             Alert.AlertType type,
             String title,

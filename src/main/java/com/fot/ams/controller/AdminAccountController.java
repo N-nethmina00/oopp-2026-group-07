@@ -4,9 +4,7 @@ import com.fot.ams.util.DBConnection;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -25,57 +23,47 @@ import java.util.UUID;
 
 public class AdminAccountController {
 
+    // Labels used for the profile photo and screen messages.
     @FXML private Label lblPhoto;
     @FXML private Label lblMessage;
     @FXML private Label lblPasswordMessage;
 
+    // Fields containing the admin's account details.
     @FXML private TextField txtFirstName;
     @FXML private TextField txtLastName;
     @FXML private TextField txtEmail;
     @FXML private TextField txtUserId;
     @FXML private TextField txtUsername;
 
-    @FXML private PasswordField txtCurrentPassword;
-    @FXML private PasswordField txtNewPassword;
-    @FXML private PasswordField txtConfirmPassword;
+    // Normal text fields show the passwords while they are being typed.
+    @FXML private TextField txtCurrentPassword;
+    @FXML private TextField txtNewPassword;
+    @FXML private TextField txtConfirmPassword;
 
-    @FXML private TextField txtCurrentPasswordVisible;
-    @FXML private TextField txtNewPasswordVisible;
-    @FXML private TextField txtConfirmPasswordVisible;
-
-    @FXML private CheckBox chkShowPasswords;
-
+    // Displays the profile photo.
     @FXML private ImageView imgProfile;
 
+    // Buttons for saving account changes and changing the photo or password.
     @FXML private Button btnSave;
     @FXML private Button btnChangePhoto;
     @FXML private Button btnChangePassword;
 
+    // Stores the current admin's ID and profile photo information.
     private String userId;
     private String photoPath;
     private File selectedPhotoFile;
+
+    // Tracks whether the admin account has loaded successfully.
     private boolean accountLoaded;
 
+    // Set up the account screen after JavaFX loads its FXML file.
     @FXML
     private void initialize() {
+        // These account values are displayed but cannot be edited here.
         txtUserId.setEditable(false);
         txtUsername.setEditable(false);
 
-        configurePasswordVisibility(
-                txtCurrentPassword,
-                txtCurrentPasswordVisible
-        );
-
-        configurePasswordVisibility(
-                txtNewPassword,
-                txtNewPasswordVisible
-        );
-
-        configurePasswordVisibility(
-                txtConfirmPassword,
-                txtConfirmPasswordVisible
-        );
-
+        // Update the profile-photo initial when the first name changes.
         txtFirstName.textProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     updateInitial();
@@ -83,6 +71,7 @@ public class AdminAccountController {
                 }
         );
 
+        // Hide the account message when the user edits these fields.
         txtLastName.textProperty().addListener(
                 (observable, oldValue, newValue) ->
                         hideMessage(lblMessage)
@@ -93,6 +82,7 @@ public class AdminAccountController {
                         hideMessage(lblMessage)
         );
 
+        // Hide the password message when a password field changes.
         txtCurrentPassword.textProperty().addListener(
                 (observable, oldValue, newValue) ->
                         hideMessage(lblPasswordMessage)
@@ -108,44 +98,18 @@ public class AdminAccountController {
                         hideMessage(lblPasswordMessage)
         );
 
+        // Pressing Enter in the confirmation field changes the password.
         txtConfirmPassword.setOnAction(
                 event -> handleChangePassword()
         );
-
-        txtConfirmPasswordVisible.setOnAction(
-                event -> handleChangePassword()
-        );
     }
 
-    private void configurePasswordVisibility(
-            PasswordField hiddenField,
-            TextField visibleField) {
-
-        visibleField.textProperty().bindBidirectional(
-                hiddenField.textProperty()
-        );
-
-        hiddenField.visibleProperty().bind(
-                chkShowPasswords.selectedProperty().not()
-        );
-
-        hiddenField.managedProperty().bind(
-                hiddenField.visibleProperty()
-        );
-
-        visibleField.visibleProperty().bind(
-                chkShowPasswords.selectedProperty()
-        );
-
-        visibleField.managedProperty().bind(
-                visibleField.visibleProperty()
-        );
-    }
-
+    // Receives the admin ID from the dashboard controller.
     public void setUserId(String userId) {
         this.userId = userId;
         selectedPhotoFile = null;
 
+        // Clear old password entries and messages before loading the account.
         clearPasswordFields();
         hideMessage(lblMessage);
         hideMessage(lblPasswordMessage);
@@ -153,6 +117,7 @@ public class AdminAccountController {
         loadAccount();
     }
 
+    // Gets a database connection or reports that one is unavailable.
     private Connection openConnection() throws SQLException {
         Connection connection = DBConnection.getConnection();
 
@@ -165,6 +130,7 @@ public class AdminAccountController {
         return connection;
     }
 
+    // Enables account actions only after the account has loaded.
     private void setAccountLoaded(boolean loaded) {
         accountLoaded = loaded;
 
@@ -173,9 +139,11 @@ public class AdminAccountController {
         btnChangePassword.setDisable(!loaded);
     }
 
+    // Loads the admin's account details from the database.
     private void loadAccount() {
         setAccountLoaded(false);
 
+        // A missing ID usually means the user needs to log in again.
         if (userId == null || userId.isBlank()) {
             showMessage(
                     lblMessage,
@@ -185,6 +153,7 @@ public class AdminAccountController {
             return;
         }
 
+        // Select only the account matching this ID and the Admin role.
         String sql = """
                 SELECT user_id, user_name, first_name,
                        last_name, email, profile_image
@@ -196,11 +165,13 @@ public class AdminAccountController {
              PreparedStatement statement =
                      connection.prepareStatement(sql)) {
 
+            // Fill the query placeholders with the account ID and role.
             statement.setString(1, userId);
             statement.setString(2, "Admin");
             statement.setQueryTimeout(15);
 
             try (ResultSet result = statement.executeQuery()) {
+                // Show a message if the admin account was not found.
                 if (!result.next()) {
                     showMessage(
                             lblMessage,
@@ -210,12 +181,14 @@ public class AdminAccountController {
                     return;
                 }
 
+                // Display the database values in the account fields.
                 txtUserId.setText(result.getString("user_id"));
                 txtUsername.setText(result.getString("user_name"));
                 txtFirstName.setText(result.getString("first_name"));
                 txtLastName.setText(result.getString("last_name"));
                 txtEmail.setText(result.getString("email"));
 
+                // Save and display the profile photo.
                 photoPath = result.getString("profile_image");
                 selectedPhotoFile = null;
 
@@ -233,11 +206,13 @@ public class AdminAccountController {
         }
     }
 
+    // Displays the saved photo, if a valid photo file exists.
     private void displaySavedPhoto() {
         imgProfile.setImage(null);
         imgProfile.setVisible(false);
         lblPhoto.setVisible(true);
 
+        // Keep the initial-letter placeholder if there is no saved path.
         if (photoPath == null || photoPath.isBlank()) {
             return;
         }
@@ -245,6 +220,7 @@ public class AdminAccountController {
         try {
             Path savedPath = Path.of(photoPath);
 
+            // Resolve a relative path from the application folder.
             if (!savedPath.isAbsolute()) {
                 savedPath = Path.of(
                         System.getProperty("user.dir")
@@ -253,6 +229,7 @@ public class AdminAccountController {
 
             File file = savedPath.normalize().toFile();
 
+            // Leave the placeholder visible if the file cannot be read.
             if (!file.isFile() || !file.canRead()) {
                 return;
             }
@@ -272,6 +249,7 @@ public class AdminAccountController {
         }
     }
 
+    // Loads an image and checks that JavaFX could read it.
     private Image loadImage(File file) {
         Image image = new Image(
                 file.toURI().toString(),
@@ -282,6 +260,7 @@ public class AdminAccountController {
                 false
         );
 
+        // Reject unreadable or invalid image files.
         if (image.isError()
                 || image.getWidth() <= 0
                 || image.getHeight() <= 0) {
@@ -294,6 +273,7 @@ public class AdminAccountController {
         return image;
     }
 
+    // Opens a file chooser so the admin can pick a profile photo.
     @FXML
     private void handleChangePhoto() {
         if (!accountLoaded) {
@@ -303,6 +283,7 @@ public class AdminAccountController {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select Profile Picture");
 
+        // Only show PNG and JPG files in the file chooser.
         chooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter(
                         "Image Files",
@@ -319,10 +300,12 @@ public class AdminAccountController {
                 imgProfile.getScene().getWindow()
         );
 
+        // The user closed the chooser without selecting a file.
         if (file == null) {
             return;
         }
 
+        // Make sure the selected file can be read.
         if (!file.isFile() || !file.canRead()) {
             showMessage(
                     lblMessage,
@@ -332,6 +315,7 @@ public class AdminAccountController {
             return;
         }
 
+        // Limit the image size to 5 MB.
         if (file.length() == 0
                 || file.length() > 5L * 1024 * 1024) {
             showMessage(
@@ -342,6 +326,7 @@ public class AdminAccountController {
             return;
         }
 
+        // Accept only PNG and JPG file extensions.
         String name = file.getName().toLowerCase(Locale.ROOT);
 
         if (!name.endsWith(".png")
@@ -356,6 +341,7 @@ public class AdminAccountController {
         }
 
         try {
+            // Preview the image and remember the selected file.
             Image image = loadImage(file);
 
             selectedPhotoFile = file;
@@ -379,6 +365,7 @@ public class AdminAccountController {
         }
     }
 
+    // Validates and saves the account details.
     @FXML
     private void handleSave() {
         if (!accountLoaded || userId == null) {
@@ -390,10 +377,12 @@ public class AdminAccountController {
             return;
         }
 
+        // Read and clean the editable account values.
         String firstName = txtFirstName.getText().trim();
         String lastName = txtLastName.getText().trim();
         String email = txtEmail.getText().trim();
 
+        // Require both names.
         if (firstName.isEmpty() || lastName.isEmpty()) {
             showMessage(
                     lblMessage,
@@ -403,6 +392,7 @@ public class AdminAccountController {
             return;
         }
 
+        // Limit the length of each name.
         if (firstName.length() > 50 || lastName.length() > 50) {
             showMessage(
                     lblMessage,
@@ -412,6 +402,7 @@ public class AdminAccountController {
             return;
         }
 
+        // Check the email's basic format and maximum length.
         if (email.length() > 100
                 || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             showMessage(
@@ -422,12 +413,14 @@ public class AdminAccountController {
             return;
         }
 
+        // Keep the old path unless a new photo is selected.
         String newPhotoPath = photoPath;
         Path newlyCopiedFile = null;
 
         btnSave.setDisable(true);
 
         try {
+            // Copy a newly selected photo into the app's profile folder.
             if (selectedPhotoFile != null) {
                 if (!selectedPhotoFile.isFile()
                         || !selectedPhotoFile.canRead()
@@ -442,6 +435,7 @@ public class AdminAccountController {
                     return;
                 }
 
+                // Keep PNG files as PNG; save other accepted files as JPG.
                 String originalName =
                         selectedPhotoFile.getName()
                                 .toLowerCase(Locale.ROOT);
@@ -450,6 +444,7 @@ public class AdminAccountController {
                         ? ".png"
                         : ".jpg";
 
+                // Create the folder if it does not already exist.
                 Path photoDirectory = Path.of(
                         System.getProperty("user.dir"),
                         "images",
@@ -458,6 +453,7 @@ public class AdminAccountController {
 
                 Files.createDirectories(photoDirectory);
 
+                // Use a unique filename so existing photos are not overwritten.
                 String uniqueName = userId
                         + "_profile_"
                         + UUID.randomUUID()
@@ -471,6 +467,7 @@ public class AdminAccountController {
                         newlyCopiedFile
                 );
 
+                // Store a relative path in the database.
                 newPhotoPath = Path.of(
                         "images",
                         "profiles",
@@ -478,6 +475,7 @@ public class AdminAccountController {
                 ).toString();
             }
 
+            // Update the editable account values in the database.
             String sql = """
                     UPDATE `user`
                     SET first_name = ?, last_name = ?,
@@ -499,6 +497,7 @@ public class AdminAccountController {
 
                 int updated = statement.executeUpdate();
 
+                // Check whether the admin account still exists.
                 if (updated == 0 && !adminExists(connection)) {
                     deleteFileQuietly(newlyCopiedFile);
                     setAccountLoaded(false);
@@ -512,6 +511,7 @@ public class AdminAccountController {
                 }
             }
 
+            // Update the saved photo path and refresh the display.
             photoPath = newPhotoPath;
             selectedPhotoFile = null;
 
@@ -525,6 +525,7 @@ public class AdminAccountController {
             );
 
         } catch (SQLException | IOException e) {
+            // Remove the copied image if saving the account failed.
             deleteFileQuietly(newlyCopiedFile);
 
             showMessage(
@@ -534,10 +535,12 @@ public class AdminAccountController {
             );
 
         } finally {
+            // Re-enable Save if the account is still available.
             btnSave.setDisable(!accountLoaded);
         }
     }
 
+    // Validates and changes the admin's password.
     @FXML
     private void handleChangePassword() {
         if (!accountLoaded || userId == null) {
@@ -549,10 +552,12 @@ public class AdminAccountController {
             return;
         }
 
+        // Read the three passwords from the normal text fields.
         String currentPassword = txtCurrentPassword.getText();
         String newPassword = txtNewPassword.getText();
         String confirmation = txtConfirmPassword.getText();
 
+        // Require all three values.
         if (currentPassword.isEmpty()
                 || newPassword.isEmpty()
                 || confirmation.isEmpty()) {
@@ -564,11 +569,13 @@ public class AdminAccountController {
             return;
         }
 
+        // Count characters correctly, including Unicode characters.
         int passwordLength = newPassword.codePointCount(
                 0,
                 newPassword.length()
         );
 
+        // Require at least 8 characters.
         if (passwordLength < 8) {
             showMessage(
                     lblPasswordMessage,
@@ -576,13 +583,11 @@ public class AdminAccountController {
                     false
             );
 
-            focusPassword(
-                    txtNewPassword,
-                    txtNewPasswordVisible
-            );
+            txtNewPassword.requestFocus();
             return;
         }
 
+        // Keep the password within the database field's limit.
         if (passwordLength > 255) {
             showMessage(
                     lblPasswordMessage,
@@ -592,6 +597,7 @@ public class AdminAccountController {
             return;
         }
 
+        // Make sure the new password was entered twice correctly.
         if (!newPassword.equals(confirmation)) {
             showMessage(
                     lblPasswordMessage,
@@ -599,13 +605,11 @@ public class AdminAccountController {
                     false
             );
 
-            focusPassword(
-                    txtConfirmPassword,
-                    txtConfirmPasswordVisible
-            );
+            txtConfirmPassword.requestFocus();
             return;
         }
 
+        // Require the new password to differ from the current one.
         if (newPassword.equals(currentPassword)) {
             showMessage(
                     lblPasswordMessage,
@@ -615,6 +619,7 @@ public class AdminAccountController {
             return;
         }
 
+        // Change the password only if the current password matches.
         String sql = """
                 UPDATE `user`
                 SET `password` = ?
@@ -638,6 +643,7 @@ public class AdminAccountController {
             int updated = statement.executeUpdate();
 
             if (updated == 1) {
+                // Clear the password fields after a successful change.
                 clearPasswordFields();
 
                 showMessage(
@@ -646,6 +652,7 @@ public class AdminAccountController {
                         true
                 );
             } else {
+                // The current password may be incorrect.
                 txtCurrentPassword.clear();
 
                 showMessage(
@@ -655,10 +662,7 @@ public class AdminAccountController {
                         false
                 );
 
-                focusPassword(
-                        txtCurrentPassword,
-                        txtCurrentPasswordVisible
-                );
+                txtCurrentPassword.requestFocus();
             }
 
         } catch (SQLException e) {
@@ -670,10 +674,12 @@ public class AdminAccountController {
             );
 
         } finally {
+            // Enable the button again if the account is available.
             btnChangePassword.setDisable(!accountLoaded);
         }
     }
 
+    // Checks whether this admin account still exists in the database.
     private boolean adminExists(Connection connection)
             throws SQLException {
 
@@ -696,6 +702,7 @@ public class AdminAccountController {
         }
     }
 
+    // Tries to delete a file without interrupting the main operation.
     private void deleteFileQuietly(Path file) {
         if (file == null) {
             return;
@@ -708,24 +715,14 @@ public class AdminAccountController {
         }
     }
 
-    private void focusPassword(
-            PasswordField hiddenField,
-            TextField visibleField) {
-
-        if (chkShowPasswords.isSelected()) {
-            visibleField.requestFocus();
-        } else {
-            hiddenField.requestFocus();
-        }
-    }
-
+    // Clears all password fields.
     private void clearPasswordFields() {
         txtCurrentPassword.clear();
         txtNewPassword.clear();
         txtConfirmPassword.clear();
-        chkShowPasswords.setSelected(false);
     }
 
+    // Shows the first letter of the admin's name as the photo placeholder.
     private void updateInitial() {
         String firstName = txtFirstName.getText();
 
@@ -738,6 +735,7 @@ public class AdminAccountController {
         );
     }
 
+    // Displays a success or error message.
     private void showMessage(
             Label label,
             String message,
@@ -753,6 +751,7 @@ public class AdminAccountController {
         label.setVisible(true);
     }
 
+    // Hides a message from the screen.
     private void hideMessage(Label label) {
         label.setVisible(false);
         label.setManaged(false);

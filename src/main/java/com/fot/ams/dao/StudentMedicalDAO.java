@@ -100,6 +100,7 @@ public class StudentMedicalDAO {
         try (Connection con = DBConnection.getStudentConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
+            //conver local data into java.sql.date
             ps.setDate(1, Date.valueOf(fromDate));
 
             if (toDate == null) {
@@ -112,8 +113,9 @@ public class StudentMedicalDAO {
             ps.setString(4, documentPath);
             ps.setString(5, userId);
             ps.setInt(6, courseId);
-
+            //return affted rows as int value and check
             return ps.executeUpdate() == 1;
+            //return ture or false
         }
     }
 }

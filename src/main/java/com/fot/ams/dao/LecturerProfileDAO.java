@@ -1,7 +1,6 @@
 package com.fot.ams.dao;
 
 import com.fot.ams.model.Lecturer;
-import com.fot.ams.model.User;
 import com.fot.ams.util.DBConnection;
 
 import java.sql.Connection;
@@ -40,13 +39,6 @@ public class LecturerProfileDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    User user = new User();
-                    user.setUserId(rs.getString("user_id"));
-                    user.setUsername(rs.getString("user_name"));
-                    user.setFirstName(rs.getString("first_name"));
-                    user.setLastName(rs.getString("last_name"));
-                    user.setEmail(rs.getString("email"));
-                    user.setRole(rs.getString("role"));
 
                     return new Lecturer(
                             rs.getString("lecturer_id"),

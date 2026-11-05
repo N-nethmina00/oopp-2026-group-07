@@ -51,7 +51,7 @@ public final class LecturerEligibilityPageController extends LecturerPageBase {
         courseComboBox.setPromptText("Select Your Course");
         courseComboBox.setPrefWidth(300);
 
-        // Exam Eligibility Table
+        // Exam Eligibility Table using java generics
         TableView<EligibilityRecord> eligibilityTable =
                 new TableView<>();
 

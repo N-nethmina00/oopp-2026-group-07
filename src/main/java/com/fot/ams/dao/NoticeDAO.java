@@ -57,11 +57,11 @@ public class NoticeDAO {
     }
 
     // Adds a new notice to the database.
-    public boolean addNotice(Notice notice) throws SQLException {
+    public boolean addNotice(Notice notice, String adminId) throws SQLException {
         String sql = """
                 INSERT INTO notice
-                (title, content, published_date, created_date)
-                VALUES (?, ?, ?, ?)
+                (admin_id, title, content, published_date, created_date)
+                VALUES (?, ?, ?, ?, ?)
                 """;
 
         // Ask JDBC to return the ID created for the new notice.
@@ -69,11 +69,12 @@ public class NoticeDAO {
              PreparedStatement statement = connection.prepareStatement(
                      sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            // Put the notice values into the SQL placeholders.
-            statement.setString(1, notice.getTitle());
-            statement.setString(2, notice.getContent());
-            statement.setDate(3, Date.valueOf(notice.getPublishedDate()));
-            statement.setDate(4, Date.valueOf(notice.getCreatedDate()));
+            // Put the admin ID and notice values into the SQL placeholders.
+            statement.setString(1, adminId);
+            statement.setString(2, notice.getTitle());
+            statement.setString(3, notice.getContent());
+            statement.setDate(4, Date.valueOf(notice.getPublishedDate()));
+            statement.setDate(5, Date.valueOf(notice.getCreatedDate()));
 
             // Run the INSERT and get how many rows were added.
             int rows = statement.executeUpdate();
@@ -89,6 +90,7 @@ public class NoticeDAO {
                 }
             }
 
+            notice.setAdminId(adminId);
             return true;
         }
     }

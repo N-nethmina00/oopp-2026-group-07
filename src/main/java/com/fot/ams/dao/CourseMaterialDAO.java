@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 public class CourseMaterialDAO {
 
@@ -63,17 +64,29 @@ public class CourseMaterialDAO {
             String courseCode,
             String materialTitle,
             String fileName,
-            String filePath) throws SQLException {
+            String filePath,
+            LocalDate fromDate,
+            LocalDate toDate) throws SQLException {
+
+        // Validate the date range
+        if (fromDate != null && toDate != null
+                && !fromDate.isBefore(toDate)) {
+            throw new IllegalArgumentException(
+                    "To Date must be later than From Date."
+            );
+        }
 
         String sql = """
-                INSERT INTO course_material
-                    (lecturer_id, course_id, material_title,
-                     material_type, file_name, `file`, uploaded_date)
-                SELECT ?, c.course_id, ?, 'PDF', ?, ?, CURRENT_DATE()
-                FROM course c
-                WHERE c.course_code = ?
-                  AND c.lecturer_id = ?
-                """;
+            INSERT INTO course_material
+                (lecturer_id, course_id, material_title,
+                 material_type, file_name, `file`,
+                 uploaded_date, from_date, to_date)
+            SELECT ?, c.course_id, ?, 'PDF', ?, ?,
+                   CURRENT_DATE(), ?, ?
+            FROM course c
+            WHERE c.course_code = ?
+              AND c.lecturer_id = ?
+            """;
 
         try (Connection con = DBConnection.getLecturerConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -82,15 +95,29 @@ public class CourseMaterialDAO {
             stmt.setString(2, materialTitle);
             stmt.setString(3, fileName);
             stmt.setString(4, filePath);
-            stmt.setString(5, courseCode);
-            stmt.setString(6, lecturerId);
+
+            // Save optional From Date
+            if (fromDate == null) {
+                stmt.setNull(5, java.sql.Types.DATE);
+            } else {
+                stmt.setDate(5, java.sql.Date.valueOf(fromDate));
+            }
+
+            // Save optional To Date
+            if (toDate == null) {
+                stmt.setNull(6, java.sql.Types.DATE);
+            } else {
+                stmt.setDate(6, java.sql.Date.valueOf(toDate));
+            }
+
+            stmt.setString(7, courseCode);
+            stmt.setString(8, lecturerId);
 
             int rows = stmt.executeUpdate();
 
             if (rows != 1) {
                 throw new SQLException(
-                        "Course not found, not assigned to lecturer, "
-                                + "or course code is not unique."
+                        "Course not found or not assigned to lecturer."
                 );
             }
         }

@@ -88,6 +88,14 @@ public class StudentMaterialDAO {
                   AND u.user_id = ?
                   AND e.status = 'Enrolled'
             )
+            AND (
+                cm.from_date IS NULL
+                OR cm.from_date <= CURDATE()
+            )
+            AND (
+                cm.to_date IS NULL
+                OR cm.to_date > CURDATE()
+            )
             ORDER BY cm.uploaded_date DESC,
                      cm.material_id DESC
             """;
@@ -147,6 +155,43 @@ public class StudentMaterialDAO {
         }
 
         return materials;
+    }
+
+    public boolean canDownloadMaterial(
+            String userId,
+            int materialId) throws SQLException {
+
+        String sql = """
+            SELECT 1
+            FROM course_material cm
+            WHERE cm.material_id = ?
+              AND (cm.from_date IS NULL
+                   OR cm.from_date <= CURDATE())
+              AND (cm.to_date IS NULL
+                   OR cm.to_date > CURDATE())
+              AND EXISTS (
+                  SELECT 1
+                  FROM enrollment e
+                  JOIN undergraduate u
+                      ON e.reg_no = u.reg_no
+                  WHERE e.course_id = cm.course_id
+                    AND u.user_id = ?
+                    AND e.status = 'Enrolled'
+              )
+            LIMIT 1
+            """;
+
+        try (Connection con =
+                     DBConnection.getStudentConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, materialId);
+            stmt.setString(2, userId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
     }
 }
 

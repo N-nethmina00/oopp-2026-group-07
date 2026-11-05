@@ -31,6 +31,8 @@ public class StudentMaterialsController {
     @FXML private TableColumn<CourseMaterial, String> colUploaded;
     @FXML private TableColumn<CourseMaterial, Void> colAction;
 
+    private String currentUserId;
+
     private final StudentMaterialDAO materialDAO =
             new StudentMaterialDAO();
 
@@ -123,6 +125,7 @@ public class StudentMaterialsController {
         allMaterials.clear();
         cmbCourse.getItems().clear();
         courses.clear();
+        this.currentUserId = userId;
 
         if (userId == null || userId.isBlank()) {
             showError("Student is not logged in.");
@@ -195,6 +198,18 @@ public class StudentMaterialsController {
     private void downloadMaterial(CourseMaterial material) {
 
         try {
+            if (!materialDAO.canDownloadMaterial(
+                    currentUserId,
+                    material.getMaterialId())) {
+
+                allMaterials.remove(material);
+
+                showError(
+                        "This material is not currently available."
+                );
+                return;
+            }
+
             String filePath = material.getFilePath();
 
             if (filePath == null || filePath.isBlank()) {
@@ -279,7 +294,7 @@ public class StudentMaterialsController {
                             destinationPath
             ).showAndWait();
 
-        } catch (IOException | RuntimeException e) {
+        } catch (IOException | SQLException | RuntimeException e) {
             e.printStackTrace();
             showError("Download failed: " + e.getMessage());
         }

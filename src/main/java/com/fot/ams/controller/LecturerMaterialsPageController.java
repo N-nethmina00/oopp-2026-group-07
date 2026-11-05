@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.sql.SQLException;
 import java.util.*;
+import java.time.LocalDate;
 
 //UI content for the lecturer Materials page.
 
@@ -360,6 +361,15 @@ public final class LecturerMaterialsPageController extends LecturerPageBase {
         TextField titleField = new TextField();
         titleField.setPromptText("Enter material title");
 
+        // Optional material visibility dates
+        DatePicker fromDatePicker = new DatePicker();
+        fromDatePicker.setPromptText("From Date (Optional)");
+        fromDatePicker.setMaxWidth(Double.MAX_VALUE);
+
+        DatePicker toDatePicker = new DatePicker();
+        toDatePicker.setPromptText("To Date (Optional)");
+        toDatePicker.setMaxWidth(Double.MAX_VALUE);
+
         // Selected PDF
         final File[] selectedPdf = {null};
 
@@ -396,8 +406,16 @@ public final class LecturerMaterialsPageController extends LecturerPageBase {
         form.getChildren().addAll(
                 new Label("Select Course"),
                 courseComboBox,
+
                 new Label("Material Title"),
                 titleField,
+
+                new Label("From Date (Optional)"),
+                fromDatePicker,
+
+                new Label("To Date (Optional - Hidden on this date)"),
+                toDatePicker,
+
                 chooseFileButton,
                 fileLabel
         );
@@ -428,15 +446,18 @@ public final class LecturerMaterialsPageController extends LecturerPageBase {
         String materialTitle = titleField.getText().trim();
 
         // Validate input
-        if (courseCode == null ||
-                materialTitle.isEmpty() ||
-                selectedPdf[0] == null) {
+        LocalDate fromDate = fromDatePicker.getValue();
+        LocalDate toDate = toDatePicker.getValue();
+
+        // Validate date range when both dates are provided
+        if (fromDate != null && toDate != null
+                && !fromDate.isBefore(toDate)) {
 
             new Alert(
                     Alert.AlertType.WARNING,
-                    "Please select a course, enter a title, " +
-                            "and choose a PDF file."
+                    "To Date must be later than From Date."
             ).showAndWait();
+
             return;
         }
 
@@ -527,7 +548,9 @@ public final class LecturerMaterialsPageController extends LecturerPageBase {
                     courseCode,
                     materialTitle,
                     sourceFile.getName(),
-                    databasePath
+                    databasePath,
+                    fromDate,
+                    toDate
             );
 
             new Alert(

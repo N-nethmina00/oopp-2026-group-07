@@ -418,8 +418,8 @@ public class UserDAO {
     }
 
     // Keeps compatibility with code that calls addUser with one argument.
-    // Non-admin accounts must use the overload that accepts a department.
     public boolean addUser(User user) {
+
         return addUser(user, null, null);
     }
 

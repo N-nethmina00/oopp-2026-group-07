@@ -7,8 +7,8 @@
 
 <BorderPane minHeight="0.0"
             minWidth="0.0"
-            prefHeight="700.0"
-            prefWidth="1050.0"
+            prefHeight="720.0"
+            prefWidth="1100.0"
             style="-fx-background-color: #F3F6FA;"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -20,7 +20,6 @@
                     hbarPolicy="NEVER"
                     vbarPolicy="AS_NEEDED"
                     pannable="false"
-                    minWidth="0.0"
                     style="-fx-background-color: transparent;
                            -fx-background: #F3F6FA;
                            -fx-padding: 0;">
@@ -38,7 +37,6 @@
                                 left="24.0"/>
                     </padding>
 
-                    <!-- Page heading -->
                     <VBox spacing="6.0">
                         <Label text="Notice Management"
                                textFill="#12346B"
@@ -57,15 +55,12 @@
                                wrapText="true"/>
                     </VBox>
 
-                    <!-- Notice form -->
                     <VBox spacing="16.0"
                           minHeight="-Infinity"
-                          minWidth="0.0"
                           style="-fx-background-color: white;
                                  -fx-background-radius: 12;
                                  -fx-border-color: #D5DCE5;
-                                 -fx-border-radius: 12;
-                                 -fx-border-width: 1;">
+                                 -fx-border-radius: 12;">
 
                         <padding>
                             <Insets top="20.0"
@@ -86,11 +81,13 @@
                                   minWidth="0.0">
 
                             <columnConstraints>
-                                <ColumnConstraints percentWidth="50.0"
+                                <ColumnConstraints percentWidth="20.0"
                                                    minWidth="0.0"
                                                    hgrow="ALWAYS"/>
-
-                                <ColumnConstraints percentWidth="50.0"
+                                <ColumnConstraints percentWidth="40.0"
+                                                   minWidth="0.0"
+                                                   hgrow="ALWAYS"/>
+                                <ColumnConstraints percentWidth="40.0"
                                                    minWidth="0.0"
                                                    hgrow="ALWAYS"/>
                             </columnConstraints>
@@ -102,17 +99,14 @@
                                       GridPane.rowIndex="0">
 
                                     <Label text="Notice ID"
-                                           textFill="#526174"/>
+                                           textFill="#334155"/>
 
                                     <TextField fx:id="noticeIdField"
+                                               promptText="Generated"
                                                editable="false"
-                                               focusTraversable="false"
                                                minWidth="0.0"
                                                maxWidth="Infinity"
-                                               prefHeight="38.0"
-                                               promptText="Auto generated"
-                                               style="-fx-background-color: #F1F5F9;
-                                                      -fx-text-fill: #64748B;"/>
+                                               prefHeight="38.0"/>
                                 </VBox>
 
                                 <VBox spacing="7.0"
@@ -121,13 +115,28 @@
                                       GridPane.rowIndex="0">
 
                                     <Label text="Title"
-                                           textFill="#526174"/>
+                                           textFill="#334155"/>
 
                                     <TextField fx:id="titleField"
+                                               promptText="Enter notice title"
                                                minWidth="0.0"
                                                maxWidth="Infinity"
-                                               prefHeight="38.0"
-                                               promptText="Enter notice title"/>
+                                               prefHeight="38.0"/>
+                                </VBox>
+
+                                <VBox spacing="7.0"
+                                      minWidth="0.0"
+                                      GridPane.columnIndex="2"
+                                      GridPane.rowIndex="0">
+
+                                    <Label text="Published Date"
+                                           textFill="#334155"/>
+
+                                    <DatePicker fx:id="publishedDatePicker"
+                                                promptText="Select publish date"
+                                                minWidth="0.0"
+                                                maxWidth="Infinity"
+                                                prefHeight="38.0"/>
                                 </VBox>
 
                                 <VBox spacing="7.0"
@@ -135,14 +144,14 @@
                                       GridPane.columnIndex="0"
                                       GridPane.rowIndex="1">
 
-                                    <Label text="Published Date"
-                                           textFill="#526174"/>
+                                    <Label text="Created Date"
+                                           textFill="#334155"/>
 
-                                    <DatePicker fx:id="publishedDatePicker"
+                                    <DatePicker fx:id="createdDatePicker"
+                                                promptText="Select created date"
                                                 minWidth="0.0"
                                                 maxWidth="Infinity"
-                                                prefHeight="38.0"
-                                                promptText="Select published date"/>
+                                                prefHeight="38.0"/>
                                 </VBox>
 
                                 <VBox spacing="7.0"
@@ -150,42 +159,44 @@
                                       GridPane.columnIndex="1"
                                       GridPane.rowIndex="1">
 
-                                    <Label text="Created Date"
-                                           textFill="#526174"/>
+                                    <Label text="Expiry Date"
+                                           textFill="#334155"/>
 
-                                    <DatePicker fx:id="createdDatePicker"
+                                    <DatePicker fx:id="expireDatePicker"
+                                                promptText="Select expiry date"
                                                 minWidth="0.0"
                                                 maxWidth="Infinity"
-                                                prefHeight="38.0"
-                                                promptText="Select created date"/>
+                                                prefHeight="38.0"/>
+                                </VBox>
+
+                                <VBox spacing="7.0"
+                                      minWidth="0.0"
+                                      GridPane.columnIndex="0"
+                                      GridPane.columnSpan="3"
+                                      GridPane.rowIndex="2">
+
+                                    <Label text="Content"
+                                           textFill="#334155"/>
+
+                                    <TextArea fx:id="contentArea"
+                                              promptText="Enter notice content"
+                                              prefRowCount="4"
+                                              wrapText="true"
+                                              minWidth="0.0"
+                                              maxWidth="Infinity"/>
                                 </VBox>
                             </children>
                         </GridPane>
 
-                        <VBox spacing="7.0"
-                              minWidth="0.0">
+                        <FlowPane hgap="10.0"
+                                  vgap="10.0"
+                                  alignment="CENTER_LEFT">
 
-                            <Label text="Content"
-                                   textFill="#526174"/>
-
-                            <TextArea fx:id="contentArea"
-                                      minWidth="0.0"
-                                      minHeight="120.0"
-                                      prefHeight="140.0"
-                                      maxWidth="Infinity"
-                                      promptText="Enter notice content"
-                                      wrapText="true"/>
-                        </VBox>
-
-                        <FlowPane alignment="CENTER_LEFT"
-                                  hgap="10.0"
-                                  vgap="10.0">
-
-                            <Button text="Create Notice"
+                            <Button text="Publish Notice"
                                     onAction="#handlePublish"
                                     mnemonicParsing="false"
-                                    minWidth="120.0"
                                     prefHeight="38.0"
+                                    minWidth="120.0"
                                     style="-fx-background-color: #4c56cd;
                                            -fx-text-fill: white;
                                            -fx-font-weight: bold;
@@ -196,8 +207,8 @@
                             <Button text="Update"
                                     onAction="#handleUpdate"
                                     mnemonicParsing="false"
-                                    minWidth="90.0"
                                     prefHeight="38.0"
+                                    minWidth="90.0"
                                     style="-fx-background-color: #EEF0FF;
                                            -fx-text-fill: #4c56cd;
                                            -fx-background-radius: 7;
@@ -207,8 +218,8 @@
                             <Button text="Delete"
                                     onAction="#handleDelete"
                                     mnemonicParsing="false"
-                                    minWidth="90.0"
                                     prefHeight="38.0"
+                                    minWidth="90.0"
                                     style="-fx-background-color: #FCE8E8;
                                            -fx-text-fill: #B42318;
                                            -fx-background-radius: 7;
@@ -218,8 +229,8 @@
                             <Button text="Clear"
                                     onAction="#handleClear"
                                     mnemonicParsing="false"
-                                    minWidth="90.0"
                                     prefHeight="38.0"
+                                    minWidth="90.0"
                                     style="-fx-background-color: #EEF0FF;
                                            -fx-text-fill: #4c56cd;
                                            -fx-background-radius: 7;
@@ -228,21 +239,18 @@
                         </FlowPane>
 
                         <Label fx:id="messageLabel"
+                               wrapText="true"
                                minHeight="-Infinity"
                                maxWidth="Infinity"
-                               wrapText="true"
                                textFill="#526174"/>
                     </VBox>
 
-                    <!-- Notice list -->
                     <VBox spacing="14.0"
                           minHeight="-Infinity"
-                          minWidth="0.0"
                           style="-fx-background-color: white;
                                  -fx-background-radius: 12;
                                  -fx-border-color: #D5DCE5;
-                                 -fx-border-radius: 12;
-                                 -fx-border-width: 1;">
+                                 -fx-border-radius: 12;">
 
                         <padding>
                             <Insets top="20.0"
@@ -260,13 +268,12 @@
 
                         <TableView fx:id="noticesTable"
                                    fixedCellSize="38.0"
+                                   prefHeight="260.0"
                                    minHeight="-Infinity"
                                    maxHeight="-Infinity"
-                                   prefHeight="260.0"
                                    minWidth="0.0"
                                    maxWidth="Infinity"
-                                   style="-fx-font-size: 11px;
-                                          -fx-background-color: white;
+                                   style="-fx-background-color: white;
                                           -fx-border-color: #E2E8F0;
                                           -fx-background-radius: 7;
                                           -fx-border-radius: 7;
@@ -283,29 +290,34 @@
 
                             <columns>
                                 <TableColumn fx:id="noticeIdColumn"
-                                             text="Notice ID"
-                                             minWidth="65.0"
-                                             prefWidth="85.0"/>
+                                             text="ID"
+                                             minWidth="45.0"
+                                             prefWidth="55.0"/>
 
                                 <TableColumn fx:id="titleColumn"
                                              text="Title"
-                                             minWidth="90.0"
-                                             prefWidth="180.0"/>
+                                             minWidth="100.0"
+                                             prefWidth="190.0"/>
 
                                 <TableColumn fx:id="contentColumn"
                                              text="Content"
-                                             minWidth="100.0"
-                                             prefWidth="350.0"/>
+                                             minWidth="120.0"
+                                             prefWidth="290.0"/>
 
                                 <TableColumn fx:id="publishedDateColumn"
-                                             text="Published Date"
-                                             minWidth="105.0"
-                                             prefWidth="145.0"/>
+                                             text="Published"
+                                             minWidth="85.0"
+                                             prefWidth="115.0"/>
 
                                 <TableColumn fx:id="createdDateColumn"
-                                             text="Created Date"
-                                             minWidth="105.0"
-                                             prefWidth="145.0"/>
+                                             text="Created"
+                                             minWidth="85.0"
+                                             prefWidth="115.0"/>
+
+                                <TableColumn fx:id="expireDateColumn"
+                                             text="Expiry"
+                                             minWidth="85.0"
+                                             prefWidth="115.0"/>
                             </columns>
                         </TableView>
                     </VBox>

@@ -10,17 +10,42 @@ public class Notice {
     private String content;
     private LocalDate publishedDate;
     private LocalDate createdDate;
+    private LocalDate expireDate;
 
     public Notice() {
     }
 
-    public Notice(int noticeId, String title, String content,
-                  LocalDate publishedDate, LocalDate createdDate) {
+    public Notice(
+            int noticeId,
+            String title,
+            String content,
+            LocalDate publishedDate,
+            LocalDate createdDate
+    ) {
+        this(
+                noticeId,
+                title,
+                content,
+                publishedDate,
+                createdDate,
+                null
+        );
+    }
+
+    public Notice(
+            int noticeId,
+            String title,
+            String content,
+            LocalDate publishedDate,
+            LocalDate createdDate,
+            LocalDate expireDate
+    ) {
         this.noticeId = noticeId;
         this.title = title;
         this.content = content;
         this.publishedDate = publishedDate;
         this.createdDate = createdDate;
+        this.expireDate = expireDate;
     }
 
     public int getNoticeId() {
@@ -69,5 +94,13 @@ public class Notice {
 
     public void setCreatedDate(LocalDate createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public LocalDate getExpireDate() {
+        return expireDate;
+    }
+
+    public void setExpireDate(LocalDate expireDate) {
+        this.expireDate = expireDate;
     }
 }

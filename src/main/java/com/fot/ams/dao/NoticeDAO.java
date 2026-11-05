@@ -7,83 +7,68 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NoticeDAO {
 
-    // Gets all notices from the database, newest ID first.
     public List<Notice> getAllNotices() throws SQLException {
         List<Notice> notices = new ArrayList<>();
 
         String sql = """
-                SELECT notice_id, title, content, published_date, created_date
+                SELECT notice_id, admin_id, title, content,
+                       published_date, created_date, expire_date
                 FROM notice
+                WHERE expire_date >= CURRENT_DATE()
                 ORDER BY notice_id DESC
                 """;
 
-        // Automatically closes the connection and query objects afterward.
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
+             PreparedStatement statement =
+                     connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
 
-            // Read each database row and turn it into a Notice object.
             while (resultSet.next()) {
-                Date publishedDate = resultSet.getDate("published_date");
-                Date createdDate = resultSet.getDate("created_date");
-
-                Notice notice = new Notice(
-                        resultSet.getInt("notice_id"),
-                        resultSet.getString("title"),
-                        resultSet.getString("content"),
-
-                        // Convert SQL dates to Java LocalDate values.
-                        publishedDate == null
-                                ? null
-                                : publishedDate.toLocalDate(),
-
-                        createdDate == null
-                                ? null
-                                : createdDate.toLocalDate()
-                );
-
-                notices.add(notice);
+                notices.add(readNotice(resultSet));
             }
         }
 
         return notices;
     }
 
-    // Adds a new notice to the database.
-    public boolean addNotice(Notice notice, String adminId) throws SQLException {
+    public boolean addNotice(Notice notice, String adminId)
+            throws SQLException {
+
         String sql = """
                 INSERT INTO notice
-                (admin_id, title, content, published_date, created_date)
-                VALUES (?, ?, ?, ?, ?)
+                    (admin_id, title, content, published_date,
+                     created_date, expire_date)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
-        // Ask JDBC to return the ID created for the new notice.
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     sql, Statement.RETURN_GENERATED_KEYS)) {
+                     sql,
+                     Statement.RETURN_GENERATED_KEYS
+             )) {
 
-            // Put the admin ID and notice values into the SQL placeholders.
             statement.setString(1, adminId);
             statement.setString(2, notice.getTitle());
             statement.setString(3, notice.getContent());
-            statement.setDate(4, Date.valueOf(notice.getPublishedDate()));
-            statement.setDate(5, Date.valueOf(notice.getCreatedDate()));
+            setDate(statement, 4, notice.getPublishedDate());
+            setDate(statement, 5, notice.getCreatedDate());
+            setDate(statement, 6, notice.getExpireDate());
 
-            // Run the INSERT and get how many rows were added.
             int rows = statement.executeUpdate();
 
             if (rows == 0) {
                 return false;
             }
 
-            // Get the auto-generated ID and store it in the Notice object.
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {
                     notice.setNoticeId(keys.getInt(1));
@@ -95,103 +80,115 @@ public class NoticeDAO {
         }
     }
 
-    // Updates an existing notice using its ID.
     public boolean updateNotice(Notice notice) throws SQLException {
         String sql = """
                 UPDATE notice
                 SET title = ?,
                     content = ?,
                     published_date = ?,
-                    created_date = ?
+                    created_date = ?,
+                    expire_date = ?
                 WHERE notice_id = ?
                 """;
-
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            // Set the new values in the same order as the SQL placeholders.
-            statement.setString(1, notice.getTitle());
-            statement.setString(2, notice.getContent());
-            statement.setDate(3, Date.valueOf(notice.getPublishedDate()));
-            statement.setDate(4, Date.valueOf(notice.getCreatedDate()));
-            statement.setInt(5, notice.getNoticeId());
-
-            // Return true if at least one row was updated.
-            return statement.executeUpdate() > 0;
-        }
-    }
-
-    // Deletes a notice using its ID.
-    public boolean deleteNotice(int noticeId) throws SQLException {
-        String sql = "DELETE FROM notice WHERE notice_id = ?";
-
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setInt(1, noticeId);
-
-            // Return true if at least one row was deleted.
-            return statement.executeUpdate() > 0;
-        }
-    }
-
-    // Gets published notices and searches their titles.
-    public List<Notice> getPublishedNotices(String searchText)
-            throws SQLException {
-
-        List<Notice> notices = new ArrayList<>();
-
-        // Only include notices whose publish date has arrived.
-        // The title must also match the search text.
-        String sql =
-                "SELECT notice_id, title, content, " +
-                        "published_date, created_date " +
-                        "FROM notice " +
-                        "WHERE published_date IS NOT NULL " +
-                        "AND published_date <= CURRENT_DATE() " +
-                        "AND title LIKE ? " +
-                        "ORDER BY published_date DESC, notice_id DESC";
-
-        // Use an empty search when no text was provided.
-        if (searchText == null) {
-            searchText = "";
-        }
 
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement =
                      connection.prepareStatement(sql)) {
 
-            // The percent signs allow the search text to match anywhere in the title.
-            statement.setString(1, "%" + searchText.trim() + "%");
+            statement.setString(1, notice.getTitle());
+            statement.setString(2, notice.getContent());
+            setDate(statement, 3, notice.getPublishedDate());
+            setDate(statement, 4, notice.getCreatedDate());
+            setDate(statement, 5, notice.getExpireDate());
+            statement.setInt(6, notice.getNoticeId());
+
+            return statement.executeUpdate() > 0;
+        }
+    }
+
+    public boolean deleteNotice(int noticeId) throws SQLException {
+        String sql = "DELETE FROM notice WHERE notice_id = ?";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setInt(1, noticeId);
+            return statement.executeUpdate() > 0;
+        }
+    }
+
+    public List<Notice> getPublishedNotices(String searchText)
+            throws SQLException {
+
+        List<Notice> notices = new ArrayList<>();
+
+        String sql = """
+                SELECT notice_id, admin_id, title, content,
+                       published_date, created_date, expire_date
+                FROM notice
+                WHERE published_date IS NOT NULL
+                  AND published_date <= CURRENT_DATE()
+                  AND expire_date >= CURRENT_DATE()
+                  AND title LIKE ?
+                ORDER BY published_date DESC, notice_id DESC
+                """;
+
+        String search = searchText == null ? "" : searchText.trim();
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, "%" + search + "%");
 
             try (ResultSet resultSet = statement.executeQuery()) {
-                // Convert each matching database row into a Notice object.
                 while (resultSet.next()) {
-                    Date publishedDate =
-                            resultSet.getDate("published_date");
-
-                    Date createdDate =
-                            resultSet.getDate("created_date");
-
-                    Notice notice = new Notice(
-                            resultSet.getInt("notice_id"),
-                            resultSet.getString("title"),
-                            resultSet.getString("content"),
-
-                            // Published notices have a non-null publish date.
-                            publishedDate.toLocalDate(),
-
-                            // The created date may be missing.
-                            createdDate == null
-                                    ? null
-                                    : createdDate.toLocalDate()
-                    );
-
-                    notices.add(notice);
+                    notices.add(readNotice(resultSet));
                 }
             }
         }
 
         return notices;
+    }
+
+    private Notice readNotice(ResultSet resultSet) throws SQLException {
+        Date publishedDate = resultSet.getDate("published_date");
+        Date createdDate = resultSet.getDate("created_date");
+        Date expireDate = resultSet.getDate("expire_date");
+
+        Notice notice = new Notice(
+                resultSet.getInt("notice_id"),
+                resultSet.getString("title"),
+                resultSet.getString("content"),
+                publishedDate == null
+                        ? null
+                        : publishedDate.toLocalDate(),
+                createdDate == null
+                        ? null
+                        : createdDate.toLocalDate(),
+                expireDate == null
+                        ? null
+                        : expireDate.toLocalDate()
+        );
+
+        notice.setAdminId(resultSet.getString("admin_id"));
+        return notice;
+    }
+
+    private void setDate(
+            PreparedStatement statement,
+            int parameterIndex,
+            LocalDate value
+    ) throws SQLException {
+
+        if (value == null) {
+            statement.setNull(parameterIndex, Types.DATE);
+        } else {
+            statement.setDate(
+                    parameterIndex,
+                    Date.valueOf(value)
+            );
+        }
     }
 }

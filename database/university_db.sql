@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Nov 04, 2026 at 11:09 AM
+-- Generation Time: Nov 05, 2026 at 09:52 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -3270,17 +3270,20 @@ CREATE TABLE `notice` (
                           `title` varchar(150) NOT NULL,
                           `content` text NOT NULL,
                           `created_date` date NOT NULL,
-                          `published_date` date DEFAULT NULL
+                          `published_date` date DEFAULT NULL,
+                          `expire_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `notice`
 --
 
-INSERT INTO `notice` (`notice_id`, `admin_id`, `title`, `content`, `created_date`, `published_date`) VALUES
-                                                                                                         (1, 'A001', 'Semester Examination Timetable', 'The semester examination timetable will be published soon. Please check the student portal regularly.', '2026-10-01', '2026-10-02'),
-                                                                                                         (2, 'A001', 'Library Opening Hours', 'The library will be open from 8.00 AM to 6.00 PM on weekdays.', '2026-10-05', '2026-10-05'),
-                                                                                                         (3, 'A001', 'Project Submission Reminder', 'Students should submit their mini project documents before the announced deadline.', '2026-10-15', '2026-11-01');
+INSERT INTO `notice` (`notice_id`, `admin_id`, `title`, `content`, `created_date`, `published_date`, `expire_date`) VALUES
+                                                                                                                        (1, 'A001', 'Semester Examination Timetable', 'The semester examination timetable will be published soon. Please check the student portal regularly.', '2026-10-01', '2026-10-02', '2099-12-31'),
+                                                                                                                        (2, 'A001', 'Library Opening Hours', 'The library will be open from 8.00 AM to 6.00 PM on weekdays.', '2026-10-05', '2026-10-05', '2099-12-31'),
+                                                                                                                        (3, 'A001', 'Project Submission Reminder', 'Students should submit their mini project documents before the announced deadline.', '2026-10-15', '2026-11-01', '2099-12-31'),
+                                                                                                                        (5, 'A001', 'Test', 'Test', '2026-11-01', '2026-11-01', '2026-11-04'),
+                                                                                                                        (6, 'A001', 'test', 'test', '2026-11-01', '2026-11-01', '2026-11-04');
 
 -- --------------------------------------------------------
 
@@ -3981,7 +3984,7 @@ ALTER TABLE `medical`
 -- AUTO_INCREMENT for table `notice`
 --
 ALTER TABLE `notice`
-    MODIFY `notice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+    MODIFY `notice_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `semester_result`

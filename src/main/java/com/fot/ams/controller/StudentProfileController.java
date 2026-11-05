@@ -35,6 +35,14 @@ public class StudentProfileController {
     private String currentPhotoPath;
     private File selectedPhotoFile;
 
+    // Notify the main Student layout after a successful profile save.
+    private Runnable onProfileSaved;
+
+    // Register the action that refreshes the header profile avatar.
+    public void setOnProfileSaved(Runnable onProfileSaved) {
+        this.onProfileSaved = onProfileSaved;
+    }
+
     private final StudentProfileDAO profileDAO =
             new StudentProfileDAO();
 
@@ -298,6 +306,11 @@ public class StudentProfileController {
                         "Profile updated successfully!",
                         true
                 );
+
+                // Refresh the header photo only after a successful save.
+                if (onProfileSaved != null) {
+                    onProfileSaved.run();
+                }
 
             } else {
 

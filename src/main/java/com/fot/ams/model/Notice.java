@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public class Notice {
 
     private int noticeId;
+    private String adminId;
     private String title;
     private String content;
     private LocalDate publishedDate;
@@ -23,22 +24,26 @@ public class Notice {
     }
 
     public int getNoticeId() {
-
         return noticeId;
     }
 
     public void setNoticeId(int noticeId) {
-
         this.noticeId = noticeId;
     }
 
-    public String getTitle() {
+    public String getAdminId() {
+        return adminId;
+    }
 
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
+
+    public String getTitle() {
         return title;
     }
 
     public void setTitle(String title) {
-
         this.title = title;
     }
 
@@ -47,12 +52,10 @@ public class Notice {
     }
 
     public void setContent(String content) {
-
         this.content = content;
     }
 
     public LocalDate getPublishedDate() {
-
         return publishedDate;
     }
 
@@ -65,7 +68,6 @@ public class Notice {
     }
 
     public void setCreatedDate(LocalDate createdDate) {
-
         this.createdDate = createdDate;
     }
 }

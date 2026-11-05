@@ -52,6 +52,9 @@ public class AdminNoticeManagementController {
     private final ObservableList<Notice> noticeList =
             FXCollections.observableArrayList();
 
+    // Uses the admin ID from the provided university_db SQL dump.
+    private static final String ADMIN_ID = "A001";
+
     // Heights used to calculate the table's size.
     private static final double TABLE_ROW_HEIGHT = 38.0;
 
@@ -70,7 +73,7 @@ public class AdminNoticeManagementController {
         // Show the notices stored in noticeList in the table.
         noticesTable.setItems(noticeList);
 
-        // Set the table height based on the number of notices.
+        // Set the noticesTable height based on the number of notices.
         configureTableHeight();
 
         // Show a selected notice's details in the form.
@@ -189,7 +192,7 @@ public class AdminNoticeManagementController {
 
         try {
             // Save the notice and refresh the table if successful.
-            if (noticeDAO.addNotice(notice)) {
+            if (noticeDAO.addNotice(notice, ADMIN_ID)) {
                 loadNotices();
                 clearForm();
 

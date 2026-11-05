@@ -183,12 +183,12 @@ public class MarksDAO {
             double a1, double a2,
             double mid, double end) throws SQLException {
 
-        validate(q1, 10, "Quiz 1");
-        validate(q2, 10, "Quiz 2");
-        validate(q3, 10, "Quiz 3");
+        validate(q1, 20, "Quiz 1");
+        validate(q2, 20, "Quiz 2");
+        validate(q3, 20, "Quiz 3");
         validate(a1, 20, "Assignment 1");
         validate(a2, 20, "Assignment 2");
-        validate(mid, 30, "Mid Exam");
+        validate(mid, 40, "Mid Exam");
         validate(end, 100, "End Exam");
 
 
@@ -199,14 +199,14 @@ public class MarksDAO {
 
         double quizAverage = round2(quizTotal / 2.0);
 
-        // Raw CA maximum = 70
+        // Raw CA maximum = 100
         double rawCATotal = round2(
                 quizTotal + Math.max(a1, a2) + mid
         );
 
         // CA contributes 30% to final result
         double caTotal = round2(
-                (rawCATotal / 70.0) * 30.0
+                (rawCATotal / 100.0) * 30.0
         );
 
         // End Exam entered out of 100, contributes 70%

@@ -932,6 +932,7 @@ public class UserDAO {
         // Keep the original exception as the cause for troubleshooting.
         return new RuntimeException(message, e);
     }
+// TG2070 - START: Technical Officer login ID and profile database operations.
 
     // Finds the Technical Officer ID linked to a login account.
     public String getTechnicalOfficerIdByUserId(
@@ -1236,4 +1237,5 @@ public class UserDAO {
             }
         }
     }
+    // TG2070 - END: Technical Officer database operations.
 }

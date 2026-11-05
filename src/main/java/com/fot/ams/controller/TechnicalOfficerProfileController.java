@@ -21,9 +21,10 @@ import java.sql.SQLException;
 import java.util.Locale;
 import java.util.UUID;
 
-// TG2070 - Technical Officer profile controller
-public class TechnicalOfficerProfileController {
+// TG2070 - Manage Technical Officer profile details and photo.
+public class    TechnicalOfficerProfileController {
 
+    // Connect the FXML controls to this controller.
     @FXML
     private TextField profileUsernameField;
 
@@ -39,7 +40,6 @@ public class TechnicalOfficerProfileController {
     @FXML
     private TextField profileEmailField;
 
-    // TG2070 - Profile photo controls
     @FXML
     private ImageView profileImageView;
 
@@ -52,18 +52,19 @@ public class TechnicalOfficerProfileController {
     private String savedPhotoPath;
     private File selectedPhoto;
 
-    // TG2070 - Receive logged-in TO ID
+    // Receive the logged-in officer ID and load the profile.
     public void setTechnicalOfficerId(String technicalOfficerId) {
         this.technicalOfficerId = technicalOfficerId;
         loadProfile();
     }
 
+    // Check whether the officer ID is available.
     private boolean hasTechnicalOfficerId() {
         return technicalOfficerId != null
                 && !technicalOfficerId.isBlank();
     }
 
-    // TG2070 - Load saved profile details
+    // Load saved details from the database and fill the form.
     private void loadProfile() {
         if (!hasTechnicalOfficerId()) {
             showMessage(
@@ -118,7 +119,7 @@ public class TechnicalOfficerProfileController {
         }
     }
 
-    // TG2070 - Show saved photo or TO placeholder
+    // Show the saved photo or keep the placeholder.
     private void loadSavedPhoto() {
         showPhoto(null);
 
@@ -138,7 +139,7 @@ public class TechnicalOfficerProfileController {
         }
     }
 
-    // TG2070 - Select and preview a photo
+    // Select and preview a photo before saving.
     @FXML
     private void changePhoto() {
         if (!hasTechnicalOfficerId()) {
@@ -183,7 +184,7 @@ public class TechnicalOfficerProfileController {
         }
     }
 
-    // TG2070 - Validate and read an image
+    // Check the photo type, file size and image data.
     private Image readPhoto(File file) throws IOException {
         String name = file.getName().toLowerCase(Locale.ROOT);
 
@@ -203,6 +204,7 @@ public class TechnicalOfficerProfileController {
             );
         }
 
+        // Read the image and close the stream automatically.
         try (InputStream input = Files.newInputStream(file.toPath())) {
             Image image = new Image(input, 200, 200, true, true);
 
@@ -218,7 +220,7 @@ public class TechnicalOfficerProfileController {
         }
     }
 
-    // TG2070 - START: Crop photo and display as a circle
+    // Display the photo inside a circle.
     private void showPhoto(Image image) {
         profileImageView.setImage(image);
 
@@ -233,7 +235,7 @@ public class TechnicalOfficerProfileController {
             double x = (width - size) / 2;
             double y = (height - size) / 2;
 
-            // Select a square from the centre of the photo
+            // Take a square from the centre of the image.
             profileImageView.setViewport(
                     new Rectangle2D(x, y, size, size)
             );
@@ -242,7 +244,6 @@ public class TechnicalOfficerProfileController {
             profileImageView.setFitHeight(80);
             profileImageView.setPreserveRatio(true);
 
-            // Clip the square photo into a circle
             profileImageView.setClip(
                     new Circle(40, 40, 40)
             );
@@ -252,15 +253,15 @@ public class TechnicalOfficerProfileController {
             profileImageView.setClip(null);
         }
 
+        // Show the photo when available; otherwise show the placeholder.
         profileImageView.setVisible(hasPhoto);
         profileImageView.setManaged(hasPhoto);
 
         profileAvatarLabel.setVisible(!hasPhoto);
         profileAvatarLabel.setManaged(!hasPhoto);
     }
-    // TG2070 - END
 
-    // TG2070 - Validate and save profile
+    // Check the entered details and save the profile.
     @FXML
     private void saveProfile() {
         if (!hasTechnicalOfficerId()) {
@@ -314,8 +315,8 @@ public class TechnicalOfficerProfileController {
         try {
             String photoPath = savedPhotoPath;
 
+            // Copy the new photo to the uploads folder.
             if (selectedPhoto != null) {
-                // Check the selected file again before copying
                 readPhoto(selectedPhoto);
 
                 Path folder = Path.of("uploads", "profile-images");
@@ -327,6 +328,7 @@ public class TechnicalOfficerProfileController {
                         originalName.lastIndexOf('.')
                 ).toLowerCase(Locale.ROOT);
 
+                // Create a unique file name.
                 String fileName = UUID.randomUUID() + extension;
 
                 copiedPhoto = folder.resolve(fileName);
@@ -336,6 +338,7 @@ public class TechnicalOfficerProfileController {
                 photoPath = copiedPhoto.toString();
             }
 
+            // Save profile details and the photo path through UserDAO.
             saved = userDAO.updateTechnicalOfficerProfile(
                     technicalOfficerId,
                     firstName,
@@ -369,7 +372,7 @@ public class TechnicalOfficerProfileController {
             );
 
         } finally {
-            // TG2070 - Remove new copy if database save failed
+            // Remove the new photo copy if saving failed.
             if (!saved && copiedPhoto != null) {
                 try {
                     Files.deleteIfExists(copiedPhoto);
@@ -389,12 +392,13 @@ public class TechnicalOfficerProfileController {
         }
     }
 
-    // TG2070 - Restore saved details and photo
+    // Reload saved details to cancel unsaved changes.
     @FXML
     private void cancelChanges() {
         loadProfile();
     }
 
+    // Handle database errors, including duplicate email addresses.
     private void showDatabaseError(SQLException exception) {
         exception.printStackTrace();
 
@@ -414,6 +418,7 @@ public class TechnicalOfficerProfileController {
         }
     }
 
+    // Display an alert message.
     private void showMessage(
             Alert.AlertType type,
             String title,

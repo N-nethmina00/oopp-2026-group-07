@@ -112,6 +112,8 @@ public abstract class LecturerPageBase {
             TableColumn<String[], String> column =
                     new TableColumn<>(headings[index]);
 
+            //generic type and lambda expression
+
             column.setCellValueFactory(cell -> {
                 String[] row = cell.getValue();
 
